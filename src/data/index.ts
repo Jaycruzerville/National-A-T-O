@@ -1,0 +1,8 @@
+export { default as nigerianStates } from "./naijaStates"
+export { default as lgaofo } from "./lgaofo"
+export { default as titles } from "./titles"
+export { default as gender } from "./gender"
+export { default as occupations } from "./occupations"
+export { default as nationality } from "./nation"
+export { default as maritalstatus } from "./status"
+export { default as stateofr } from "./stateofr"
