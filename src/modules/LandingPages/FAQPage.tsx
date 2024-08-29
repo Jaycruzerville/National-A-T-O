@@ -15,81 +15,76 @@ import React from "react"
 const FAQPage = () => {
   const pensionArray = [
     {
-      question: "What is Land Use Charge and is it Legal?",
+      question:
+        "What measures are in place to ensure the privacy and security of data collected by the system?",
       answer:
-        "Land Use Charge is a consolidation of all Property and land based rates and charges payable under Lands Rates, Neighborhood Improvement Charge and Tenement Rates Laws of Lagos State. The Land Use Charge derives its legitimacy from the Lagos State Land Use Charge Law 2020.",
-    },
-    {
-      question: "Who is liable to Pay Land Use Charge? ",
-      answer:
-        "The owner of a Property is liable to pay Land Use Charge in respect of any taxable Property. The “Owner’’ in relation to any Property includes an occupier with a lease of at least ten (10) years or any person for the time being receiving proceeds on the Property in connection with which the word is used, whether on own account or as agent or trustee for any other person who would receive the sum if such Property were let to a tenant, and the holder of a Property directly from the State, whether under lease, license or otherwise;",
+        "The system uses encrypted data protocols to ensure that all collected information is secure. Additionally, it adheres to strict privacy regulations, ensuring that personal data is not misused or accessible to unauthorized parties.",
     },
     {
       question:
-        "Are Property Owners Supposed to Pay for Assessment of Their Property?",
+        "How will the fee collection process work under the new system? ",
       answer:
-        "Assessment of properties for the purpose of Land Use Charge is free and Property Owners are not expected to make any payment whatsoever for the service provided by the Lagos State Government.",
+        "The fee collection will be fully automated through the ERP system, allowing drivers to make payments online or through agents at designated locations. Payments will be linked to the vehicle’s registration, and a digital voucher will be issued as proof of payment.",
+    },
+    {
+      question: "What happens if a driver fails to pay the required fees?",
+      answer:
+        "The ERP system will automatically flag any unpaid fees and notify the relevant authorities. Enforcement officers will be able to verify payment status in real-time, and penalties may be applied for non-compliance, including fines or temporary suspension of the vehicle’s operating license.",
     },
 
     {
+      question: "How will the system monitor drivers and their vehicles?  ",
+      answer:
+        "Each vehicle will be equipped with a GPS tracker and a unique QR code. The GPS will provide real-time updates on the vehicle’s location, speed, and status, while the QR code allows for quick identification by both citizens and enforcement officers.",
+    },
+    {
       question:
-        "What measures have been put in place by the National Pension Commission to safeguard the funds under the Micro Pension Plan?  ",
+        "Can the system detect and respond to violations, such as overspeeding or unauthorized routes?",
       answer:
-        "There is effective monitoring and supervision of the Plan by the Commission through daily monitoring of the Plan asset and investment decisions made by Pension Fund Administrators to ensure that their decisions are in line with relevant laws and Investment Regulations issued by the Commission.",
+        "Yes, the system is designed to monitor speed and route compliance. If a vehicle exceeds the speed limit or deviates from an authorized route, an alert is sent to the authorities, who can take immediate action, such as issuing a fine or sending a warning to the driver.",
     },
     {
-      question: "How do we compute Land Use Charge on a Property?",
+      question:
+        "What measures are in place to ensure the accuracy of fee payments and vehicle monitoring?",
       answer:
-        "LUC = [(LA x LR) + (BA x BR x DR)] x RR x CR\n\n" +
-        "LUC = annual amount of Land Use Charge in Naira\n\n" +
-        "LA = the area of the land parcel in square metres\n\n" +
-        "LR = the average Market Value of a land parcel in the neighbourhood, on a per square metre basis in Naira, based on the market value of the Property as determined by professional valuers appointed by the Commissioner for that purpose.\n\n" +
-        "BA = the total developed floor area of the building on the plot of land in square metres, or the total floor area of an apartment unit in a building where the apartment has a separate ownership title.\n\n" +
-        "BR = the average construction value of medium quality buildings and improvements in the neighbourhood, on a per square metre basis in Naira, based on the market value of the Property as determined by professional valuers appointed by the Commissioner for that purpose.\n\n" +
-        "RR = the rate of relief from tax (if any) applicable to the Owner Occupier in the circumstances shall be determined by the Commissioner and shall be published in the State Government Official Gazette and in one or more newspapers circulating within the State and reviewed by the Commissioner once every five (5) years.\n\n" +
-        "CR = the annual charge rate expressed as a percentage of the assessed Market Value of the Property and which may, at the State Government’s discretion, vary between (a) owner-occupied and other Property; (b) residential Property and commercial (revenue-generating) Property; (c) physically-challenged persons; and (d) persons who have been resident at the same location for at least twelve (12) years, minors, and retired owners and occupiers, on the one hand, and other owners and occupiers on the other.\n\n" +
-        "DR = The depreciation rate for the building and improvement of land which accounts for the building being of a higher or lower value than the average buildings in the neighbourhood and which also accounts for the degree of completion of construction of the building.",
+        "The ERP system uses advanced algorithms to cross-check data, ensuring that all fee payments are accurately recorded and that vehicle monitoring is precise. Regular audits and system updates will further ensure the integrity of the data and the system’s reliability.",
     },
     {
-      question: "Who is responsible for the assessment of a Property and when?",
+      question: "How will this system benefit daily commuters in Kano State?",
       answer:
-        "Properties can be assessed by authorized persons appointed by the commissioner. The authorized persons can carry out their assessment between the hours of 7.001.m and 5.00p.m.",
-    },
-    {
-      question: "What is Relief Rate And how do we apply for Relief Rates?",
-      answer:
-        "Relief Rate is the rate fixed to reduce the burden of Property Owners on payment of Land Use Charge.\n\n" +
-        "The Relief Rates has two (2) components i.e. General and Specific reliefs. The general relief is 40% on all properties and specific reliefs on application to the Commissioner of Finance.",
-    },
-    {
-      question: "I Own An ‘Empty Land’, Am I Liable to Pay?",
-      answer: "Yes. Since, Land Use Charge includes all land based rates.",
+        "The system will reduce traffic jams, shorten travel times, and create a smoother driving experience for commuters by optimizing traffic light timings and monitoring congestion points in real time.",
     },
   ]
 
   const insuranceArray = [
     {
-      question: "What is Land Use Charge and is it Legal?",
+      question:
+        "What measures are in place to ensure the privacy and security of data collected by the system?",
       answer:
-        "Land Use Charge is a consolidation of all Property and land based rates and charges payable under Lands Rates, Neighborhood Improvement Charge and Tenement Rates Laws of Lagos State. The Land Use Charge derives its legitimacy from the Lagos State Land Use Charge Law 2020.",
-    },
-    {
-      question: "Who is liable to Pay Land Use Charge? ",
-      answer:
-        "The owner of a Property is liable to pay Land Use Charge in respect of any taxable Property. The “Owner’’ in relation to any Property includes an occupier with a lease of at least ten (10) years or any person for the time being receiving proceeds on the Property in connection with which the word is used, whether on own account or as agent or trustee for any other person who would receive the sum if such Property were let to a tenant, and the holder of a Property directly from the State, whether under lease, license or otherwise;",
+        "The system uses encrypted data protocols to ensure that all collected information is secure. Additionally, it adheres to strict privacy regulations, ensuring that personal data is not misused or accessible to unauthorized parties.",
     },
     {
       question:
-        "Are Property Owners Supposed to Pay for Assessment of Their Property?",
+        "How will the fee collection process work under the new system? ",
       answer:
-        "Assessment of properties for the purpose of Land Use Charge is free and Property Owners are not expected to make any payment whatsoever for the service provided by the Lagos State Government.",
+        "The fee collection will be fully automated through the ERP system, allowing drivers to make payments online or through agents at designated locations. Payments will be linked to the vehicle’s registration, and a digital voucher will be issued as proof of payment.",
+    },
+    {
+      question: "What happens if a driver fails to pay the required fees?",
+      answer:
+        "The ERP system will automatically flag any unpaid fees and notify the relevant authorities. Enforcement officers will be able to verify payment status in real-time, and penalties may be applied for non-compliance, including fines or temporary suspension of the vehicle’s operating license.",
     },
 
     {
-      question:
-        "What measures have been put in place by the National Pension Commission to safeguard the funds under the Micro Pension Plan?  ",
+      question: "How will the system monitor drivers and their vehicles?  ",
       answer:
-        "There is effective monitoring and supervision of the Plan by the Commission through daily monitoring of the Plan asset and investment decisions made by Pension Fund Administrators to ensure that their decisions are in line with relevant laws and Investment Regulations issued by the Commission.",
+        "Each vehicle will be equipped with a GPS tracker and a unique QR code. The GPS will provide real-time updates on the vehicle’s location, speed, and status, while the QR code allows for quick identification by both citizens and enforcement officers.",
+    },
+    {
+      question:
+        "Can the system detect and respond to violations, such as overspeeding or unauthorized routes?",
+      answer:
+        "Yes, the system is designed to monitor speed and route compliance. If a vehicle exceeds the speed limit or deviates from an authorized route, an alert is sent to the authorities, who can take immediate action, such as issuing a fine or sending a warning to the driver.",
     },
   ]
 
@@ -147,8 +142,8 @@ const FAQPage = () => {
 
         <Accordion
           defaultIndex={[0]}
-          allowToggle
-          allowMultiple
+          // allowToggle
+          // allowMultiple
           mt="12px"
           mb="32px"
         >

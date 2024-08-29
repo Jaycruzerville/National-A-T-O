@@ -11,6 +11,24 @@ export const baseRoutes = [
     layout: LandingLayout,
   },
   {
+    path: "/faq",
+    exact: true,
+    Component: lazy(() => import("@/modules/LandingPages/FAQPage")),
+    layout: LandingLayout,
+  },
+  {
+    path: "/privacy-policy",
+    exact: true,
+    Component: lazy(() => import("@/modules/LandingPages/PrivacyPolicy")),
+    layout: LandingLayout,
+  },
+  {
+    path: "/contact",
+    exact: true,
+    Component: lazy(() => import("@/modules/LandingPages/ContactPage")),
+    layout: LandingLayout,
+  },
+  {
     path: "/auth/*",
     exact: true,
     Component: lazy(() => import("@/modules/Auth")),

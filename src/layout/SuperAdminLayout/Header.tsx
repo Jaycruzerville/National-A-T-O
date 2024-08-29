@@ -25,7 +25,7 @@ import { HiOutlineLogout } from "react-icons/hi" // Import the logout icon
 import { superAdmin } from "@/routes/paths"
 import Notification from "@/modules/SuperAdmin/Notifications"
 import Auth from "@/utils/auth"
-import { ReactComponent as Logo } from "@/assets/nigeriapng.svg"
+import { ReactComponent as Logo } from "@/assets/Kano_logo.svg"
 import React from "react"
 
 const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {

@@ -1,6 +1,6 @@
 // src/components/EmailVerificationPage.jsx
 import { Box, Button, Text, VStack, Image, Container } from "@chakra-ui/react"
-import { ReactComponent as Logo } from "@/assets/nigeriapng.svg"
+import { ReactComponent as Logo } from "@/assets/Kano_logo.svg"
 import email from "@/assets/emailveri.png"
 import star from "@/assets/star1.png"
 import star2 from "@/assets/star2.png"

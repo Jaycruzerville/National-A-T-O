@@ -19,7 +19,7 @@ import {
 import { colors } from "@/theme/colors"
 import "@/App.css"
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons"
-import logo from "@/assets/nigeriapng.svg"
+import logo from "@/assets/Kano_logo.svg"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import { useMutation } from "@tanstack/react-query"

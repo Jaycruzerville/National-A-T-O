@@ -8,7 +8,8 @@ import {
   Text,
   useMediaQuery,
 } from "@chakra-ui/react"
-import heroImg from "@/assets/hero-illustration.svg"
+// import heroImg from "@/assets/hero-illustration.svg"
+import heroImg from "@/assets/heroheader1.png"
 import confetti from "@/assets/confetti-overlay.svg"
 import confettiMobile from "@/assets/confetti-mobile.svg"
 import book from "@/assets/hero-book-icon.svg"
@@ -79,10 +80,10 @@ const Hero = () => {
                 lineHeight: { base: "45px", lg: "65px", xl: "79px" },
                 textTransform: "capitalize",
                 mb: "12px",
-                maxInlineSize: "12ch",
+                maxInlineSize: "16ch",
               }}
             >
-              LAND USE & AMENITIES FEE
+              KANO STATE TRANSPORTATION MANAGEMENT SYSTEM
             </Text>
             <Text
               maxInlineSize={{ base: "40ch", md: "35ch" }}
@@ -93,9 +94,9 @@ const Hero = () => {
                 lineHeight: { base: "15px", md: "32px" },
               }}
             >
-              This portal enables you to view and pay your Land Use and
-              Amenities Fee, and to register and manage properties that have not
-              been properly recorded by the State.
+              This portal enables you to view and pay your Driving Levy and
+              Amenities Fee, and to register and manage your daily activities
+              that have not been properly recorded by the State.
             </Text>
             <MotionButton
               as={RouteLink}

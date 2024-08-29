@@ -1,13 +1,13 @@
 import { Container, Image, useMediaQuery } from "@chakra-ui/react"
-import financeLady from "@/assets/financeLady.svg"
+import tricycle from "@/assets/tricycle.png"
 import signal from "@/assets/signal.svg"
 import interest from "@/assets/interest.svg"
-import cashLady from "@/assets/cashLady.svg"
+import heroheader2 from "@/assets/heroheader2.png"
 import Offer from "@/reusables/Offer"
 // import earnings from "@/assets/earnings.svg"
 import chatIcon from "@/assets/chatIcon.svg"
 import herobook from "@/assets/hero-book-icon.svg"
-import happyMan from "@/assets/happyMan.svg"
+import motorbike from "@/assets/motorbike.png"
 import repayIcon from "@/assets/repayIcon.svg"
 // import loanAmount from "@/assets/loanAmount.svg"
 // import MicroInsurance from "./MicroInsurance"
@@ -41,19 +41,19 @@ const Offers = () => {
         Services
       </Heading> */}
       <Offer
-        header="Land Use Charge"
-        subText="More comfortable and seamless Payment Process, We help you;"
+        header="Mission"
+        subText="Seamless and Robust ERP System, We engage in:"
         list={[
-          "Pay your land use charges effortlessly through our app.",
-          "Get a clear breakdown of what you're paying for, ensuring transparency in every transaction.",
-          "Keep track of all your past payments and stay organized with your land use charge commitments.",
-          "Reach out to our customer support for any assistance with your land use charge payments.",
-          "Receive real-time notifications about any changes or new policies related to land use charges.",
+          "Enhance Government Revenue and Transparency.",
+          "Improve Public Safety and Security.",
+          "Foster Economic Opportunities and Employment.",
+          "Streamline Operations and Policy Enforcement.",
+          "Promote Strategic Collaboration.",
         ]}
       >
         <>
           <Image
-            src={financeLady}
+            src={tricycle}
             pt={{ base: "6.75rem", md: "10.5rem" }}
             pb={{ base: "2.8rem", md: "0px" }}
           />
@@ -76,19 +76,20 @@ const Offers = () => {
         </>
       </Offer>
       <Offer
-        header="Armenities Fee"
-        subText=""
+        header="Vision"
+        subText="Principles"
         list={[
           "Accountability",
-          "Transparency",
-          "Flexibility",
-          "Must be a Nigerian citizen",
+          "Safety",
+          "Economic Empowerment",
+          "Operational Excellence",
+          "Collaborative Growth",
         ]}
         eligibility
       >
         <>
           <Image
-            src={happyMan}
+            src={motorbike}
             pt={{ base: "5.8rem", md: "7rem" }}
             pb={{ base: "2.25rem", md: "auto" }}
           />
@@ -113,13 +114,13 @@ const Offers = () => {
       {/* <MicroInsurance /> */}
       <Offer
         header=""
-        subText="Take advantage of competitive interest rates as you save for your goals"
+        subText="Centralization and Policy Enforcement"
         savingsList={[
           {
             icon: signal,
-            headerText: "Flexible payment plan",
+            headerText: "Automation of Fee Collection",
             paragraph:
-              "You have the right to choose how much you would like to pay",
+              "ERadicate street-level extortion, contributing to a cleaner and more orderly environment in the state",
           },
           {
             icon: interest,
@@ -131,7 +132,7 @@ const Offers = () => {
         savings
       >
         <Image
-          src={cashLady}
+          src={heroheader2}
           px="6.5%"
           pb={{ base: "2.1rem", md: "3.8rem" }}
           pt={{ base: "4.3rem", md: "7.8rem" }}

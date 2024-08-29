@@ -38,9 +38,21 @@ const Nav = () => {
         bg="white"
         boxShadow="sm"
       >
-        <Box as="button" onClick={() => navigate("/")} sx={{ unset: "all" }}>
-          <Logo style={{ width: "120px", height: "50px" }} />
+        <Box
+          as="button"
+          onClick={() => navigate("/")}
+          sx={{ unset: "all" }}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          width="140px"
+          height="60px"
+          bg="white" // Optional: just to make sure the background is visible
+          overflow="hidden"
+        >
+          <Box as={Logo} width="140px" height="60px" />
         </Box>
+
         {isSmallScreen ? (
           <IconButton
             onClick={onToggle}

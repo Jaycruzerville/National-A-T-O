@@ -22,7 +22,7 @@ import * as Yup from "yup"
 import authService from "@/services/authService"
 import type { IError } from "@/types"
 import "../../../App.css"
-import logo from "@/assets/nigeriapng.svg" // Logo import path
+import logo from "@/assets/Kano_logo.svg" // Logo import path
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)

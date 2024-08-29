@@ -78,14 +78,14 @@ const ContactPage = () => {
               Come talk with Us
             </Heading>
             <Text mt="4">
-              Would you like to learn more about GIS-GRP? How to be an Agent or
-              you just want to benefit from GIS-GRP services
+              Would you like to learn more about KNTRN ERP? How to be an Agent
+              or you just want to benefit from KNTRN ERP services
             </Text>
             <VStack align="flex-start" mt="5" spacing="5">
               <Heading fontSize="24px">Contact Info</Heading>
               <Text fontWeight={700}>Phone Number: (234) 812 345 6789</Text>
-              <Text fontWeight={700}>Email: Hello@GIS-GRP.com</Text>
-              <Text fontWeight={700}>Address: Lagos State</Text>
+              <Text fontWeight={700}>Email: Hello@KNTRN-ERP.com</Text>
+              <Text fontWeight={700}>Address: Kano State</Text>
             </VStack>
           </Box>
           <Box bg="brand.bgLight" p="5" width={{ base: "100%", md: "60%" }}>

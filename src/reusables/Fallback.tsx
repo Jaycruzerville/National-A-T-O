@@ -1,5 +1,5 @@
 import { Box } from "@chakra-ui/react"
-import { ReactComponent as Logo } from "@/assets/nigeriapng.svg"
+import { ReactComponent as Logo } from "@/assets/Kano_logo.svg"
 import { motion } from "framer-motion"
 
 const Fallback = () => {

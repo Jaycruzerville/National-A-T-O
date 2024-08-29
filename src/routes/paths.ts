@@ -3,17 +3,6 @@ export const homePaths = {
   FAQ: "/faq",
   CONTACT: "/contact",
   PRIVACY_POLICY: "/privacy-policy",
-  DASHBOARD: "/dashboard",
-  Property: "/Property",
-  Property_DETAILS: "/Property/:id",
-  Property_REGISTER: "/Property/Register",
-  NOTIFICATIONS: "/notifications",
-  TRANSACTIONS: "/transactions",
-  SETTINGS: "/settings",
-  PROFILE: "/profile",
-  KYCFORM: "/kycform",
-  PAYMENTS: "/payments",
-  REGISTER: "/signup",
 }
 
 export const authPaths = {

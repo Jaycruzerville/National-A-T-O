@@ -28,7 +28,7 @@ const Footer = () => {
           color={"white"}
           fontSize={{ base: "12px", md: "18px" }}
         >
-          <Text>Ground Rent Pooling </Text>
+          <Text>Kano Transportation ERP </Text>
           <Flex gap={{ base: "4px", md: "16px" }} alignItems="center">
             <Text mr={{ base: "0", md: "12px" }}>Follow us</Text>
             <Image w={{ base: "20px", md: "32px" }} src={fb} alt="" />
@@ -36,7 +36,7 @@ const Footer = () => {
             <Image w={{ base: "20px", md: "32px" }} src={twitter} alt="" />
             <Image w={{ base: "20px", md: "32px" }} src={linkedin} alt="" />
           </Flex>
-          <Text>GIS-GRP © {year}</Text>
+          <Text>KNTRN-ERP © {year}</Text>
         </Flex>
       </Flex>
     </Box>
