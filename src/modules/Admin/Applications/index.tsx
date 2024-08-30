@@ -26,7 +26,7 @@ import {
 import { useNavigate } from "react-router-dom"
 import Filter from "@/reusables/Filter"
 // import { useQuery } from "@tanstack/react-query"
-// import SuperAdminService from "@/services/superAdminServices"
+// import usersService from "@/services/usersServices"
 // import { IError } from "@/types"
 import { format } from "date-fns"
 import { BiSort } from "react-icons/bi"
@@ -189,7 +189,7 @@ const Index = () => {
   //       lastActiveDate: tableParams.lastActiveDate,
   //     },
   //   ],
-  //   queryFn: SuperAdminService.getAgents,
+  //   queryFn: usersService.getAgents,
   //   onError: (error: IError) => {
   //     toast({
   //       title: "Error",

@@ -16,7 +16,7 @@ import { useQuery } from "@tanstack/react-query"
 import { BiSort } from "react-icons/bi"
 import { useDeferredValue } from "react"
 import { DownloadIcon } from "@chakra-ui/icons"
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import searchLight from "@/assets/search-light.svg"
 import StyledTable from "@/reusables/StyledTable" // Corrected import
 import Filter from "@/reusables/Filter"
@@ -72,7 +72,7 @@ const Customers: React.FC = () => {
         searchQuery: deferredSearchValue,
       },
     ],
-    queryFn: SuperAdminService.getCustomers,
+    queryFn: usersService.getCustomers,
     onError: (error: any) => {
       toast({
         title: "Error",

@@ -5,7 +5,7 @@ const generateMockAgents = (count: any) => {
   const statusOptions = ["ACTIVE", "INACTIVE"]
   return Array.from({ length: count }, () => ({
     id: faker.datatype.uuid(),
-    property: faker.company.name(),
+    Driver: faker.company.name(),
     state: faker.address.state(),
     address: faker.address.streetAddress(),
     status: statusOptions[Math.floor(Math.random() * statusOptions.length)],

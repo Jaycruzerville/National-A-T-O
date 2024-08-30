@@ -10,17 +10,17 @@ const mockClaimsData = [
     status: "Approved",
     documents: [
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
         url: "https://spshabitat.org/wp-content/uploads/2016/05/House-Floor-Plans.pdf",
       },
     ],
     createdAt: "2023-01-01",
-    reason: "Property damage due to flood",
+    reason: "Driver damage due to flood",
   },
   {
     id: "2",
@@ -32,10 +32,10 @@ const mockClaimsData = [
     status: "Processing",
     documents: [
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
         url: "https://spshabitat.org/wp-content/uploads/2016/05/House-Floor-Plans.pdf",
@@ -54,10 +54,10 @@ const mockClaimsData = [
     status: "Rejected",
     documents: [
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
         url: "https://spshabitat.org/wp-content/uploads/2016/05/House-Floor-Plans.pdf",
@@ -76,10 +76,10 @@ const mockClaimsData = [
     status: "Approved",
     documents: [
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
         url: "https://spshabitat.org/wp-content/uploads/2016/05/House-Floor-Plans.pdf",
@@ -98,10 +98,10 @@ const mockClaimsData = [
     status: "Processing",
     documents: [
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
         url: "https://spshabitat.org/wp-content/uploads/2016/05/House-Floor-Plans.pdf",
@@ -128,14 +128,14 @@ const mockClaimsDetails = {
     lastPaymentDate: "2023-01-01",
     supportingDocuments: [
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
       {
-        url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+        url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
       },
     ],
     status: "Processing",
-    reason: "Claim for commercial property damages",
+    reason: "Claim for commercial Driver damages",
     claimHistory: [
       {
         id: "h1",
@@ -168,13 +168,13 @@ const mockClaimsList = {
       planInformation: "Commercial",
       amount: "2500",
       status: "Approved",
-      reason: "Commercial property renovation",
+      reason: "Commercial Driver renovation",
       supportingDocuments: [
         {
-          url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+          url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
         },
         {
-          url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+          url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
         },
       ],
       createdAt: "2023-02-15",
@@ -188,10 +188,10 @@ const mockClaimsList = {
       reason: "Home repair",
       supportingDocuments: [
         {
-          url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+          url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920bac729-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
         },
         {
-          url: "https://images.nigeriapropertycentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
+          url: "https://images.nigeriaDrivercentre.com/properties/images/2014779/0655f920e387a1-uncompleted-building-5-bedroom-fully-detached-duplex-with-2room-bq-detached-duplexes-for-sale-asokoro-district-abuja.jpg",
         },
       ],
       createdAt: "2023-03-10",

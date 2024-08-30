@@ -21,11 +21,11 @@ import { lgaofo } from "@/data"
 import { colors } from "@/theme/colors"
 import "@/App.css"
 
-interface PropertySearchProps {
+interface DriverSearchProps {
   onClose?: () => void // Make onClose optional
 }
 
-const PropertySearch: React.FC<PropertySearchProps> = ({ onClose }) => {
+const DriverSearch: React.FC<DriverSearchProps> = ({ onClose }) => {
   const navigate = useNavigate()
   const [selectedState, setSelectedState] = useState("")
   const [selectedLocalGov, setSelectedLocalGov] = useState("")
@@ -35,16 +35,16 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ onClose }) => {
       onClose()
     }
     Swal.fire({
-      title: "Property Not Found!",
-      text: "Would you like to register a new Property?",
+      title: "Driver Not Found!",
+      text: "Would you like to register a new Driver?",
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: "Register Property",
+      confirmButtonText: "Register Driver",
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        // If the user clicks "Register Property", navigate to RegisterProperty
-        navigate("/Property/register") // Update this with your path to the RegisterProperty component
+        // If the user clicks "Register Driver", navigate to RegisterDriver
+        navigate("/Driver/register") // Update this with your path to the RegisterDriver component
       } else if (result.dismiss === Swal.DismissReason.cancel && onClose) {
         // Optional: Close the modal if there's one
         onClose()
@@ -67,12 +67,12 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ onClose }) => {
       height="86vh"
     >
       <Heading textAlign="center" color={colors.brand.primary} mb="4">
-        Find Property
+        Find Driver
       </Heading>
       <Tabs isFitted variant="enclosed" colorScheme="blue">
         <TabList mb="1em">
           <Tab>By Address</Tab>
-          <Tab>By Property ID</Tab>
+          <Tab>By Driver ID</Tab>
           <Tab>Info</Tab>
         </TabList>
         <TabPanels>
@@ -129,9 +129,9 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ onClose }) => {
             </VStack>
           </TabPanel>
           <TabPanel>
-            <FormControl id="Property-id" isRequired>
-              <FormLabel>Property Identification Number</FormLabel>
-              <Input placeholder="Enter Property ID" />
+            <FormControl id="Driver-id" isRequired>
+              <FormLabel>Driver Identification Number</FormLabel>
+              <Input placeholder="Enter Driver ID" />
               <Button
                 mt={4}
                 bg={colors.brand.primary}
@@ -140,7 +140,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ onClose }) => {
                 _hover={{ bg: colors.brand.primaryDark }}
                 onClick={handleSearch}
               >
-                Search by Property ID
+                Search by Driver ID
               </Button>
             </FormControl>
           </TabPanel>
@@ -156,4 +156,4 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ onClose }) => {
   )
 }
 
-export default PropertySearch
+export default DriverSearch

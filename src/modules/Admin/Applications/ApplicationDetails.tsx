@@ -26,7 +26,7 @@ import AgentCard from "@/reusables/AgentCard"
 import LineChart from "@/reusables/LineChart"
 import PieChart from "@/reusables/PieChart"
 import EditAgentModal from "@/reusables/EditAgentModal"
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import { BiSort } from "react-icons/bi"
 
 import ClaimsSnippet from "@/reusables/ClaimsSnippet"
@@ -93,7 +93,7 @@ const AgentsDetails: React.FC = () => {
 
   const { data: appDetails } = useQuery({
     queryKey: ["agent-details", id],
-    queryFn: () => SuperAdminService.getAgentDetails(id!),
+    queryFn: () => usersService.getAgentDetails(id!),
     enabled: !!id,
     onError: (error: IError) => {
       toast({
@@ -117,7 +117,7 @@ const AgentsDetails: React.FC = () => {
         planType: chartFilters.planType,
       },
     ],
-    queryFn: () => SuperAdminService.getAgentSummary(id!),
+    queryFn: () => usersService.getAgentSummary(id!),
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -135,7 +135,7 @@ const AgentsDetails: React.FC = () => {
       "agent-transactions",
       { id, month: chartFilters.remittanceMonth },
     ],
-    queryFn: () => SuperAdminService.getAgentTransactions(id!),
+    queryFn: () => usersService.getAgentTransactions(id!),
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -157,7 +157,7 @@ const AgentsDetails: React.FC = () => {
         page: tableParams.page,
       },
     ],
-    queryFn: () => SuperAdminService.getAgentCustomers(id!, tableParams),
+    queryFn: () => usersService.getAgentCustomers(id!, tableParams),
     enabled: tabIndex === 1,
     onError: (error: IError) => {
       toast({
@@ -172,7 +172,7 @@ const AgentsDetails: React.FC = () => {
   })
 
   const { mutate: toggleAgent, isLoading: togglingAgent } = useMutation(
-    SuperAdminService.toggleAgentStatus,
+    usersService.toggleAgentStatus,
     {
       onSuccess: () => {
         onClosePopover()

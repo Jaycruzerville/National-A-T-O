@@ -24,7 +24,7 @@ import { useDeferredValue } from "react"
 import searchLight from "@/assets/search-light.svg"
 import ClaimTable from "@/reusables/ClaimTable"
 import Filter from "@/reusables/Filter"
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import { IError } from "@/types"
 import { formatDate } from "@/utils/formatDate"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
@@ -32,7 +32,7 @@ import { CellContext, ColumnDef } from "@tanstack/react-table"
 type ApplicationData = {
   applicationId: string
   applicantName: string
-  assignedPropertyId: string | null
+  assignedDriverId: string | null
   applicationType: string
   applicationStatus: string
   handlerName: string
@@ -102,7 +102,7 @@ const Claims: React.FC = () => {
         searchQuery: deferredSearchValue,
       },
     ],
-    queryFn: SuperAdminService.getApplications,
+    queryFn: usersService.getApplications,
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -117,7 +117,7 @@ const Claims: React.FC = () => {
 
   const { mutate: handleApplication } = useMutation({
     mutationFn: (applicationId: string) =>
-      SuperAdminService.handleApplication(applicationId, {
+      usersService.handleApplication(applicationId, {
         handlerName: "Admin Name",
       }), // Adjust payload as needed
     // eslint-disable-next-line unused-imports/no-unused-vars

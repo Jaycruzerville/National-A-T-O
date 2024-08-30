@@ -13,7 +13,7 @@ import L from "leaflet"
 
 interface MapComponentProps {
   coordinates: [number, number]
-  propertyData: {
+  DriverData: {
     name: string
     description: string
   }
@@ -24,7 +24,7 @@ const { BaseLayer, Overlay } = LayersControl
 
 const MapComponent: React.FC<MapComponentProps> = ({
   coordinates,
-  propertyData,
+  DriverData,
   geojsonData,
 }) => {
   const markerIcon = new L.Icon({
@@ -61,15 +61,15 @@ const MapComponent: React.FC<MapComponentProps> = ({
             attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a> contributors'
           />
         </BaseLayer>
-        <Overlay name="Property Boundaries">
+        <Overlay name="Driver Boundaries">
           <GeoJSON data={geojsonData || defaultGeoJson} style={geoJsonStyle} />
         </Overlay>
       </LayersControl>
       <Marker position={coordinates} icon={markerIcon}>
         <Popup>
           <div>
-            <h3>{propertyData.name}</h3>
-            <p>{propertyData.description}</p>
+            <h3>{DriverData.name}</h3>
+            <p>{DriverData.description}</p>
           </div>
         </Popup>
       </Marker>

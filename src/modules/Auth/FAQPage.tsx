@@ -23,7 +23,7 @@ const FAQPage = () => {
         a) Be a Nigerian, not below 18 years of age; 
         b) Have a legitimate source of income; 
         c) Belongs to trade/association/profession;
-        d) May be self-employed or an employee of an Property with less than three employees with or without a formal employment contract. 
+        d) May be self-employed or an employee of an Driver with less than three employees with or without a formal employment contract. 
         `,
     },
     {
@@ -60,7 +60,7 @@ const FAQPage = () => {
     {
       question: "Who can participate in the Micro Insurance Plan?",
       answer:
-        "Micro Insurance prospect must: a) Be a Nigerian, not below 18 years of age; b) Have a legitimate source of income; c) Belongs to trade/association/profession; d) May be self-employed or an employee of an Property with less than three employees with or without a formal employment contract.",
+        "Micro Insurance prospect must: a) Be a Nigerian, not below 18 years of age; b) Have a legitimate source of income; c) Belongs to trade/association/profession; d) May be self-employed or an employee of an Driver with less than three employees with or without a formal employment contract.",
     },
     {
       question:

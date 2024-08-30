@@ -33,22 +33,22 @@ export const agentMenuItems = [
   },
   {
     title: "Properties",
-    path: Admin.Property,
+    path: Admin.Driver,
     icon: HiOutlineBuildingOffice,
     subItems: [
       {
         title: "All Properties",
-        path: Admin.Property,
+        path: Admin.Driver,
         icon: MdOutlineRealEstateAgent,
       },
       {
         title: "Verified with owners",
-        path: Admin.PROPERTY_VWO,
+        path: Admin.Driver_VWO,
         icon: MdOutlineVerifiedUser,
       },
       {
         title: "Verified with no owners",
-        path: Admin.PROPERTY_VNO,
+        path: Admin.Driver_VNO,
         icon: RiAwardFill,
       },
     ],

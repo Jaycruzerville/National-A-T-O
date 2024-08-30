@@ -17,7 +17,7 @@ import RejectClaimModal from "./components/RejectClaimModal"
 import ViewReceiptModal from "@/reusables/ViewReceiptModal"
 import { useNavigate, useParams } from "react-router-dom"
 import { formatDate } from "@/utils/formatDate"
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import { format } from "date-fns"
 
 interface HistoryColorMap {
@@ -76,7 +76,7 @@ const ClaimsDetails: React.FC = () => {
 
     const fetchApplicationDetails = async () => {
       try {
-        const response = await SuperAdminService.getClaimsDetails(applicationId)
+        const response = await usersService.getClaimsDetails(applicationId)
         if (response && response.data) {
           setApplicationData(response.data)
           // Hardcoding customerId to 22 for now
@@ -107,7 +107,7 @@ const ClaimsDetails: React.FC = () => {
 
     const fetchCustomerApplications = async (customerId: string) => {
       try {
-        const response = await SuperAdminService.getCustomerApplications(
+        const response = await usersService.getCustomerApplications(
           customerId,
           {
             pageNo: 0,
@@ -136,32 +136,32 @@ const ClaimsDetails: React.FC = () => {
 
   const claimsColumns: ColumnDef<any>[] = [
     {
-      accessorKey: "property.propertyName",
-      header: "Property Name",
+      accessorKey: "Driver.DriverName",
+      header: "Driver Name",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "property.propertyStreetName",
+      accessorKey: "Driver.DriverStreetName",
       header: "Street Name",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "property.city",
+      accessorKey: "Driver.city",
       header: "City",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "property.state",
+      accessorKey: "Driver.state",
       header: "State",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "property.surveyPlanNumber",
+      accessorKey: "Driver.surveyPlanNumber",
       header: "Survey Plan Number",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "property.purchaseDate",
+      accessorKey: "Driver.purchaseDate",
       header: "Purchase Date",
       cell: (info: CellContext<any, any>) => (
         <Text>{formatDate(info.getValue())}</Text>
@@ -172,8 +172,8 @@ const ClaimsDetails: React.FC = () => {
       header: "Documents",
       cell: () => {
         const documents = [
-          ...(applicationData?.property?.propertyPictures || []),
-          applicationData?.property?.certificateOfOccupancy,
+          ...(applicationData?.Driver?.DriverPictures || []),
+          applicationData?.Driver?.certificateOfOccupancy,
         ].filter(Boolean)
 
         return documents.length > 0 ? (
@@ -196,11 +196,11 @@ const ClaimsDetails: React.FC = () => {
         return (
           <Flex gap="10px">
             <AcceptClaimModal
-              customerId={applicationData?.property?.id}
+              customerId={applicationData?.Driver?.id}
               claimId={applicationData?.applicationId}
             />
             <RejectClaimModal
-              customerId={applicationData?.property?.id}
+              customerId={applicationData?.Driver?.id}
               claimId={applicationData?.applicationId}
             />
           </Flex>
@@ -279,17 +279,15 @@ const ClaimsDetails: React.FC = () => {
       >
         <Text fontSize="20px" fontWeight={700} color="#0B1023">
           {applicationData?.applicantName} |{" "}
-          {applicationData?.assignedPropertyId || "No Property Assigned"}
+          {applicationData?.assignedDriverId || "No Driver Assigned"}
         </Text>
         <Button
           variant="app-primary"
           fontWeight="normal"
           size="sm"
           rightIcon={<BsEye />}
-          onClick={() =>
-            navigate(`/customers/${applicationData?.property?.id}`)
-          }
-          isDisabled={!applicationData?.property?.id}
+          onClick={() => navigate(`/customers/${applicationData?.Driver?.id}`)}
+          isDisabled={!applicationData?.Driver?.id}
         >
           View Customer
         </Button>

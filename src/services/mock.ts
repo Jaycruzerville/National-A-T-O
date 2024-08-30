@@ -2,39 +2,39 @@
 
 import { mockProperties } from "@/data/claims"
 
-type Property = {
+type Driver = {
   firstName: string
   lastName: string
   status: string
   // Add any other fields that exist in the mockProperties objects
 }
 
-type GetPropertyParams = {
+type GetDriverParams = {
   pageSize: number
   page: number
   searchQuery?: string
   status?: string
 }
 
-type GetPropertyResponse = {
-  data: Property[]
+type GetDriverResponse = {
+  data: Driver[]
   pagination: {
     numberOfPages: number
   }
 }
 
 const mock = {
-  getProperty: async ({
+  getDriver: async ({
     pageSize,
     page,
     searchQuery,
     status,
-  }: GetPropertyParams): Promise<GetPropertyResponse> => {
-    let filteredProperties: Property[] = mockProperties
+  }: GetDriverParams): Promise<GetDriverResponse> => {
+    let filteredProperties: Driver[] = mockProperties
 
     if (searchQuery) {
-      filteredProperties = filteredProperties.filter((property) =>
-        `${property.firstName} ${property.lastName}`
+      filteredProperties = filteredProperties.filter((Driver) =>
+        `${Driver.firstName} ${Driver.lastName}`
           .toLowerCase()
           .includes(searchQuery.toLowerCase())
       )
@@ -42,7 +42,7 @@ const mock = {
 
     if (status) {
       filteredProperties = filteredProperties.filter(
-        (property) => property.status === status
+        (Driver) => Driver.status === status
       )
     }
 

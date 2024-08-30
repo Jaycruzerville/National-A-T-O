@@ -38,7 +38,7 @@ const Register = () => {
     },
     {
       title: "Government",
-      description: "For Federal, State or Local Government Property",
+      description: "For Federal, State or Local Government Driver",
       icon: governmentIcon,
     },
   ]

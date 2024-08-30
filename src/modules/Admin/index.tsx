@@ -36,20 +36,24 @@ const paths = [
     element: lazy(() => import("./SuperAgents/SuperAgentsDetails")),
   },
   {
-    path: Admin.Property,
-    element: lazy(() => import("./Property")),
+    path: Admin.Driver,
+    element: lazy(() => import("./Driver")),
   },
   {
-    path: Admin.Property_DETAILS,
-    element: lazy(() => import("./Property/PropertyDetails")),
+    path: Admin.Driver_REGISTER,
+    element: lazy(() => import("./Driver/RegisterDriver")),
   },
   {
-    path: Admin.PROPERTY_VNO,
-    element: lazy(() => import("./Property/VNOProperty")),
+    path: Admin.Driver_DETAILS,
+    element: lazy(() => import("./Driver/DriverDetails")),
   },
   {
-    path: Admin.PROPERTY_VWO,
-    element: lazy(() => import("./Property/VWOProperty")),
+    path: Admin.Driver_VNO,
+    element: lazy(() => import("./Driver/VNODriver")),
+  },
+  {
+    path: Admin.Driver_VWO,
+    element: lazy(() => import("./Driver/VWODriver")),
   },
   {
     path: Admin.CUSTOMERS,
@@ -89,7 +93,17 @@ const Index = () => {
         element={<Navigate to={`${Admin.DASHBOARD}`} replace />}
       />
       {paths.map(({ path, element: Element }) => (
-        <Route key={path} path={path} element={<Element />} />
+        <Route
+          key={path}
+          path={path}
+          element={
+            <Element
+              onClose={function (): void {
+                throw new Error("Function not implemented.")
+              }}
+            />
+          }
+        />
       ))}
     </Routes>
   )

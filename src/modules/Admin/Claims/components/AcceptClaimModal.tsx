@@ -1,4 +1,4 @@
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import { IError } from "@/types"
 import {
   Button,
@@ -36,7 +36,7 @@ const AcceptClaimModal = ({
   const [discountedAmountDue, setDiscountedAmountDue] = useState("")
 
   const { mutate } = useMutation({
-    mutationFn: SuperAdminService.toggleClaimsStatus,
+    mutationFn: usersService.toggleClaimsStatus,
     onSuccess: () => {
       toast({
         title: "Success",

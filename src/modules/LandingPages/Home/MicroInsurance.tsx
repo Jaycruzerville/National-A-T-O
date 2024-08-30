@@ -33,7 +33,7 @@ const features = [
   {
     id: 2,
     icon: businessInsurance,
-    text: "It helps cover the costs associated with Property damage and liability claims.",
+    text: "It helps cover the costs associated with Driver damage and liability claims.",
   },
   {
     id: 3,

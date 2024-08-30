@@ -20,7 +20,7 @@ import FilterModal from "./components/FilterModal"
 import ProviderCard from "@/reusables/ProviderCard"
 import LineChart from "@/reusables/LineChart"
 import EditAgentModal from "@/reusables/EditAgentModal"
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import { IError } from "@/types"
 import blueEye from "@/assets/blueEye.svg"
 
@@ -51,7 +51,7 @@ const ServiceProviderDetails = () => {
 
   const { data: appDetails } = useQuery({
     queryKey: ["agent-details", { id }],
-    queryFn: () => SuperAdminService.getAgentDetails(id as string),
+    queryFn: () => usersService.getAgentDetails(id as string),
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -68,7 +68,7 @@ const ServiceProviderDetails = () => {
   const { data: agentCustomers } = useQuery({
     queryKey: ["agent-customers", { id }],
     queryFn: () =>
-      SuperAdminService.getAgentCustomers(id as string, tableParams),
+      usersService.getAgentCustomers(id as string, tableParams),
     onError: (error: IError) => {
       toast({
         title: "Error",

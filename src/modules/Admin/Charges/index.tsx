@@ -23,7 +23,7 @@ import Filter from "@/reusables/Filter"
 
 type Agent = {
   id: string
-  property: string
+  Driver: string
   state: string
   address: string
   status: string
@@ -51,8 +51,8 @@ const Index = () => {
 
   const columns: ColumnDef<Agent>[] = [
     {
-      accessorKey: "property",
-      header: "Property",
+      accessorKey: "Driver",
+      header: "Driver",
     },
     {
       accessorKey: "state",
@@ -171,7 +171,7 @@ const Index = () => {
               <Image src={searchLight} />
             </InputRightElement>
             <Input
-              placeholder="Search with Property or Address"
+              placeholder="Search with Driver or Address"
               fontSize="12px"
               borderRadius="4px"
               height="28px"

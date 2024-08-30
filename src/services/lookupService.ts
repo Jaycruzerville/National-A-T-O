@@ -22,9 +22,9 @@ const getLGAs = async (stateId: string) => {
   }
 }
 
-const getProperty = async () => {
+const getDriver = async () => {
   try {
-    const { data } = await Api.get(`/Property/`)
+    const { data } = await Api.get(`/Driver/`)
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
@@ -34,7 +34,7 @@ const getProperty = async () => {
 const lookupService = {
   getStates,
   getLGAs,
-  getProperty,
+  getDriver,
 }
 
 export default lookupService

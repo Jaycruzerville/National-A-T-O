@@ -36,8 +36,8 @@ import Filter from "@/reusables/Filter"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 import { useQuery } from "@tanstack/react-query"
 import { SwitchStatus } from "@/reusables/SwitchStatus"
-import SuperAdminService from "@/services/superAdminServices"
-import { useProperty } from "@/hooks/useProperty"
+import usersService from "@/services/usersServices"
+import { useDriver } from "@/hooks/useDriver"
 import { IError } from "@/types"
 import { formatToCurrency } from "@/utils/formatToCurrency"
 import { format } from "date-fns"
@@ -156,7 +156,7 @@ const initParams = {
 }
 const index = () => {
   const toast = useToast()
-  const { Property } = useProperty()
+  const { Driver } = useDriver()
   const [tableParams, setTableParams] = useState({
     ...initParams,
     pageSize: 10,
@@ -186,7 +186,7 @@ const index = () => {
         association: tableParams.association,
       },
     ],
-    queryFn: SuperAdminService.getTransactions,
+    queryFn: usersService.getTransactions,
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -203,7 +203,7 @@ const index = () => {
     useQuery({
       queryKey: ["transaction_details", { id: transactionId }],
       enabled: !!transactionId,
-      queryFn: SuperAdminService.getTransactionsDetails,
+      queryFn: usersService.getTransactionsDetails,
       onError: (error: IError) => {
         toast({
           title: "Error",
@@ -218,7 +218,7 @@ const index = () => {
 
   //   const { data: transactionStats } = useQuery({
   //     queryKey: ["transaction_stats"],
-  //     queryFn: SuperAdminService.getTransactionsStats,
+  //     queryFn: usersService.getTransactionsStats,
   //     onError: (error: IError) => {
   //       toast({
   //         title: "Error",
@@ -495,16 +495,13 @@ const index = () => {
                   height="48px"
                   onChange={(e) => updateFilters("association", e.target.value)}
                 >
-                  {Property?.map(
+                  {Driver?.map(
                     (
-                      {
-                        PropertyName,
-                        id,
-                      }: { PropertyName: string; id: string },
+                      { DriverName, id }: { DriverName: string; id: string },
                       index: number
                     ) => (
                       <option value={id} key={index}>
-                        {PropertyName}
+                        {DriverName}
                       </option>
                     )
                   )}

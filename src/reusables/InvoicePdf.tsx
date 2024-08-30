@@ -6,12 +6,12 @@ import PropTypes from "prop-types"
 
 // Define the interface for the details object
 interface Details {
-  PropertyID: string
+  DriverID: string
   LocalGovernment: string
   DistrictArea: string
   Street: string
   HouseNumber: string
-  PropertyUsage: string
+  DriverUsage: string
   LandArea: string
   TotalBuildingFootprint: string
   AssessedValue: string
@@ -73,13 +73,13 @@ const styles = StyleSheet.create({
 const InvoicePDF: React.FC<{ details: Details }> = ({ details }) => (
   <Document>
     <Page style={styles.page}>
-      <Text style={styles.header}>Property Invoice</Text>
+      <Text style={styles.header}>Driver Invoice</Text>
       <Text style={styles.text}>Date: {moment().format("MMMM Do YYYY")}</Text>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Property Information</Text>
+        <Text style={styles.sectionTitle}>Driver Information</Text>
         <View style={styles.row}>
-          <Text style={styles.label}>Property ID:</Text>
-          <Text style={styles.text}>{details.PropertyID}</Text>
+          <Text style={styles.label}>Driver ID:</Text>
+          <Text style={styles.text}>{details.DriverID}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Full Address:</Text>
@@ -117,12 +117,12 @@ const InvoicePDF: React.FC<{ details: Details }> = ({ details }) => (
 // Define PropTypes for the InvoicePDF component
 InvoicePDF.propTypes = {
   details: PropTypes.shape({
-    PropertyID: PropTypes.string.isRequired,
+    DriverID: PropTypes.string.isRequired,
     LocalGovernment: PropTypes.string.isRequired,
     DistrictArea: PropTypes.string.isRequired,
     Street: PropTypes.string.isRequired,
     HouseNumber: PropTypes.string.isRequired,
-    PropertyUsage: PropTypes.string.isRequired,
+    DriverUsage: PropTypes.string.isRequired,
     LandArea: PropTypes.string.isRequired,
     TotalBuildingFootprint: PropTypes.string.isRequired,
     AssessedValue: PropTypes.string.isRequired,

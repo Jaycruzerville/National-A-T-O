@@ -2,7 +2,7 @@ import { useState } from "react"
 import useStateAndLGA from "@/hooks/useStateAndLGA"
 import DrawerComponent from "@/reusables/DrawerComponent"
 import AppFormLabel from "@/reusables/AppFormLabel"
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import type { IError } from "@/types"
 import {
   Button,
@@ -19,7 +19,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import { useGetRoleId } from "@/hooks/useGetRoleId"
-import { useProperty } from "@/hooks/useProperty"
+import { useDriver } from "@/hooks/useDriver"
 import PhoneInput from "@/reusables/PhoneInput"
 
 const AddAgentSchema = Yup.object().shape({
@@ -38,11 +38,11 @@ const AddNewAgentDrawer: React.FC = () => {
   const [formattedPhoneNumber, setFormattedPhoneNumber] = useState<string>()
   const { states, LGAs, loadingLGAs } = useStateAndLGA(selectedState)
   const { roleId } = useGetRoleId("Agent")
-  const { Property } = useProperty()
+  const { Driver } = useDriver()
   const queryClient = useQueryClient()
   const toast = useToast()
 
-  const { mutate, isLoading } = useMutation(SuperAdminService.addAgent, {
+  const { mutate, isLoading } = useMutation(usersService.addAgent, {
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -76,7 +76,7 @@ const AddNewAgentDrawer: React.FC = () => {
       address: "",
       state: "",
       lga: "",
-      Property: null,
+      Driver: null,
     },
     validationSchema: AddAgentSchema,
     onSubmit: (values) => {
@@ -86,7 +86,7 @@ const AddNewAgentDrawer: React.FC = () => {
             ...values,
             phoneNumber: formattedPhoneNumber?.replace(/\s/g, ""),
             roleId,
-            PropertyId: values.Property,
+            DriverId: values.Driver,
           },
         ],
       }
@@ -204,31 +204,31 @@ const AddNewAgentDrawer: React.FC = () => {
               </Text>
             )}
           </FormControl>
-          <FormControl isInvalid={!!formik.errors.Property}>
-            <AppFormLabel title="Select Property/Union (optional)" />
+          <FormControl isInvalid={!!formik.errors.Driver}>
+            <AppFormLabel title="Select Driver/Union (optional)" />
             <Select
-              placeholder="Select Agent Property/Union"
+              placeholder="Select Agent Driver/Union"
               _placeholder={{ color: "#003E5160" }}
               fontSize="14px"
               _hover={{ outline: "none" }}
               _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-              name="Property"
+              name="Driver"
               onChange={formik.handleChange}
             >
-              {Property?.map(
+              {Driver?.map(
                 (
-                  { PropertyName, id }: { PropertyName: string; id: string },
+                  { DriverName, id }: { DriverName: string; id: string },
                   index: number
                 ) => (
                   <option value={id} key={index}>
-                    {PropertyName}
+                    {DriverName}
                   </option>
                 )
               )}
             </Select>
-            {!!formik.errors.Property && (
+            {!!formik.errors.Driver && (
               <Text as="span" fontSize="10px" pt="12px" color="red">
-                {formik.errors.Property}
+                {formik.errors.Driver}
               </Text>
             )}
           </FormControl>

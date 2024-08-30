@@ -29,7 +29,7 @@ const statData = [
   {
     id: 3,
     icon: totalUsers,
-    text: "Total Property",
+    text: "Total Driver",
     value: "390,456",
     percentage: 19,
   },

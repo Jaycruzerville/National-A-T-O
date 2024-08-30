@@ -17,11 +17,11 @@ import {
 } from "@chakra-ui/react"
 import useStateAndLGA from "@/hooks/useStateAndLGA"
 import { useEffect, useState } from "react"
-import ProfilePicture from "@/modules/SuperAdmin/Profile/ProfilePicture"
+import ProfilePicture from "@/modules/Users/Profile/ProfilePicture"
 import { useFormik } from "formik"
 import PhoneInput from "./PhoneInput"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import { IError } from "@/types"
 
 type AgentModalType = {
@@ -47,7 +47,7 @@ const EditAgentModal = ({
     string | undefined
   >("")
   const [image, setImage] = useState<File | null>(null)
-  const { mutate, isLoading } = useMutation(SuperAdminService.editUser, {
+  const { mutate, isLoading } = useMutation(usersService.editUser, {
     onError: (error: IError) => {
       toast({
         title: "Error",

@@ -122,8 +122,8 @@ const AgentCard = ({
         </Box>
 
         <Text textStyle="headText" sx={agentName} textTransform="capitalize">
-          {data?.PropertyName
-            ? data.PropertyName
+          {data?.DriverName
+            ? data.DriverName
             : `${data?.firstName ?? `-`} ${data?.lastName ?? `-`}`}
         </Text>
         <Text textStyle="headText" sx={positionStyle}>
@@ -142,8 +142,8 @@ const AgentCard = ({
         <Flex sx={agentInfoFlex} gap="20px">
           <Icon as={addressImage} height="24px" width="24px" />
           <Text textStyle="headText">
-            {data?.PropertyAddress
-              ? data.PropertyAddress
+            {data?.DriverAddress
+              ? data.DriverAddress
               : data?.agentAddress?.state &&
                 `${data?.agentAddress?.location ?? ``} ${
                   data?.agentAddress?.lga ?? ``
@@ -153,7 +153,7 @@ const AgentCard = ({
           </Text>
         </Flex>
       </Box>
-      {position !== "Property" && (
+      {position !== "Driver" && (
         <Box sx={editDetails} onClick={editModal}>
           <Text textStyle="headText" sx={editDetailsBtn}>
             Edit details

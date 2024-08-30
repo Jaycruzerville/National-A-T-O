@@ -15,7 +15,7 @@ import {
   useToast,
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import SuperAdminService from "@/services/superAdminServices"
+import usersService from "@/services/usersServices"
 import { IError } from "@/types"
 
 const RejectClaimModal = ({
@@ -32,7 +32,7 @@ const RejectClaimModal = ({
   const toast = useToast()
 
   const { mutate } = useMutation({
-    mutationFn: SuperAdminService.toggleClaimsStatus,
+    mutationFn: usersService.toggleClaimsStatus,
     onSuccess: () => {
       toast({
         title: "success",

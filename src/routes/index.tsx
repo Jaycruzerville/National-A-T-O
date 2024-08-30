@@ -9,7 +9,7 @@ import {
   adminRoutes,
   agentRoutes,
   baseRoutes,
-  superAdminRoutes,
+  usersRoutes,
   superAgentRoutes,
 } from "./routes"
 import PrivateRoutes from "./PrivateRoutes"
@@ -51,12 +51,12 @@ const renderRoute = ({ Component, ...route }: RouteProps) => {
 
 export const AppRoutes = () => {
   const roleRoutes: Record<string, Array<RouteProps>> = {
-    SUPER_ADMIN: superAdminRoutes,
+    SUPER_ADMIN: usersRoutes,
     ROLE_ADMIN: adminRoutes,
     AGENT: agentRoutes,
     SUPER_AGENT: superAgentRoutes,
     BASE: baseRoutes,
-    ROLE_REGULAR: superAdminRoutes, // Mapping ROLE_REGULAR to superAdminRoutes
+    ROLE_REGULAR: usersRoutes, // Mapping ROLE_REGULAR to usersRoutes
   }
 
   const userRole = Auth.getUserRole() || "BASE"

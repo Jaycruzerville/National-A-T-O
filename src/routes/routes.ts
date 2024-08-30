@@ -1,7 +1,7 @@
 import { lazy } from "react"
 import LandingLayout from "@/layout/LandingLayout"
 import AdminLayout from "@/layout/AdminLayout"
-import SuperAdminLayout from "@/layout/SuperAdminLayout"
+import usersLayout from "@/layout/UsersLayout"
 
 export const baseRoutes = [
   {
@@ -36,18 +36,18 @@ export const baseRoutes = [
   {
     path: "/",
     exact: true,
-    Component: lazy(() => import("@/modules/SuperAdmin")),
+    Component: lazy(() => import("@/modules/Users")),
     layout: AdminLayout,
     isAuthenticated: true,
   },
 ]
 
-export const superAdminRoutes = [
+export const usersRoutes = [
   {
     path: "/*",
     exact: true,
-    Component: lazy(() => import("@/modules/SuperAdmin")),
-    layout: SuperAdminLayout,
+    Component: lazy(() => import("@/modules/Users")),
+    layout: usersLayout,
     isAuthenticated: true,
   },
 ]
@@ -82,7 +82,7 @@ export const superAgentRoutes = [
 // import { lazy } from "react"
 // import LandingLayout from "@/layout/LandingLayout"
 // import AdminLayout from "@/layout/AdminLayout"
-// import SuperAdminLayout from "@/layout/SuperAdminLayout"
+// import usersLayout from "@/layout/usersLayout"
 
 // export const baseRoutes = [
 //   {
@@ -96,17 +96,17 @@ export const superAgentRoutes = [
 //   },
 //   {
 //     path: "/dash/*",
-//     Component: lazy(() => import("@/modules/SuperAdmin")),
+//     Component: lazy(() => import("@/modules/users")),
 //     layout: AdminLayout,
 //     isAuthenticated: true, // Assuming this requires authentication
 //   },
 // ]
 
-// export const superAdminRoutes = [
+// export const usersRoutes = [
 //   {
 //     path: "/super-admin/*",
-//     Component: lazy(() => import("@/modules/SuperAdmin")),
-//     layout: SuperAdminLayout,
+//     Component: lazy(() => import("@/modules/users")),
+//     layout: usersLayout,
 //     isAuthenticated: true,
 //   },
 // ]
