@@ -11,8 +11,14 @@ import {
   Divider,
   useDisclosure,
 } from "@chakra-ui/react"
-import { FaUserEdit, FaRegIdBadge, FaCar, FaQrcode } from "react-icons/fa"
-import { IoMdCall, IoMdCalendar } from "react-icons/io"
+import {
+  FaUserEdit,
+  FaRegIdBadge,
+  FaCar,
+  FaQrcode,
+  FaMapMarkerAlt,
+} from "react-icons/fa"
+import { IoMdCall, IoMdCalendar, IoMdCash } from "react-icons/io"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import PasswordResetModal from "./PasswordResetModal"
@@ -56,6 +62,9 @@ const ProfilePage = () => {
       qrCodeValue: "QR-1234567890",
       complianceStatus: "Compliant",
       employmentStatus: "Active",
+      totalTrips: "120",
+      totalEarnings: "5,000,000",
+      gpsStatus: "Active",
     },
     validationSchema: Yup.object({
       fullName: Yup.string().required("Required"),
@@ -133,15 +142,19 @@ const ProfilePage = () => {
             boxShadow="0px 2px 5.5px rgba(0, 0, 0, 0.06)"
             cursor="pointer"
           >
-            <Icon as={FaUserEdit} color={colors.white} me="6px" />
-            <Text fontSize="xs" color={colors.white} fontWeight="bold">
+            <Icon as={FaUserEdit} color={colors.brand.primaryDark} me="6px" />
+            <Text
+              fontSize="xs"
+              color={colors.brand.primaryDark}
+              fontWeight="bold"
+            >
               Edit Profile
             </Text>
           </Flex>
         </Button>
       </Flex>
 
-      <Grid templateColumns={{ sm: "1fr", xl: "repeat(2, 1fr)" }} gap="22px">
+      <Grid templateColumns={{ sm: "1fr", xl: "repeat(3, 1fr)" }} gap="22px">
         <ProfileCard
           icon={FaRegIdBadge}
           title="Personal Information"
@@ -186,6 +199,26 @@ const ProfilePage = () => {
           icon={IoMdCalendar}
           title="Employment Status"
           items={[{ label: "Status", value: formik.values.employmentStatus }]}
+          bgColor={cardBgColor}
+          borderColor={cardBorderColor}
+        />
+        <ProfileCard
+          icon={FaMapMarkerAlt}
+          title="GPS Tracker"
+          items={[{ label: "Status", value: formik.values.gpsStatus }]}
+          bgColor={cardBgColor}
+          borderColor={cardBorderColor}
+        />
+        <ProfileCard
+          icon={IoMdCash}
+          title="Driver's Earnings"
+          items={[
+            {
+              label: "Total Earnings",
+              value: `₦${formik.values.totalEarnings}`,
+            },
+            { label: "Total Trips", value: formik.values.totalTrips },
+          ]}
           bgColor={cardBgColor}
           borderColor={cardBorderColor}
         />

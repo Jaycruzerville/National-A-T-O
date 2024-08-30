@@ -3,29 +3,25 @@ import {
   Box,
   Flex,
   Text,
-  Menu,
-  MenuList,
-  MenuItem,
-  MenuButton,
-  Modal,
-  ModalOverlay,
   SimpleGrid,
-  FormLabel,
-  Select,
-  ModalContent,
-  useColorModeValue,
   Button,
   Icon,
+  Modal,
+  ModalOverlay,
+  ModalContent,
 } from "@chakra-ui/react"
-import { MdAddTask, MdAdd, MdOutlineAccountBalanceWallet } from "react-icons/md"
-import { BsHouses } from "react-icons/bs"
-import { FaArrowCircleUp } from "react-icons/fa"
-import { RiMailSendLine } from "react-icons/ri"
-import { TbCurrencyNaira } from "react-icons/tb"
-import { HiOutlineBuildingOffice } from "react-icons/hi2"
+import {
+  FaArrowCircleUp,
+  FaTruck,
+  FaBusAlt,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaQrcode,
+} from "react-icons/fa"
+import QRCode from "react-qr-code"
+import Transactions from "@/reusables/Transactions"
 import MiniStatistics from "@/reusables/MiniStatistics"
 import IconBox from "@/reusables/icons/IconBox"
-import Transactions from "@/reusables/Transactions"
 import RegisterDriver from "@/modules/Users/Driver/RegisterDriver"
 import { colors } from "@/theme/colors"
 import { getDayPeriod } from "@/utils/getDayPeriod"
@@ -33,123 +29,150 @@ import { getDayPeriod } from "@/utils/getDayPeriod"
 interface Driver {
   id: number
   name: string
-  value: string
-  payments: string
-  tasks: string
-  projects: string
+  vehicle: string
+  status: string // Active or Inactive
+  qrCodeValue: string
+  registrationDate: string
 }
 
 const Index: React.FC = () => {
-  const [properties, setProperties] = useState<Driver[]>([])
+  const [, setDrivers] = useState<Driver[]>([])
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [isRegisterDriverOpen, setRegisterDriverOpen] = useState(false)
-  const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100")
-  const cardShadow = useColorModeValue("lg", "dark-lg")
+  const [isBuyVoucherOpen, setBuyVoucherOpen] = useState(false)
 
   useEffect(() => {
-    setProperties([
-      {
-        id: 1,
-        name: "Ascorn",
-        value: "18,409,300",
-        payments: "750,400",
-        tasks: "10",
-        projects: "3",
-      },
-      {
-        id: 2,
-        name: "Boulevard",
-        value: "27,579,360",
-        payments: "950,900",
-        tasks: "15",
-        projects: "4",
-      },
-    ])
+    const driver = {
+      id: 1,
+      name: "John Doe",
+      vehicle: "Toyota Camry 2019",
+      status: "Active",
+      qrCodeValue: "QR-1234567890",
+      registrationDate: "2023-08-30",
+    }
+    setDrivers([driver])
+    setSelectedDriver(driver)
   }, [])
 
   return (
     <Box py="6" px="5" bg="#F6F6F6" minH="100vh">
-      <Flex mb="10px" justifyContent="space-between">
+      <Flex mb="10px" justifyContent="space-between" alignItems="center">
         <Text fontSize="28px" fontWeight={500}>
           Good {getDayPeriod()} Folashade!
         </Text>
-        <Flex>
-          <Menu>
-            <MenuButton
-              as={Button}
-              bg="brand.primary"
-              color="white"
-              rightIcon={<Icon as={MdAddTask} />}
-              mr="4"
-            >
-              Select Driver
-            </MenuButton>
-            <MenuList>
-              {properties.map((prop) => (
-                <MenuItem key={prop.id} onClick={() => setSelectedDriver(prop)}>
-                  {prop.name}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+        <Flex gap="4">
           <Button
-            bg="brand.primary"
+            bg={colors.brand.primary}
             color="white"
-            leftIcon={<Icon as={MdAdd} />}
+            leftIcon={<Icon as={FaTruck} />}
             onClick={() => setRegisterDriverOpen(true)}
           >
             Add Driver
+          </Button>
+          <Button
+            bg={colors.active[800]}
+            color="white"
+            leftIcon={<Icon as={FaQrcode} />}
+            onClick={() => setBuyVoucherOpen(true)}
+          >
+            Buy Voucher
           </Button>
         </Flex>
       </Flex>
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap="20px" mb="20px">
         <MiniStatistics
-          shadow={cardShadow}
           startContent={
             <IconBox
               w="56px"
               h="56px"
-              bg={boxBg}
+              bg={colors.gray[100]}
               icon={
                 <Icon
                   w="32px"
                   h="32px"
-                  as={HiOutlineBuildingOffice}
+                  as={FaTruck}
                   color={colors.brand.primary}
                 />
               }
             />
           }
           name="Driver"
-          value={selectedDriver ? selectedDriver.name : "Null"}
+          value={selectedDriver ? selectedDriver.name : "No Driver Selected"}
         />
         <MiniStatistics
-          shadow={cardShadow}
           startContent={
             <IconBox
               w="56px"
               h="56px"
-              bg={boxBg}
+              bg={colors.gray[100]}
               icon={
                 <Icon
                   w="32px"
                   h="32px"
-                  as={TbCurrencyNaira}
+                  as={FaBusAlt}
                   color={colors.brand.primary}
                 />
               }
             />
           }
-          name="Pending Payments"
-          value={`₦${selectedDriver ? selectedDriver.payments : "0"}`}
+          name="Vehicle"
+          value={selectedDriver ? selectedDriver.vehicle : "No Vehicle"}
         />
         <MiniStatistics
-          shadow={cardShadow}
           startContent={
             <IconBox
               w="56px"
               h="56px"
-              bg={boxBg}
+              bg={colors.gray[100]}
+              icon={
+                <Icon
+                  w="32px"
+                  h="32px"
+                  as={
+                    selectedDriver && selectedDriver.status === "Active"
+                      ? FaCheckCircle
+                      : FaTimesCircle
+                  }
+                  color={
+                    selectedDriver && selectedDriver.status === "Active"
+                      ? colors.success[800]
+                      : colors.danger[800]
+                  }
+                />
+              }
+            />
+          }
+          name="Status"
+          value={selectedDriver ? selectedDriver.status : "Unknown"}
+        />
+        <Box
+          p="16px"
+          bg={colors.white.text}
+          borderRadius="15px"
+          boxShadow="0px 2px 5.5px rgba(0, 0, 0, 0.06)"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          flexDirection="column"
+        >
+          <Icon
+            as={FaQrcode}
+            w={6}
+            h={6}
+            mb="10px"
+            color={colors.brand.primary}
+          />
+          <QRCode value={selectedDriver?.qrCodeValue || ""} size={128} />
+          <Text mt="10px" fontSize="md" color={colors.brand.textPrimary}>
+            QR Code
+          </Text>
+        </Box>
+        <MiniStatistics
+          startContent={
+            <IconBox
+              w="56px"
+              h="56px"
+              bg={colors.gray[100]}
               icon={
                 <Icon
                   w="32px"
@@ -160,87 +183,11 @@ const Index: React.FC = () => {
               }
             />
           }
-          growth="+23%"
-          name="Assets value"
-          value={`₦${selectedDriver ? selectedDriver.value : "0"}`}
-        />
-        <MiniStatistics
-          shadow={cardShadow}
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={boxBg}
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
-                  as={MdOutlineAccountBalanceWallet}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          endContent={
-            <Flex me="-16px" mt="10px">
-              <FormLabel htmlFor="balance"></FormLabel>
-              <Select
-                id="balance"
-                variant="mini"
-                mt="5px"
-                me="0px"
-                defaultValue="NGN"
-              >
-                <option value="usd">NGN</option>
-                <option value="eur">EUR</option>
-                <option value="gba">GBA</option>
-              </Select>
-            </Flex>
-          }
-          name="Your balance"
-          value="0"
-        />
-        <MiniStatistics
-          shadow={cardShadow}
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={boxBg}
-              icon={
-                <Icon
-                  w="28px"
-                  h="28px"
-                  as={RiMailSendLine}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          name="New Messages"
-          value={`${selectedDriver ? selectedDriver.tasks : "0"}`}
-        />
-        <MiniStatistics
-          shadow={cardShadow}
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={boxBg}
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
-                  as={BsHouses}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          name="Total Buildings"
-          value={`${selectedDriver ? selectedDriver.projects : "0"}`}
+          name="Registration Date"
+          value={selectedDriver ? selectedDriver.registrationDate : "Unknown"}
         />
       </SimpleGrid>
+      <Transactions /> {/* Transaction table remains here */}
       <Modal
         isOpen={isRegisterDriverOpen}
         onClose={() => setRegisterDriverOpen(false)}
@@ -253,7 +200,20 @@ const Index: React.FC = () => {
           <RegisterDriver onClose={() => setRegisterDriverOpen(false)} />
         </ModalContent>
       </Modal>
-      <Transactions />
+      <Modal
+        isOpen={isBuyVoucherOpen}
+        onClose={() => setBuyVoucherOpen(false)}
+        isCentered
+        size="sm"
+      >
+        <ModalOverlay />
+        <ModalContent>
+          {/* You can place the Buy Voucher form or functionality here */}
+          <Box p="4">
+            <Text>Buy Voucher Functionality Here</Text>
+          </Box>
+        </ModalContent>
+      </Modal>
     </Box>
   )
 }
