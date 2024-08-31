@@ -23,16 +23,20 @@ const products: Record<string, number> = {
 }
 
 const properties: Record<string, string> = {
-  Driver1: "Building",
-  Driver2: "Estate 2",
-  Driver3: "Complex 3",
+  Driver1: "Mr. Ahmed | KN-23d-34",
+  Driver2: "Mr. Kingsley | KN-34-34",
+  Driver3: "Mr. Nurudeen | KN-45-56",
 }
 
 interface PaymentFormProps {
   selectedProduct: string
+  onClose: () => void
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ selectedProduct }) => {
+const PaymentForm: React.FC<PaymentFormProps> = (
+  { selectedProduct },
+  { onClose }
+) => {
   const [selectedDriver, setSelectedDriver] = useState<string>("")
   const [amount, setAmount] = useState<string>("")
 
@@ -58,17 +62,18 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedProduct }) => {
     //   selectedDriver,
     //   amount,
     // });
+    onClose()
   }
 
   return (
     <Box p={6} bg={colors.gray[100]}>
       <Heading mb={4} textAlign="center" size="lg" color={colors.brand.primary}>
-        Payments
+        Voucher
       </Heading>
       <form onSubmit={handleSubmit}>
         <VStack spacing={4}>
           <FormControl id="selectDriver" isRequired>
-            <FormLabel>Select Driver to Pay For</FormLabel>
+            <FormLabel>Driver ID</FormLabel>
             <Select
               placeholder="Select a Driver"
               value={selectedDriver}
@@ -84,7 +89,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedProduct }) => {
           </FormControl>
 
           <FormControl id="product" isRequired>
-            <FormLabel>Service Name</FormLabel>
+            <FormLabel>Product Type</FormLabel>
             <Select
               placeholder="Select Product"
               value={selectedProduct}

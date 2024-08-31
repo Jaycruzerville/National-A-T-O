@@ -2,6 +2,7 @@ import { lazy } from "react"
 import LandingLayout from "@/layout/LandingLayout"
 import AdminLayout from "@/layout/AdminLayout"
 import usersLayout from "@/layout/UsersLayout"
+import agentsLayout from "@/layout/AgentLayout"
 
 export const baseRoutes = [
   {
@@ -63,9 +64,10 @@ export const adminRoutes = [
 
 export const agentRoutes = [
   {
-    path: "*",
+    path: "/*",
     exact: true,
     Component: lazy(() => import("@/modules/Agent")),
+    layout: agentsLayout,
     isAuthenticated: true,
   },
 ]

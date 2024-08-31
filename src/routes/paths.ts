@@ -39,6 +39,29 @@ export const users = {
   PAYMENTS: "/payments",
 }
 
+export const agents = {
+  DASHBOARD: "/dashboard",
+  AGENTS: "/agents",
+  AGENTS_DETAILS: "/agents/:id",
+  SUPERAGENTS: "/superagents",
+  SUPERAGENTS_DETAILS: "/superagents/:id",
+  Driver: "/Driver",
+  Driver_DETAILS: "/Driver/:id",
+  Driver_REGISTER: "/Driver/Register",
+  CLAIMS: "/claims",
+  CLAIMS_DETAILS: "/claims/:id",
+  CUSTOMERS: "/customers",
+  CUSTOMERS_DETAILS: "/customers/:id",
+  SERVICEPROVIDERS: "/serviceproviders",
+  SERVICEPROVIDERS_DETAILS: "/serviceproviders/:id",
+  NOTIFICATIONS: "/notifications",
+  TRANSACTIONS: "/transactions",
+  SETTINGS: "/settings",
+  PROFILE: "/profile",
+  KYCFORM: "/kycform",
+  PAYMENTS: "/payments",
+}
+
 export const Admin = {
   DASHBOARD: "/dashboard",
   APPLICATION: "/Applications",

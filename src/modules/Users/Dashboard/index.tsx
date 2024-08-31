@@ -57,7 +57,11 @@ const Index: React.FC = () => {
   return (
     <Box py="6" px="5" bg="#F6F6F6" minH="100vh">
       <Flex mb="10px" justifyContent="space-between" alignItems="center">
-        <Text fontSize="28px" fontWeight={500}>
+        <Text
+          fontSize="28px"
+          fontWeight={500}
+          display={{ base: "none", md: "block" }} // Hide on small screens, show on medium and larger screens
+        >
           Good {getDayPeriod()} Folashade!
         </Text>
         <Flex gap="4">
@@ -79,72 +83,101 @@ const Index: React.FC = () => {
           </Button>
         </Flex>
       </Flex>
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap="20px" mb="20px">
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={colors.gray[100]}
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
-                  as={FaTruck}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          name="Driver"
-          value={selectedDriver ? selectedDriver.name : "No Driver Selected"}
-        />
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={colors.gray[100]}
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
-                  as={FaBusAlt}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          name="Vehicle"
-          value={selectedDriver ? selectedDriver.vehicle : "No Vehicle"}
-        />
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={colors.gray[100]}
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
-                  as={
-                    selectedDriver && selectedDriver.status === "Active"
-                      ? FaCheckCircle
-                      : FaTimesCircle
-                  }
-                  color={
-                    selectedDriver && selectedDriver.status === "Active"
-                      ? colors.success[800]
-                      : colors.danger[800]
-                  }
-                />
-              }
-            />
-          }
-          name="Status"
-          value={selectedDriver ? selectedDriver.status : "Unknown"}
-        />
+      <Flex
+        mb="20px"
+        direction={{ base: "column", lg: "row" }} // Stack vertically on smaller screens
+      >
+        <SimpleGrid
+          columns={{ base: 1, md: 2 }}
+          spacing="20px"
+          flex="3"
+          mb={{ base: "20px", lg: "0" }} // Add margin-bottom for small screens
+        >
+          <MiniStatistics
+            startContent={
+              <IconBox
+                w="56px"
+                h="56px"
+                bg={colors.gray[100]}
+                icon={
+                  <Icon
+                    w="32px"
+                    h="32px"
+                    as={FaTruck}
+                    color={colors.brand.primary}
+                  />
+                }
+              />
+            }
+            name="Driver"
+            value={selectedDriver ? selectedDriver.name : "No Driver Selected"}
+          />
+          <MiniStatistics
+            startContent={
+              <IconBox
+                w="56px"
+                h="56px"
+                bg={colors.gray[100]}
+                icon={
+                  <Icon
+                    w="32px"
+                    h="32px"
+                    as={FaBusAlt}
+                    color={colors.brand.primary}
+                  />
+                }
+              />
+            }
+            name="Vehicle"
+            value={selectedDriver ? selectedDriver.vehicle : "No Vehicle"}
+          />
+          <MiniStatistics
+            startContent={
+              <IconBox
+                w="56px"
+                h="56px"
+                bg={colors.gray[100]}
+                icon={
+                  <Icon
+                    w="32px"
+                    h="32px"
+                    as={
+                      selectedDriver && selectedDriver.status === "Active"
+                        ? FaCheckCircle
+                        : FaTimesCircle
+                    }
+                    color={
+                      selectedDriver && selectedDriver.status === "Active"
+                        ? colors.success[800]
+                        : colors.danger[800]
+                    }
+                  />
+                }
+              />
+            }
+            name="Status"
+            value={selectedDriver ? selectedDriver.status : "Unknown"}
+          />
+          <MiniStatistics
+            startContent={
+              <IconBox
+                w="56px"
+                h="56px"
+                bg={colors.gray[100]}
+                icon={
+                  <Icon
+                    w="32px"
+                    h="32px"
+                    as={FaArrowCircleUp}
+                    color={colors.brand.primary}
+                  />
+                }
+              />
+            }
+            name="Registration Date"
+            value={selectedDriver ? selectedDriver.registrationDate : "Unknown"}
+          />
+        </SimpleGrid>
         <Box
           p="16px"
           bg={colors.white.text}
@@ -154,6 +187,8 @@ const Index: React.FC = () => {
           alignItems="center"
           justifyContent="center"
           flexDirection="column"
+          ml={{ base: "0", lg: "20px" }} // No margin-left on small screens
+          flex="1"
         >
           <Icon
             as={FaQrcode}
@@ -167,26 +202,7 @@ const Index: React.FC = () => {
             QR Code
           </Text>
         </Box>
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={colors.gray[100]}
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
-                  as={FaArrowCircleUp}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          name="Registration Date"
-          value={selectedDriver ? selectedDriver.registrationDate : "Unknown"}
-        />
-      </SimpleGrid>
+      </Flex>
       <Transactions /> {/* Transaction table remains here */}
       <Modal
         isOpen={isRegisterDriverOpen}

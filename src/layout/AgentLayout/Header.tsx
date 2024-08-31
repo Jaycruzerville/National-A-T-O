@@ -1,4 +1,4 @@
-import React from "react"
+import PropTypes from "prop-types"
 import {
   Button,
   Flex,
@@ -19,42 +19,21 @@ import { HamburgerIcon } from "@chakra-ui/icons"
 import { useNavigate } from "react-router-dom"
 import { MdLaptopWindows } from "react-icons/md"
 import { RiNotification2Fill } from "react-icons/ri"
-import { AiOutlineSetting } from "react-icons/ai"
+import { colors } from "@/theme/colors"
+import { AiOutlineSetting } from "react-icons/ai" // Import the settings icon
+import { HiOutlineLogout } from "react-icons/hi" // Import the logout icon
+import { users } from "@/routes/paths"
 import Notification from "@/modules/Users/Notifications"
-import { HiOutlineLogout } from "react-icons/hi"
 import Auth from "@/utils/auth"
-import { ReactComponent as Logo } from "@/assets/Kano_logo.svg" // Ensure the logo path is correct
+import { ReactComponent as Logo } from "@/assets/Kano_logo.svg"
+import React from "react"
 
-// Define the menu items that will be used in the sidebar and mobile dropdown
-const agentMenuItems = [
-  {
-    title: "Dashboard",
-    path: "/dashboard", // Update this path according to your routes
-    icon: MdLaptopWindows, // Update the icon according to your needs
-  },
-  {
-    title: "Transactions",
-    path: "/transactions",
-    icon: AiOutlineSetting,
-  },
-  {
-    title: "Notifications",
-    path: "/notifications",
-    icon: RiNotification2Fill,
-  },
-]
-
-interface HeaderProps {
-  toggleSidebar: () => void
-  isSidebarOpen: boolean
-}
-
-const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
+const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    Auth.logOut()
-    navigate("/")
+    Auth.logOut() // Make sure this function correctly logs the user out
+    navigate("/") // Redirect to the homepage or login page after logout
   }
 
   return (
@@ -70,51 +49,22 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       zIndex="sticky"
       bg="white"
     >
-      <Flex justifyContent="space-between" alignItems="center">
-        {/* Hamburger Menu for Mobile Screens */}
-        <Box display={{ base: "inline-flex", md: "none" }}>
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              icon={<HamburgerIcon />}
-              aria-label="Toggle Sidebar"
-              onClick={toggleSidebar}
-              variant="ghost"
-              size="sm"
-              bg="brand.primary"
-              color="white"
-            />
-            <MenuList>
-              {agentMenuItems.map(({ title, path, icon }) => (
-                <MenuItem
-                  key={title}
-                  icon={<Icon as={icon} />}
-                  onClick={() => navigate(path)}
-                >
-                  {title}
-                </MenuItem>
-              ))}
-              <MenuItem icon={<HiOutlineLogout />} onClick={handleLogout}>
-                Logout
-              </MenuItem>
-            </MenuList>
-          </Menu>
-        </Box>
-
-        {/* Logo centered on small screens */}
-        <Box
-          as="button"
-          onClick={() => navigate("/")}
-          sx={{ unset: "all" }}
-          flex="1"
-          textAlign="center"
-          display={{ base: "inline-flex", md: "flex" }} // Ensures logo stays in the center on small screens
-          justifyContent={{ base: "center", md: "flex-start" }} // Center on small screens
-        >
+      <Flex justifyContent="space-between">
+        <Box as="button" onClick={() => navigate("/")} sx={{ unset: "all" }}>
           <Logo style={{ width: "120px", height: "40px" }} />
         </Box>
-
-        {/* Rest of the Header */}
+        <HStack spacing="2" align="center">
+          <IconButton
+            icon={<HamburgerIcon />}
+            display={{ base: "inline-flex", md: "none" }}
+            aria-label="Toggle sidebar"
+            onClick={toggleSidebar}
+            variant="ghost"
+            size="sm"
+            bg={colors.brand.primary}
+            color={colors.brand.bgLight}
+          />
+        </HStack>
         <HStack spacing={4}>
           <Menu placement="bottom-end">
             <MenuButton>
@@ -170,13 +120,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             <MenuList>
               <MenuItem
                 icon={<MdLaptopWindows />}
-                onClick={() => navigate("/profile")}
+                onClick={() => navigate(users.PROFILE)}
               >
                 Profile
               </MenuItem>
               <MenuItem
                 icon={<AiOutlineSetting />}
-                onClick={() => navigate("/settings")}
+                onClick={() => navigate(users.SETTINGS)}
               >
                 Settings
               </MenuItem>
@@ -189,6 +139,10 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       </Flex>
     </GridItem>
   )
+}
+
+Header.propTypes = {
+  toggleSidebar: PropTypes.func.isRequired,
 }
 
 export default Header

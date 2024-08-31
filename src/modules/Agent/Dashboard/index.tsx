@@ -18,15 +18,16 @@ import {
   Icon,
 } from "@chakra-ui/react"
 import { MdAddTask, MdAdd, MdOutlineAccountBalanceWallet } from "react-icons/md"
-import { BsHouses } from "react-icons/bs"
-import { FaArrowCircleUp } from "react-icons/fa"
-import { RiMailSendLine } from "react-icons/ri"
+// import { BsHouses } from "react-icons/bs"
+// import { FaArrowCircleUp } from "react-icons/fa"
+// import { RiMailSendLine } from "react-icons/ri"
 import { TbCurrencyNaira } from "react-icons/tb"
 import { HiOutlineBuildingOffice } from "react-icons/hi2"
 import MiniStatistics from "@/reusables/MiniStatistics"
 import IconBox from "@/reusables/icons/IconBox"
 import Transactions from "@/reusables/Transactions"
-import RegisterDriver from "@/modules/Users/Driver/RegisterDriver"
+// import paymentForm from "@/modules/Users/Driver/paymentForm"
+import PaymentForm from "../Payments"
 import { colors } from "@/theme/colors"
 import { getDayPeriod } from "@/utils/getDayPeriod"
 
@@ -42,7 +43,7 @@ interface Driver {
 const Index: React.FC = () => {
   const [properties, setProperties] = useState<Driver[]>([])
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
-  const [isRegisterDriverOpen, setRegisterDriverOpen] = useState(false)
+  const [ispaymentFormOpen, setpaymentFormOpen] = useState(false)
   const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100")
   const cardShadow = useColorModeValue("lg", "dark-lg")
 
@@ -96,7 +97,7 @@ const Index: React.FC = () => {
             bg="brand.primary"
             color="white"
             leftIcon={<Icon as={MdAdd} />}
-            onClick={() => setRegisterDriverOpen(true)}
+            onClick={() => setpaymentFormOpen(true)}
           >
             Add Driver
           </Button>
@@ -154,27 +155,6 @@ const Index: React.FC = () => {
                 <Icon
                   w="32px"
                   h="32px"
-                  as={FaArrowCircleUp}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          growth="+23%"
-          name="Assets value"
-          value={`₦${selectedDriver ? selectedDriver.value : "0"}`}
-        />
-        <MiniStatistics
-          shadow={cardShadow}
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={boxBg}
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
                   as={MdOutlineAccountBalanceWallet}
                   color={colors.brand.primary}
                 />
@@ -200,57 +180,17 @@ const Index: React.FC = () => {
           name="Your balance"
           value="0"
         />
-        <MiniStatistics
-          shadow={cardShadow}
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={boxBg}
-              icon={
-                <Icon
-                  w="28px"
-                  h="28px"
-                  as={RiMailSendLine}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          name="New Messages"
-          value={`${selectedDriver ? selectedDriver.tasks : "0"}`}
-        />
-        <MiniStatistics
-          shadow={cardShadow}
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg={boxBg}
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
-                  as={BsHouses}
-                  color={colors.brand.primary}
-                />
-              }
-            />
-          }
-          name="Total Buildings"
-          value={`${selectedDriver ? selectedDriver.projects : "0"}`}
-        />
       </SimpleGrid>
       <Modal
-        isOpen={isRegisterDriverOpen}
-        onClose={() => setRegisterDriverOpen(false)}
+        isOpen={ispaymentFormOpen}
+        onClose={() => setpaymentFormOpen(false)}
         isCentered
         size="2x1"
         scrollBehavior="inside"
       >
         <ModalOverlay />
         <ModalContent maxW="980px" maxH="calc(100vh - 150px)" overflowY="auto">
-          <RegisterDriver onClose={() => setRegisterDriverOpen(false)} />
+          <PaymentForm onClose={() => setpaymentFormOpen(false)} />
         </ModalContent>
       </Modal>
       <Transactions />

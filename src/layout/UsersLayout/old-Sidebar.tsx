@@ -1,133 +1,60 @@
-import PropTypes from "prop-types"
-import {
-  // Avatar,
-  Box,
-  Flex,
-  // HStack,
-  //VStack,
-  Text,
-  Icon,
-} from "@chakra-ui/react"
+import React from "react"
+import { Box, Flex, Text, Icon } from "@chakra-ui/react"
 import { useLocation, useNavigate } from "react-router-dom"
-// import { FiUsers } from "react-icons/fi"
 import { AiOutlineCreditCard } from "react-icons/ai"
-// import { IoSettingsOutline } from "react-icons/io5"
-// import { IoGiftOutline } from "react-icons/io5"
-// import { IoIosPeople } from "react-icons/io"
-// import { IoMdPeople } from "react-icons/io"
-import {
-  MdOutlineNotifications,
-  //   MdLaptopWindows,
-} from "react-icons/md"
-import { HiOutlineBuildingOffice } from "react-icons/hi2"
-
+import { MdOutlineNotifications } from "react-icons/md"
 import { RiDashboardFill } from "react-icons/ri"
 import { TbLogout } from "react-icons/tb"
-import { users } from "@/routes/paths"
 import Auth from "@/utils/auth"
-import React from "react"
-// import { useState } from "react"
-// import NotificationNumber from "@/reusables/NotificationNumber"
-
-interface SidebarProps {
-  isMobileOpen: boolean
-}
 
 export const agentMenuItems = [
   {
     title: "Dashboard",
-    path: users.DASHBOARD,
+    path: "/dashboard", // Example path
     icon: RiDashboardFill,
   },
-  // {
-  //   title: "Agents",
-  //   path: users.AGENTS,
-  //   icon: FiUsers,
-  // },
-  // {
-  //   title: "Super Agents",
-  //   path: users.SUPERAGENTS,
-  //   icon: MdLaptopWindows,
-  // },
-  {
-    title: "Properties",
-    path: users.Driver,
-    icon: HiOutlineBuildingOffice,
-  },
-  // {
-  //   title: "Claims",
-  //   path: users.CLAIMS,
-  //   icon: IoGiftOutline,
-  // },
   {
     title: "Transactions",
-    path: users.TRANSACTIONS,
+    path: "/transactions", // Example path
     icon: AiOutlineCreditCard,
   },
-  // {
-  //   title: "Customers",
-  //   path: users.CUSTOMERS,
-  //   icon: IoIosPeople,
-  // },
-  // {
-  //   title: "Service Providers",
-  //   path: users.SERVICEPROVIDERS,
-  //   icon: IoMdPeople,
-  // },
   {
     title: "Notifications",
-    path: users.NOTIFICATIONS,
+    path: "/notifications", // Example path
     icon: MdOutlineNotifications,
   },
-  // {
-  //   title: "Settings",
-  //   path: users.SETTINGS,
-  //   icon: IoSettingsOutline,
-  //   position: "bottom",
-  // },
-  // {
-  //   title: "Logout",
-  //   path: "/",
-  //   icon: HiOutlineArrowTopRightOnSquare,
-  //   position: "bottom",
-  // },
 ]
 
-const logoutItem = {
-  title: "Logout",
-  path: "/",
-  icon: TbLogout,
+interface SidebarProps {
+  isSidebarOpen: boolean // Prop for controlling sidebar visibility
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const headerHeight = "78px"
 
-  // Active and inactive styles
-  const activeBg = "#fff" // white background for active link
-  const inactiveBg = "transparent" // transparent for inactive
-  const activeColor = "brand.primary" // color for text and icon when active
-  const inactiveColor = "#fff" // white color text and icon when inactive
+  const activeBg = "#fff"
+  const inactiveBg = "transparent"
+  const activeColor = "brand.primary"
+  const inactiveColor = "#fff"
 
   return (
     <Box
-      display={{ base: isMobileOpen ? "block" : "none", md: "block" }}
+      display={{ base: "none", md: isSidebarOpen ? "block" : "none" }} // Hide sidebar completely on small screens
       position="fixed"
-      top={headerHeight}
+      top="78px"
       left="0"
       h="calc(100vh - 78px)"
-      w={{ base: "full", md: "250px" }}
+      w="250px"
       zIndex={10}
       bg="brand.primary"
       p="4"
-      // overflowY="auto"
       transition="all 0.3s ease"
       boxShadow="xl"
     >
       <Flex direction="column" mt="3" h="full" pt="4">
         {agentMenuItems.map(({ title, icon, path }) => {
-          const isActive = location.pathname.includes(path) // Adjust if you have nested paths
+          const isActive = location.pathname.includes(path)
 
           return (
             <Box
@@ -145,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen }) => {
                 }
               }}
               _hover={{
-                bg: isActive ? activeBg : "brand.hover", // some hover color from your theme
+                bg: isActive ? activeBg : "brand.hover",
               }}
             >
               <Flex align="center">
@@ -159,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen }) => {
                   color={isActive ? activeColor : inactiveColor}
                   fontWeight={isActive ? "bold" : "normal"}
                   fontSize="sm"
-                  display={{ base: "none", md: "block" }}
+                  display={{ base: "none", md: "block" }} // Ensure text is hidden on small screens
                 >
                   {title}
                 </Text>
@@ -169,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen }) => {
         })}
         <Flex direction="column" mt="auto" pb="4">
           <Box
-            bg={location.pathname === logoutItem.path ? activeBg : inactiveBg}
+            bg={location.pathname === "/" ? activeBg : inactiveBg}
             p="12px 20px"
             borderRadius="4px"
             mb="1"
@@ -183,26 +110,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen }) => {
           >
             <Flex align="center">
               <Icon
-                as={logoutItem.icon}
-                color={
-                  location.pathname === logoutItem.path
-                    ? activeColor
-                    : inactiveColor
-                }
+                as={TbLogout}
+                color={location.pathname === "/" ? activeColor : inactiveColor}
                 boxSize="6"
                 mr="4"
               />
               <Text
-                color={
-                  location.pathname === logoutItem.path
-                    ? activeColor
-                    : inactiveColor
-                }
+                color={location.pathname === "/" ? activeColor : inactiveColor}
                 fontWeight="bold"
                 fontSize="sm"
-                display={{ base: "none", md: "block" }}
+                display={{ base: "none", md: "block" }} // Ensure text is hidden on small screens
               >
-                {logoutItem.title}
+                Logout
               </Text>
             </Flex>
           </Box>
@@ -210,10 +129,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen }) => {
       </Flex>
     </Box>
   )
-}
-
-Sidebar.propTypes = {
-  isMobileOpen: PropTypes.bool.isRequired,
 }
 
 export default Sidebar

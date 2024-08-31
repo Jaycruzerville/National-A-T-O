@@ -56,7 +56,7 @@ export const AppRoutes = () => {
     AGENT: agentRoutes,
     SUPER_AGENT: superAgentRoutes,
     BASE: baseRoutes,
-    ROLE_REGULAR: usersRoutes, // Mapping ROLE_REGULAR to usersRoutes
+    ROLE_REGULAR: agentRoutes, // Mapping ROLE_REGULAR to usersRoutes
   }
 
   const userRole = Auth.getUserRole() || "BASE"

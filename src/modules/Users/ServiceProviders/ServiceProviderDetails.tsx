@@ -71,8 +71,7 @@ const ServiceProviderDetails = () => {
   // eslint-disable-next-line unused-imports/no-unused-vars
   const { data: agentCustomers } = useQuery({
     queryKey: ["agent-customers", { id }],
-    queryFn: () =>
-      usersService.getAgentCustomers(id as string, tableParams),
+    queryFn: () => usersService.getAgentCustomers(id as string, tableParams),
     onError: (error: IError) => {
       toast({
         title: "Error",

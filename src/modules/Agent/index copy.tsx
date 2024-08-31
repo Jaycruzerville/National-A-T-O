@@ -1,52 +1,82 @@
-import { agents } from "@/routes/paths"
+import { users } from "@/routes/paths"
 import { lazy } from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
 
 const paths = [
   {
-    path: agents.DASHBOARD,
+    path: users.DASHBOARD,
     element: lazy(() => import("./Dashboard")),
   },
-
   {
-    path: agents.CLAIMS,
+    path: users.AGENTS,
+    element: lazy(() => import("./Agents")),
+  },
+  {
+    path: users.CLAIMS,
     element: lazy(() => import("./Claims")),
   },
   {
-    path: agents.CLAIMS_DETAILS,
+    path: users.CLAIMS_DETAILS,
     element: lazy(() => import("./Claims/ClaimsDetails")),
   },
-
   {
-    path: agents.Driver,
+    path: users.AGENTS_DETAILS,
+    element: lazy(() => import("./Agents/AgentsDetails")),
+  },
+  {
+    path: users.SUPERAGENTS,
+    element: lazy(() => import("./SuperAgents")),
+  },
+  {
+    path: users.SUPERAGENTS_DETAILS,
+    element: lazy(() => import("./SuperAgents/SuperAgentsDetails")),
+  },
+  {
+    path: users.Driver,
     element: lazy(() => import("./Driver")),
   },
   {
-    path: agents.Driver_DETAILS,
+    path: users.Driver_DETAILS,
     element: lazy(() => import("./Driver/DriverDetails")),
   },
   {
-    path: agents.Driver_REGISTER,
+    path: users.Driver_REGISTER,
     element: lazy(() => import("./Driver/RegisterDriver")),
   },
   {
-    path: agents.PROFILE,
+    path: users.CUSTOMERS,
+    element: lazy(() => import("./Customers")),
+  },
+  {
+    path: users.CUSTOMERS_DETAILS,
+    element: lazy(() => import("./Customers/CustomersDetails")),
+  },
+  {
+    path: users.SERVICEPROVIDERS,
+    element: lazy(() => import("./ServiceProviders")),
+  },
+  {
+    path: users.SERVICEPROVIDERS_DETAILS,
+    element: lazy(() => import("./ServiceProviders/ServiceProviderDetails")),
+  },
+  {
+    path: users.PROFILE,
     element: lazy(() => import("./Profile")),
   },
   {
-    path: agents.KYCFORM,
+    path: users.KYCFORM,
     element: lazy(() => import("./Kyc")),
   },
   {
-    path: agents.TRANSACTIONS,
+    path: users.TRANSACTIONS,
     element: lazy(() => import("./Transactions")),
   },
   {
-    path: agents.NOTIFICATIONS,
+    path: users.NOTIFICATIONS,
     element: lazy(() => import("./Notifications")),
   },
   {
-    path: agents.PAYMENTS,
+    path: users.PAYMENTS,
     element: lazy(() => import("./Payments")),
   },
 ]
@@ -56,7 +86,7 @@ const Index = () => {
     <Routes>
       <Route
         path="*"
-        element={<Navigate to={`${agents.DASHBOARD}`} replace />}
+        element={<Navigate to={`${users.DASHBOARD}`} replace />}
       />
       {paths.map(({ path, element: Element }) => (
         <Route
