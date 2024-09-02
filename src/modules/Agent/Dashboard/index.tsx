@@ -1,105 +1,59 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import {
   Box,
   Flex,
   Text,
-  Menu,
-  MenuList,
-  MenuItem,
-  MenuButton,
   Modal,
   ModalOverlay,
   SimpleGrid,
-  FormLabel,
-  Select,
-  ModalContent,
-  useColorModeValue,
   Button,
   Icon,
+  useColorModeValue,
+  ModalContent,
 } from "@chakra-ui/react"
-import { MdAddTask, MdAdd, MdOutlineAccountBalanceWallet } from "react-icons/md"
-// import { BsHouses } from "react-icons/bs"
-// import { FaArrowCircleUp } from "react-icons/fa"
-// import { RiMailSendLine } from "react-icons/ri"
+import { MdOutlineAccountBalanceWallet } from "react-icons/md"
+import { HiOutlineTicket } from "react-icons/hi2"
 import { TbCurrencyNaira } from "react-icons/tb"
-import { HiOutlineBuildingOffice } from "react-icons/hi2"
+import { CgProfile } from "react-icons/cg"
 import MiniStatistics from "@/reusables/MiniStatistics"
 import IconBox from "@/reusables/icons/IconBox"
 import Transactions from "@/reusables/Transactions"
-// import paymentForm from "@/modules/Users/Driver/paymentForm"
-import PaymentForm from "../Payments"
+import PaymentForm from "../Payments" // Existing form for voucher buying
+import FundingForm from "../Payments/Funding" // New form for account funding
 import { colors } from "@/theme/colors"
 import { getDayPeriod } from "@/utils/getDayPeriod"
 
-interface Driver {
-  id: number
-  name: string
-  value: string
-  payments: string
-  tasks: string
-  projects: string
-}
-
 const Index: React.FC = () => {
-  const [properties, setProperties] = useState<Driver[]>([])
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
-  const [ispaymentFormOpen, setpaymentFormOpen] = useState(false)
+  const [isPaymentFormOpen, setPaymentFormOpen] = useState(false)
+  const [isFundingFormOpen, setFundingFormOpen] = useState(false)
+
   const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100")
   const cardShadow = useColorModeValue("lg", "dark-lg")
 
-  useEffect(() => {
-    setProperties([
-      {
-        id: 1,
-        name: "Ascorn",
-        value: "18,409,300",
-        payments: "750,400",
-        tasks: "10",
-        projects: "3",
-      },
-      {
-        id: 2,
-        name: "Boulevard",
-        value: "27,579,360",
-        payments: "950,900",
-        tasks: "15",
-        projects: "4",
-      },
-    ])
-  }, [])
+  // Use static data for "Boulevard"
+  const selectedDriver = {
+    id: 2,
+    name: "AG-23-76",
+    value: "27,579,360",
+    payments: "950,900",
+    tasks: "15",
+    projects: "4",
+  }
 
   return (
     <Box py="6" px="5" bg="#F6F6F6" minH="100vh">
       <Flex mb="10px" justifyContent="space-between">
         <Text fontSize="28px" fontWeight={500}>
-          Good {getDayPeriod()} Folashade!
+          Good {getDayPeriod()} Kabiru!
         </Text>
         <Flex>
-          <Menu>
-            <MenuButton
-              as={Button}
-              bg="brand.primary"
-              color="white"
-              rightIcon={<Icon as={MdAddTask} />}
-              mr="4"
-            >
-              Select Driver
-            </MenuButton>
-            <MenuList>
-              {properties.map((prop) => (
-                <MenuItem key={prop.id} onClick={() => setSelectedDriver(prop)}>
-                  {prop.name}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
           <Button
             bg="brand.primary"
             color="white"
-            leftIcon={<Icon as={MdAdd} />}
-            onClick={() => setpaymentFormOpen(true)}
+            leftIcon={<Icon as={HiOutlineTicket} />}
+            onClick={() => setPaymentFormOpen(true)}
           >
-            Add Driver
+            Get Voucher
           </Button>
         </Flex>
       </Flex>
@@ -115,14 +69,14 @@ const Index: React.FC = () => {
                 <Icon
                   w="32px"
                   h="32px"
-                  as={HiOutlineBuildingOffice}
+                  as={CgProfile}
                   color={colors.brand.primary}
                 />
               }
             />
           }
-          name="Driver"
-          value={selectedDriver ? selectedDriver.name : "Null"}
+          name="Agent ID"
+          value={selectedDriver.name}
         />
         <MiniStatistics
           shadow={cardShadow}
@@ -141,8 +95,8 @@ const Index: React.FC = () => {
               }
             />
           }
-          name="Pending Payments"
-          value={`₦${selectedDriver ? selectedDriver.payments : "0"}`}
+          name="Total Voucher Sold"
+          value={`₦${selectedDriver.payments}`}
         />
         <MiniStatistics
           shadow={cardShadow}
@@ -162,37 +116,54 @@ const Index: React.FC = () => {
             />
           }
           endContent={
-            <Flex me="-16px" mt="10px">
-              <FormLabel htmlFor="balance"></FormLabel>
-              <Select
-                id="balance"
-                variant="mini"
-                mt="5px"
-                me="0px"
-                defaultValue="NGN"
-              >
-                <option value="usd">NGN</option>
-                <option value="eur">EUR</option>
-                <option value="gba">GBA</option>
-              </Select>
-            </Flex>
+            <Button
+              bg={colors.brand.primary}
+              color="white"
+              size="sm"
+              onClick={() => setFundingFormOpen(true)}
+            >
+              Fund
+            </Button>
           }
           name="Your balance"
           value="0"
         />
       </SimpleGrid>
+
+      {/* Voucher Buying Payment Form */}
       <Modal
-        isOpen={ispaymentFormOpen}
-        onClose={() => setpaymentFormOpen(false)}
+        isOpen={isPaymentFormOpen}
+        onClose={() => setPaymentFormOpen(false)}
         isCentered
         size="2x1"
         scrollBehavior="inside"
       >
         <ModalOverlay />
         <ModalContent maxW="980px" maxH="calc(100vh - 150px)" overflowY="auto">
-          <PaymentForm onClose={() => setpaymentFormOpen(false)} />
+          <PaymentForm
+            onClose={() => setPaymentFormOpen(false)}
+            selectedProduct={""}
+          />
         </ModalContent>
       </Modal>
+
+      {/* Account Funding Form */}
+      <Modal
+        isOpen={isFundingFormOpen}
+        onClose={() => setFundingFormOpen(false)}
+        isCentered
+        size="2x1"
+        scrollBehavior="inside"
+      >
+        <ModalOverlay />
+        <ModalContent maxW="980px" maxH="calc(100vh - 150px)" overflowY="auto">
+          <FundingForm
+            onClose={() => setFundingFormOpen(false)}
+            isOpen={isFundingFormOpen}
+          />
+        </ModalContent>
+      </Modal>
+
       <Transactions />
     </Box>
   )

@@ -52,7 +52,7 @@ const EmptyState = () => (
   </Flex>
 )
 
-const StyledTable = ({
+const StyledNewTable = ({
   data,
   columns,
   onRowClick,
@@ -263,4 +263,4 @@ const StyledTable = ({
   )
 }
 
-export default StyledTable
+export default StyledNewTable

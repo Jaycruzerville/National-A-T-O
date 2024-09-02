@@ -316,7 +316,7 @@ const index = () => {
           gap="20px"
         >
           <Text color="#ffffff" fontSize="20px" fontWeight="500">
-            Payment History
+            History
           </Text>
           <Spacer />
           <InputGroup width="237px">

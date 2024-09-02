@@ -10,26 +10,22 @@ import Auth from "@/utils/auth"
 export const agentMenuItems = [
   {
     title: "Dashboard",
-    path: "/dashboard", // Example path
+    path: "/dashboard",
     icon: RiDashboardFill,
   },
   {
     title: "Transactions",
-    path: "/transactions", // Example path
+    path: "/transactions",
     icon: AiOutlineCreditCard,
   },
   {
     title: "Notifications",
-    path: "/notifications", // Example path
+    path: "/notifications",
     icon: MdOutlineNotifications,
   },
 ]
 
-interface SidebarProps {
-  isSidebarOpen: boolean // Prop for controlling sidebar visibility
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
+const Sidebar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -40,7 +36,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
 
   return (
     <Box
-      display={{ base: "none", md: isSidebarOpen ? "block" : "none" }} // Hide sidebar completely on small screens
       position="fixed"
       top="78px"
       left="0"
@@ -51,6 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
       p="4"
       transition="all 0.3s ease"
       boxShadow="xl"
+      display={{ base: "none", md: "block" }}
     >
       <Flex direction="column" mt="3" h="full" pt="4">
         {agentMenuItems.map(({ title, icon, path }) => {
@@ -64,13 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
               borderRadius="4px"
               mb="1"
               cursor="pointer"
-              onClick={() => {
-                if (title === "Logout") {
-                  Auth.logOut()
-                } else {
-                  navigate(path)
-                }
-              }}
+              onClick={() => navigate(path)}
               _hover={{
                 bg: isActive ? activeBg : "brand.hover",
               }}
@@ -86,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
                   color={isActive ? activeColor : inactiveColor}
                   fontWeight={isActive ? "bold" : "normal"}
                   fontSize="sm"
-                  display={{ base: "none", md: "block" }} // Ensure text is hidden on small screens
+                  display={{ base: "none", md: "block" }}
                 >
                   {title}
                 </Text>
@@ -103,6 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
             cursor="pointer"
             onClick={() => {
               Auth.logOut()
+              navigate("/")
             }}
             _hover={{
               bg: "brand.hover",
@@ -119,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
                 color={location.pathname === "/" ? activeColor : inactiveColor}
                 fontWeight="bold"
                 fontSize="sm"
-                display={{ base: "none", md: "block" }} // Ensure text is hidden on small screens
+                display={{ base: "none", md: "block" }}
               >
                 Logout
               </Text>

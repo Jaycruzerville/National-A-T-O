@@ -19,12 +19,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         overflowY="scroll"
       >
         {/* Sidebar will only show on medium screens and up */}
-        <Sidebar isSidebarOpen={isSidebarOpen} />
+        <Sidebar />
         <Box
           flex="1"
-          pt={{ base: "4rem", md: "0" }}
+          pt={{ base: "6rem", md: "4rem" }}
           transition="margin-left 0.3s ease"
-          marginLeft={{ base: "0", md: isSidebarOpen ? "250px" : "0" }}
+          ml={{ base: "0", md: "250px" }}
           w={{ base: "full", md: "auto" }}
         >
           {children}
