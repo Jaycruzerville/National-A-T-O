@@ -32,7 +32,7 @@ function makePayment(details: PaymentDetails): void {
   const handler = window.RmPaymentEngine.init({
     // key: "QzAwMDAzNTA0Mzh8MTEwMDQxNzg2OTkwfGEwMmU2Mjg1ZmZhY2ZlMTVhNmYzZTVmZTFiMGQzNmMzYThmNDRhZTViZDM4OWMxZDU1YWYwODU1ZjE5YTA4MmYwNjAxZTYyZmRjMzVkMzUyNWI2MjFlYjkxNjZjZmE2NWU5MmUyZTU1MDRjYjJlMGY4ZDBkNjRhOGRmMjBmYjkw", // Ensure this key is valid
     key: "QzAwMDAyNzEyNTl8MTEwNjE4NjF8OWZjOWYwNmMyZDk3MDRhYWM3YThiOThlNTNjZTE3ZjYxOTY5NDdmZWE1YzU3NDc0ZjE2ZDZjNTg1YWYxNWY3NWM4ZjMzNzZhNjNhZWZlOWQwNmJhNTFkMjIxYTRiMjYzZDkzNGQ3NTUxNDIxYWNlOGY4ZWEyODY3ZjlhNGUwYTY=",
-    customerId: email,
+    userId: email,
     transactionId: Math.random().toString(36).substr(2, 9),
     firstName: firstName,
     lastName: lastName,

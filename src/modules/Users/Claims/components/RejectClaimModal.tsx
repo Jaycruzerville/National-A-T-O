@@ -20,10 +20,10 @@ import { IError } from "@/types"
 
 const RejectClaimModal = ({
   claimId,
-  customerId,
+  userId,
 }: {
   claimId: string
-  customerId: string
+  userId: string
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const fontFamily = "'Cabinet Grotesk', sans-serif"
@@ -119,7 +119,7 @@ const RejectClaimModal = ({
             <Button
               onClick={() => {
                 mutate({
-                  customer_id: customerId,
+                  customer_id: userId,
                   claim_id: claimId,
                   data,
                 })

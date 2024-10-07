@@ -4,13 +4,12 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { ImFilesEmpty } from "react-icons/im"
 import { AiOutlineCreditCard } from "react-icons/ai"
 import { IoIosPeople } from "react-icons/io"
-import {
-  MdOutlineNotifications,
-  MdOutlineVerifiedUser,
-  MdOutlineRealEstateAgent,
-} from "react-icons/md"
-import { HiOutlineBuildingOffice } from "react-icons/hi2"
-import { RiDashboardFill, RiAwardFill } from "react-icons/ri"
+import { MdOutlineNotifications } from "react-icons/md"
+import { MdOutlineSupportAgent } from "react-icons/md"
+//import { HiOutlineBuildingOffice } from "react-icons/hi2"
+import { RiShieldUserLine } from "react-icons/ri"
+import { FaCarOn } from "react-icons/fa6"
+import { RiDashboardFill } from "react-icons/ri"
 import { TbLogout } from "react-icons/tb"
 import { Admin } from "@/routes/paths"
 import Auth from "@/utils/auth"
@@ -31,25 +30,52 @@ export const agentMenuItems = [
     path: Admin.CLAIMS,
     icon: ImFilesEmpty,
   },
+  // {
+  //   title: "Properties",
+  //   path: Admin.Driver,
+  //   icon: HiOutlineBuildingOffice,
+  //   subItems: [
+  //     {
+  //       title: "All Properties",
+  //       path: Admin.Driver,
+  //       icon: MdOutlineRealEstateAgent,
+  //     },
+  //     {
+  //       title: "Verified with owners",
+  //       path: Admin.Driver_VWO,
+  //       icon: MdOutlineVerifiedUser,
+  //     },
+  //     {
+  //       title: "Verified with no owners",
+  //       path: Admin.Driver_VNO,
+  //       icon: RiAwardFill,
+  //     },
+  //   ],
+  // },
   {
-    title: "Properties",
-    path: Admin.Driver,
-    icon: HiOutlineBuildingOffice,
+    title: "Users",
+    path: Admin.CUSTOMERS,
+    icon: IoIosPeople,
     subItems: [
+      // {
+      //   title: "All Properties",
+      //   path: Admin.Driver,
+      //   icon: MdOutlineRealEstateAgent,
+      // },
       {
-        title: "All Properties",
+        title: "Drivers",
         path: Admin.Driver,
-        icon: MdOutlineRealEstateAgent,
+        icon: FaCarOn,
       },
       {
-        title: "Verified with owners",
-        path: Admin.Driver_VWO,
-        icon: MdOutlineVerifiedUser,
+        title: "Agents",
+        path: Admin.AGENTS,
+        icon: MdOutlineSupportAgent,
       },
       {
-        title: "Verified with no owners",
-        path: Admin.Driver_VNO,
-        icon: RiAwardFill,
+        title: "Super Agents",
+        path: Admin.SUPERAGENTS,
+        icon: RiShieldUserLine,
       },
     ],
   },
@@ -57,11 +83,6 @@ export const agentMenuItems = [
     title: "Charges",
     path: Admin.Charges,
     icon: ImFilesEmpty,
-  },
-  {
-    title: "Users",
-    path: Admin.CUSTOMERS,
-    icon: IoIosPeople,
   },
   {
     title: "Transactions",

@@ -2,7 +2,7 @@
 import { useDeferredValue, useState } from "react"
 import {
   Box,
-  Button,
+  // Button,
   Divider,
   Flex,
   FormControl,
@@ -10,7 +10,6 @@ import {
   Image,
   Input,
   InputGroup,
-  Icon,
   InputRightElement,
   ListItem,
   Modal,
@@ -28,85 +27,53 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react"
-// import StatCards from "@/reusables/StatCards"
-// import totalUsers from "@/assets/totalUsers.svg"
-// import totalTransactions from "@/assets/totalTransaction.svg"
 import StyledTable from "@/reusables/StyledTable"
 import Filter from "@/reusables/Filter"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 import { useQuery } from "@tanstack/react-query"
 import { SwitchStatus } from "@/reusables/SwitchStatus"
 import usersService from "@/services/usersServices"
-import { useDriver } from "@/hooks/useDriver"
+//import { useDriver } from "@/hooks/useDriver"
 import { IError } from "@/types"
 import { formatToCurrency } from "@/utils/formatToCurrency"
 import { format } from "date-fns"
-import { useNavigate } from "react-router-dom"
+// import { useNavigate } from "react-router-dom"
 import searchLight from "@/assets/search-light.svg"
-// import useStateAndLGA from "@/hooks/useStateAndLGA"
-// import { getPercentageChange } from "@/utils/getStatPercentile"
-import { BiSort } from "react-icons/bi"
+// import { BiSort } from "react-icons/bi"
+//  Driver from "@/modules/Users/Driver"
+import Auth from "@/utils/auth"
 
 type Transactions = {
-  num: number
-  transactionId: string
-  customerName: string
-  plan: string
-  amount: string
-  transactionType: string
-  collector: string
-  association: string
+  _id: string
+  agentId: string
+  amount: number
+  reference: string
   status: string
-  date: string
+  createdAt: string
+  gateway: string // added if needed for display
 }
 
 const columns: ColumnDef<Transactions>[] = [
   {
-    accessorKey: "transactionReference",
+    accessorKey: "reference", // This matches the API response
     header: "Transaction ID",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cell: (info: CellContext<Transactions, any>) => (
-      <>{info.getValue().split("-")[0].toUpperCase()}</>
+      <>{info.getValue().toUpperCase()}</>
     ),
   },
   {
-    accessorKey: "customerName",
-    header: ({ column }) => (
-      <Button
-        gap="4px"
-        _hover={{ backgroundColor: "none" }}
-        p="0px"
-        _active={{ background: "none" }}
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Customer Name <Icon as={BiSort} color="brand.primary" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "plan",
-    header: "Plan",
-  },
-  {
-    accessorKey: "amount",
+    accessorKey: "amount", // Use "amount" as per your API response
     header: "Amount",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cell: (info: CellContext<Transactions, any>) => (
       <>{formatToCurrency(info.getValue())}</>
     ),
   },
   {
-    accessorKey: "transactionType",
-    header: "Action",
-  },
-
-  {
-    accessorKey: "association",
-    header: "Association",
+    accessorKey: "gateway", // Corresponds to the "gateway" field in the API response
+    header: "Gateway",
   },
   {
-    accessorKey: "transactionStatus",
+    accessorKey: "status", // Use "status" to display transaction status
     header: "Status",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cell: (info: CellContext<Transactions, any>) => (
@@ -114,7 +81,7 @@ const columns: ColumnDef<Transactions>[] = [
     ),
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "createdAt", // Use "createdAt" for the date
     header: "Date",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cell: (info: CellContext<Transactions, any>) => (
@@ -123,26 +90,8 @@ const columns: ColumnDef<Transactions>[] = [
       </Box>
     ),
   },
-  {
-    accessorKey: "transactionAction",
-    header: "Type",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cell: (info: CellContext<Transactions, any>) => (
-      <Text
-        fontWeight="bold"
-        color={
-          info.getValue().toLowerCase() === "credit"
-            ? "#027A48"
-            : info.getValue().toLowerCase() === "debit"
-            ? "#D92D20"
-            : "#202020"
-        }
-      >
-        {info.getValue()}
-      </Text>
-    ),
-  },
 ]
+
 const initParams = {
   search: "",
   status: "",
@@ -154,9 +103,9 @@ const initParams = {
   startDate: "",
   endDate: "",
 }
-const index = () => {
+
+const TransactionsPage = () => {
   const toast = useToast()
-  const { Driver } = useDriver()
   const [tableParams, setTableParams] = useState({
     ...initParams,
     pageSize: 10,
@@ -165,28 +114,28 @@ const index = () => {
   })
 
   const [filters, setFilters] = useState(initParams)
-
   const deferredSearchValue = useDeferredValue(tableParams.search)
   const [transactionId, setTransactionId] = useState<string | null>(null)
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
+  const agentId = Auth.getAgentId()
+
+  // Fetch transactions by agent ID if agentId is not null
   const { data: transactionsList, isLoading: loadingTransactions } = useQuery({
     queryKey: [
       "all_transactions",
       {
         pageSize: tableParams.pageSize,
         page: tableParams.page,
-        transactionType: tableParams.type,
-        transactionAction: tableParams.action,
-        transactionStatus: tableParams.status,
-        planType: tableParams.plan,
         search: deferredSearchValue,
-        startDate: tableParams.startDate,
-        endDate: tableParams.endDate,
-        association: tableParams.association,
       },
     ],
-    queryFn: usersService.getTransactions,
+    queryFn: () => {
+      if (!agentId) {
+        throw new Error("Agent ID is null")
+      }
+      return usersService.getTransactionsByAgentId(agentId)
+    },
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -197,13 +146,15 @@ const index = () => {
         position: "top",
       })
     },
+    enabled: !!agentId, // Ensure query only runs if agentId is not null
   })
 
+  // Fetch specific transaction details by ID
   const { data: transactionDetails, isLoading: loadingTransactionDetails } =
     useQuery({
-      queryKey: ["transaction_details", { id: transactionId }],
+      queryKey: ["transaction_details", transactionId],
       enabled: !!transactionId,
-      queryFn: usersService.getTransactionsDetails,
+      queryFn: () => usersService.getTransactionById(transactionId as string),
       onError: (error: IError) => {
         toast({
           title: "Error",
@@ -215,58 +166,6 @@ const index = () => {
         })
       },
     })
-
-  //   const { data: transactionStats } = useQuery({
-  //     queryKey: ["transaction_stats"],
-  //     queryFn: usersService.getTransactionsStats,
-  //     onError: (error: IError) => {
-  //       toast({
-  //         title: "Error",
-  //         description: error?.message,
-  //         status: "error",
-  //         duration: 5000,
-  //         isClosable: true,
-  //         position: "top",
-  //       })
-  //     },
-  //   })
-
-  //   const statData = [
-  //     {
-  //       id: 1,
-  //       icon: totalUsers,
-  //       text: "Total transaction value",
-  //       value: formatToCurrency(
-  //         transactionStats?.data?.totalTransactionValue ?? 0
-  //       ),
-  //       percentage: getPercentageChange(
-  //         parseInt(transactionStats?.data?.totalTransactionValue),
-  //         parseInt(transactionStats?.data?.totalTransactionValueLastMonth)
-  //       )?.percentageChange,
-  //     },
-  //     {
-  //       id: 2,
-  //       icon: totalTransactions,
-  //       text: "Total claim value",
-  //       value: formatToCurrency(transactionStats?.data?.totalClaimValue ?? 0),
-  //       percentage: getPercentageChange(
-  //         parseInt(transactionStats?.data?.totalClaimValue),
-  //         parseInt(transactionStats?.data?.totalClaimValueLastMonth)
-  //       )?.percentageChange,
-  //     },
-  //     {
-  //       id: 3,
-  //       icon: totalTransactions,
-  //       text: "Total remittance",
-  //       value: formatToCurrency(
-  //         transactionStats?.data?.totalRemittanceValue ?? 0
-  //       ),
-  //       percentage: getPercentageChange(
-  //         parseInt(transactionStats?.data?.totalRemittanceValue),
-  //         parseInt(transactionStats?.data?.totalRemittanceValueLastMonth)
-  //       )?.percentageChange,
-  //     },
-  //   ]
 
   interface Params {
     param?: string
@@ -287,26 +186,20 @@ const index = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleRowClick = (id: any) => {
-    setTransactionId(id)
-    onOpen()
+  const handleRowClick = (id: string) => {
+    setTransactionId(id) // Set the transaction ID
+    onOpen() // Open the modal
   }
 
   return (
     <>
+      <Flex
+        justifyContent="space-between"
+        p="20px"
+        bgColor="white"
+        alignItems="center"
+      ></Flex>
       <Box bg="#F6F6F6" p="20px">
-        {/* <Flex gap="20px" justify="start" align="center">
-          {statData.map(({ id, icon, text, value, percentage }) => (
-            <StatCards
-              key={id}
-              icon={icon}
-              text={text}
-              value={value}
-              percentage={percentage}
-            />
-          ))}
-        </Flex> */}
         <Flex
           bg="brand.primary"
           py="12px"
@@ -316,7 +209,7 @@ const index = () => {
           gap="20px"
         >
           <Text color="#ffffff" fontSize="20px" fontWeight="500">
-            History
+            Transactions
           </Text>
           <Spacer />
           <InputGroup width="237px">
@@ -484,7 +377,7 @@ const index = () => {
                 >
                   Association
                 </FormLabel>
-                <Select
+                {/* <Select
                   placeholder="Select Association"
                   _placeholder={{ color: "#003E51" }}
                   name="status"
@@ -505,7 +398,7 @@ const index = () => {
                       </option>
                     )
                   )}
-                </Select>
+                </Select> */}
               </FormControl>
             </Flex>
 
@@ -568,11 +461,11 @@ const index = () => {
             </Flex>
           </Filter>
         </Flex>
-        <Box mt="20px" bg="#ffffff" className="table-responsive">
+        <Box mt="20px" bg="#ffffff">
           <StyledTable
-            data={transactionsList?.data}
+            data={transactionsList}
             columns={columns}
-            onRowClick={(row) => handleRowClick(row?.id)}
+            onRowClick={(row) => handleRowClick(String(row._id))}
             loading={loadingTransactions}
             pagination={{
               pageSize: tableParams?.pageSize,
@@ -585,8 +478,15 @@ const index = () => {
       </Box>
       <>
         <Modal isOpen={isOpen} onClose={onClose} size="lg">
-          <ModalOverlay />
-          <ModalContent>
+          <ModalOverlay bg="rgba(0, 0, 0, 0.6)" />
+          <ModalContent
+            bg="white"
+            color="black"
+            p={5}
+            borderRadius="md"
+            boxShadow="lg"
+            opacity="1"
+          >
             <ModalCloseButton
               top="3rem"
               color="brand.primary"
@@ -652,11 +552,10 @@ const index = () => {
                       fontWeight={600}
                       lineHeight="25px"
                     >
-                      {transactionDetails?.data?.createdAt &&
-                        format(
-                          new Date(transactionDetails?.data?.createdAt),
-                          "yyyy-MM-dd"
-                        )}
+                      {format(
+                        new Date(transactionDetails?.createdAt),
+                        "yyyy-MM-dd"
+                      )}
                     </Text>
                   </ListItem>
                   <ListItem
@@ -670,7 +569,7 @@ const index = () => {
                       fontWeight={600}
                       lineHeight="25px"
                     >
-                      Transaction Type:
+                      Reference ID:
                     </Text>
                     <Text
                       color="#202020"
@@ -678,95 +577,7 @@ const index = () => {
                       fontWeight={600}
                       lineHeight="25px"
                     >
-                      {transactionDetails?.data?.transactionType ?? "-"}
-                    </Text>
-                  </ListItem>
-                  <ListItem
-                    listStyleType="none"
-                    display="flex"
-                    justifyContent="space-between"
-                  >
-                    <Text
-                      color="#8E8E8E"
-                      letterSpacing="-1px"
-                      fontWeight={600}
-                      lineHeight="25px"
-                    >
-                      initiated by:
-                    </Text>
-                    <Text
-                      color="#202020"
-                      letterSpacing="-1px"
-                      fontWeight={600}
-                      lineHeight="25px"
-                    >
-                      -
-                    </Text>
-                  </ListItem>
-                  <ListItem
-                    listStyleType="none"
-                    display="flex"
-                    justifyContent="space-between"
-                  >
-                    <Text
-                      color="#8E8E8E"
-                      letterSpacing="-1px"
-                      fontWeight={600}
-                      lineHeight="25px"
-                    >
-                      Customer Name:
-                    </Text>
-                    <Text
-                      color="#202020"
-                      letterSpacing="-1px"
-                      fontWeight={600}
-                      lineHeight="25px"
-                    >
-                      {transactionDetails?.data?.customerName ?? "-"}
-                    </Text>
-                  </ListItem>
-                  <ListItem
-                    listStyleType="none"
-                    display="flex"
-                    justifyContent="space-between"
-                  >
-                    <Text
-                      color="#8E8E8E"
-                      letterSpacing="-1px"
-                      fontWeight={600}
-                      lineHeight="25px"
-                    >
-                      Customer ID:
-                    </Text>
-                    <Text
-                      color="#202020"
-                      letterSpacing="-1px"
-                      fontWeight={600}
-                      lineHeight="25px"
-                    >
-                      {transactionDetails?.data?.customerCode ?? "-"}
-                    </Text>
-                  </ListItem>
-                  <ListItem
-                    listStyleType="none"
-                    display="flex"
-                    justifyContent="space-between"
-                  >
-                    <Text
-                      color="#8E8E8E"
-                      letterSpacing="-1px"
-                      fontWeight={600}
-                      lineHeight="25px"
-                    >
-                      Customer Phone Number:
-                    </Text>
-                    <Text
-                      color="#202020"
-                      letterSpacing="-1px"
-                      fontWeight={600}
-                      lineHeight="25px"
-                    >
-                      {transactionDetails?.data?.customerPhone ?? "-"}
+                      {transactionDetails?.reference ?? "-"}
                     </Text>
                   </ListItem>
                   <ListItem
@@ -788,7 +599,7 @@ const index = () => {
                       fontWeight={600}
                       lineHeight="25px"
                     >
-                      {formatToCurrency(transactionDetails?.data?.amount ?? 0)}
+                      {formatToCurrency(transactionDetails?.amount ?? 0)}
                     </Text>
                   </ListItem>
                   <ListItem
@@ -802,7 +613,7 @@ const index = () => {
                       fontWeight={600}
                       lineHeight="25px"
                     >
-                      Plan Paid for:
+                      Status
                     </Text>
                     <Text
                       color="#202020"
@@ -810,7 +621,7 @@ const index = () => {
                       fontWeight={600}
                       lineHeight="25px"
                     >
-                      {transactionDetails?.data?.plan ?? "-"}
+                      {transactionDetails?.status ?? "-"}
                     </Text>
                   </ListItem>
                   <ListItem
@@ -832,7 +643,7 @@ const index = () => {
                       fontWeight={600}
                       lineHeight="25px"
                     >
-                      -
+                      {transactionDetails?.gateway ?? "-"}
                     </Text>
                   </ListItem>
                 </UnorderedList>
@@ -840,7 +651,7 @@ const index = () => {
             )}
 
             <ModalFooter justifyContent="center" pt="62px" pb="42px">
-              <Button
+              {/* <Button
                 width="fit-content"
                 fontSize="20px"
                 fontWeight={600}
@@ -866,7 +677,7 @@ const index = () => {
                 }
               >
                 View customer details
-              </Button>
+              </Button> */}
             </ModalFooter>
           </ModalContent>
         </Modal>
@@ -875,4 +686,4 @@ const index = () => {
   )
 }
 
-export default index
+export default TransactionsPage

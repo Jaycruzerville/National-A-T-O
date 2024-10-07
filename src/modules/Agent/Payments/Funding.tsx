@@ -1,68 +1,197 @@
 import React, { useState, useEffect } from "react"
 import {
   Box,
+  Button,
   FormControl,
   FormLabel,
   Input,
-  Button,
-  Heading,
+  Select,
   VStack,
   HStack,
+  Text,
+  Spinner,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  Flex,
+  useToast,
+  Heading,
 } from "@chakra-ui/react"
-import { makePayment } from "@/reusables/payment/remita/paymentHandler" // Adjust the import path as needed
-import useScript from "@/reusables/payment/remita/useScript" // Adjust the import path as needed
+import PaystackPop from "@paystack/inline-js"
+import usersService from "@/services/usersServices" // Adjust the path as needed
 import { colors } from "@/theme/colors"
+import Auth from "@/utils/auth"
+import { useQueryClient } from "@tanstack/react-query" // Import useQueryClient
 
 interface FundingFormProps {
   isOpen: boolean
   onClose: () => void
+  onSuccess: () => void // Add this line
 }
 
-const FundingForm: React.FC<FundingFormProps> = ({ onClose }) => {
+const FundingForm: React.FC<FundingFormProps> = ({ onClose, onSuccess }) => {
   const [amount, setAmount] = useState("")
-
-  // Hardcoded payment details retrieved from local storage
+  const [gateway, setGateway] = useState("paystack")
   const [email, setEmail] = useState("")
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [narration] = useState("Funding account for Boulevard")
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const [verificationMessage, setVerificationMessage] = useState("")
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  const [isSuccess, setIsSuccess] = useState(false)
+  const queryClient = useQueryClient()
+
+  const toast = useToast() // Use toast for notifications
 
   useEffect(() => {
-    // Retrieve details from local storage
     const storedEmail =
-      localStorage.getItem("email") || "defaultEmail@example.com"
-    const storedFirstName = localStorage.getItem("firstName") || "John"
-    const storedLastName = localStorage.getItem("lastName") || "Doe"
-
+      localStorage.getItem("email") || "ogunsakinjoshua@gmail.com"
     setEmail(storedEmail)
-    setFirstName(storedFirstName)
-    setLastName(storedLastName)
   }, [])
-
-  // Load the Remita payment script
-  useScript(
-    "https://remitademo.net/payment/v1/remita-pay-inline.bundle.js",
-    () => console.log("Remita script loaded successfully")
-  )
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAmount(event.target.value)
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    // Prepare the payment details
-    const paymentDetails = {
-      email,
-      firstName,
-      lastName,
-      amount,
-      narration,
-    }
+  const handleGatewayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setGateway(event.target.value)
+  }
 
-    // Initiate the payment
-    makePayment(paymentDetails)
-    onClose() // Close the modal after submission
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setIsVerifying(true)
+
+    try {
+      const paymentData = {
+        email,
+        amount,
+        gateway,
+      }
+
+      const response = await usersService.initializeFundingTransaction(
+        paymentData
+      )
+      // eslint-disable-next-line unused-imports/no-unused-vars
+      const { authorizationUrl, reference } = response
+
+      if (gateway === "paystack") {
+        const paystack = new PaystackPop()
+        paystack.newTransaction({
+          key: "pk_test_32df4595b3735ddc88c7bcf0f1d3f8c6b676f4dd", // Replace with your Paystack public key
+          reference: reference,
+          amount: parseInt(amount) * 100, // Convert to kobo (for naira)
+          email: email,
+          onSuccess: async (transaction: { reference: string }) => {
+            await verifyPayment(transaction.reference)
+          },
+          onCancel: () => {
+            setVerificationMessage("Payment cancelled.")
+            setShowModal(true)
+            setIsVerifying(false)
+          },
+        })
+      }
+    } catch (error) {
+      console.error("Error initializing payment:", error)
+      setVerificationMessage("Error initializing payment. Please try again.")
+      setShowModal(true)
+      setIsVerifying(false)
+    }
+  }
+
+  const verifyPayment = async (reference: string) => {
+    try {
+      const agentId = Auth.getAgentId() // Call the function to get agentId
+      if (!agentId) {
+        throw new Error("Agent ID not found")
+      }
+
+      const verificationData = await usersService.verifyFundingTransaction({
+        reference,
+        gateway: "paystack", // We're handling Paystack here
+      })
+
+      if (verificationData.status === "success") {
+        setVerificationMessage(
+          `Wallet funded with ₦${verificationData.walletBalance}. Transaction reference: ${verificationData.reference}`
+        )
+        setIsSuccess(true)
+
+        // Store the transaction details after successful verification
+        await storeTransaction({
+          agentId: agentId, // Use the agentId obtained
+          amount: parseInt(amount), // Use the amount entered by the user, not walletBalance
+          reference: verificationData.reference,
+          gateway: "paystack", // Assuming paystack was used
+          status: "success", // Payment success
+        })
+
+        // Show success toast notification
+        toast({
+          title: "Payment Successful",
+          description: `Your wallet has been funded with ₦${verificationData.walletBalance}.`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        })
+
+        // Call the onSuccess function to refresh the dashboard
+        onSuccess()
+        // Invalidate the transactions list query
+        queryClient.invalidateQueries(["all_transactions"])
+        onClose() // Close the modal after success
+      } else {
+        setVerificationMessage("Payment verification failed. Please try again.")
+        setIsSuccess(false)
+
+        toast({
+          title: "Payment Failed",
+          description: "Payment verification failed. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        })
+
+        onClose() // Close the modal
+      }
+
+      setShowModal(false) // Close the verification modal
+    } catch (error) {
+      console.error("Payment verification failed:", error)
+      setVerificationMessage("Error verifying payment. Please try again.")
+      setIsSuccess(false)
+      setShowModal(false) // Close the verification modal
+
+      toast({
+        title: "Payment Error",
+        description: "An error occurred while verifying the payment.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      })
+
+      onClose() // Close the modal
+    } finally {
+      setIsVerifying(false)
+    }
+  }
+
+  const storeTransaction = async (transactionData: {
+    agentId: string
+    amount: number
+    reference: string
+    gateway: string
+    status: string
+  }) => {
+    try {
+      const response = await usersService.storeTransaction(transactionData)
+      console.log("Transaction stored successfully:", response)
+    } catch (error) {
+      console.error("Error storing transaction:", error)
+    }
   }
 
   return (
@@ -72,6 +201,14 @@ const FundingForm: React.FC<FundingFormProps> = ({ onClose }) => {
       </Heading>
       <form onSubmit={handleSubmit}>
         <VStack spacing={4}>
+          <FormControl id="gateway" isRequired>
+            <FormLabel>Select Payment Gateway</FormLabel>
+            <Select value={gateway} onChange={handleGatewayChange}>
+              <option value="paystack">Paystack</option>
+              <option value="remita">Remita</option>
+            </Select>
+          </FormControl>
+
           <FormControl id="amount" isRequired>
             <FormLabel>Amount To Fund (₦)</FormLabel>
             <Input
@@ -88,21 +225,40 @@ const FundingForm: React.FC<FundingFormProps> = ({ onClose }) => {
               color={colors.white.text}
               _hover={{ bg: colors.brand.primaryDark }}
               type="submit"
+              isDisabled={isVerifying}
             >
-              Proceed to Payment
+              {isVerifying ? "Verifying..." : "Proceed to Payment"}
             </Button>
             <Button
               bg={colors.gray[300]}
               color={colors.white.text}
               _hover={{ bg: colors.gray[400] }}
               type="reset"
-              onClick={() => setAmount("")} // Clear the amount input on reset
+              onClick={() => setAmount("")}
             >
               Reset
             </Button>
           </HStack>
         </VStack>
       </form>
+
+      {/* Loader */}
+      {isVerifying && (
+        <Flex justifyContent="center" alignItems="center" mt={6}>
+          <Spinner size="lg" />
+          <Text ml={4}>Verifying Payment...</Text>
+        </Flex>
+      )}
+
+      {/* Modal for Success/Error Message */}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalBody>
+            <Text>{verificationMessage}</Text>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   )
 }

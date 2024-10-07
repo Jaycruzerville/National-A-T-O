@@ -32,6 +32,20 @@ const setUserRole = (role: string) => {
   localStorage.setItem("role", role)
 }
 
+const setUserEmail = (email: string) => {
+  console.log("Setting user email:", email)
+  localStorage.setItem("email", email)
+}
+
+const setUserData = (user: object) => {
+  console.log("Setting user data:", user)
+  localStorage.setItem("Data", JSON.stringify(user))
+}
+
+const getUserEmail = () => {
+  return localStorage.getItem("email")
+}
+
 const getUserRole = () => {
   return localStorage.getItem("role")
 }
@@ -58,28 +72,61 @@ const isAuthenticated = () => {
     return false
   }
 }
-const setCustomerId = (customerId: string | number) => {
-  console.log("Setting customer ID:", customerId)
-  localStorage.setItem("customerId", customerId.toString())
+const setuserId = (userId: string | number) => {
+  console.log("Setting customer ID:", userId)
+  localStorage.setItem("userId", userId.toString())
 }
 
-const getCustomerId = () => {
-  return localStorage.getItem("customerId")
+const getuserId = () => {
+  return localStorage.getItem("userId")
+}
+
+const setAgentId = (agentId: string) => {
+  localStorage.setItem("agentId", agentId)
+}
+
+const getAgentId = () => {
+  return localStorage.getItem("agentId")
+}
+
+const setDriverId = (driverId: string) => {
+  localStorage.setItem("driverId", driverId)
+}
+
+const getDriverId = () => {
+  return localStorage.getItem("driverId")
+}
+
+const setAdminId = (adminId: string) => {
+  localStorage.setItem("adminId", adminId)
+}
+
+const getAdminId = () => {
+  return localStorage.getItem("adminId")
 }
 
 const Auth = {
   isAuthenticated,
   getDecodedJwt,
-  setCustomerId,
-  getCustomerId,
+  setuserId,
+  getuserId,
   setToken,
   getToken,
   setRefreshToken,
   getRefreshToken,
   setUserRole,
+  setUserEmail,
+  getUserEmail,
   getUserRole,
   removeTokens,
   logOut,
+  setUserData,
+  setAgentId,
+  getAgentId,
+  setDriverId,
+  getDriverId,
+  setAdminId,
+  getAdminId,
 }
 
 export default Auth

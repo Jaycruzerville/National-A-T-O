@@ -5,124 +5,238 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Select,
   Button,
   Heading,
   VStack,
   HStack,
+  Spinner,
+  useToast,
 } from "@chakra-ui/react"
-import { colors } from "@/theme/colors"
-
-const products: Record<string, number> = {
-  product1: 100.0,
-  product2: 200.0,
-  product3: 300.0,
-  product4: 400.0,
-  product5: 500.0,
-  product6: 600.0,
-}
-
-const properties: Record<string, string> = {
-  Driver1: "Mr. Ahmed | KN-23d-34",
-  Driver2: "Mr. Kingsley | KN-34-34",
-  Driver3: "Mr. Nurudeen | KN-45-56",
-}
+import usersService from "@/services/usersServices" // Import the service to fetch vouchers and drivers
+import Auth from "@/utils/auth"
 
 interface PaymentFormProps {
-  selectedProduct: string
   onClose: () => void
+  onSuccess: () => void // Function to refresh wallet balance
+  onVoucherIssued: (voucher: any) => void // Function to handle issued voucher
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = (
-  { selectedProduct },
-  { onClose }
-) => {
-  const [selectedDriver, setSelectedDriver] = useState<string>("")
+const IssueVoucher: React.FC<PaymentFormProps> = ({
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  onClose,
+  onVoucherIssued,
+}) => {
+  const [driverTag, setDriverTag] = useState<string>("")
+  const [driverDetails, setDriverDetails] = useState<any>(null)
+  const [voucherType, setVoucherType] = useState<string>("")
   const [amount, setAmount] = useState<string>("")
+  const [vouchers, setVouchers] = useState<Record<string, any>[]>([]) // Dynamic vouchers from backend
+  const [loading, setLoading] = useState<boolean>(false)
+  const [voucherLoading, setVoucherLoading] = useState<boolean>(true) // New loading state for vouchers
+  const toast = useToast()
 
+  // Fetch vouchers from the backend on component mount
   useEffect(() => {
-    if (selectedProduct && products[selectedProduct]) {
-      setAmount(products[selectedProduct].toString())
+    const fetchVouchers = async () => {
+      try {
+        setVoucherLoading(true) // Start loading vouchers
+        const response = await usersService.getVouchers() // Fetch vouchers from backend
+        setVouchers(response) // Set the vouchers from backend
+      } catch (error) {
+        console.error("Error fetching vouchers:", error)
+        toast({
+          title: "Error fetching vouchers",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        })
+      } finally {
+        setVoucherLoading(false) // End loading vouchers
+      }
     }
-  }, [selectedProduct])
+    fetchVouchers() // Call the function
+  }, [toast])
 
-  const handleDriverChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedDriver(event.target.value)
+  // Handle searching for the driver by tag
+  const handleSearchDriver = async () => {
+    if (!driverTag) return
+
+    setLoading(true)
+    try {
+      const response = await usersService.getDriverByTag(driverTag)
+      setDriverDetails(response) // Set driver details
+      const { vehicleType } = response
+
+      // Standardize "Tricycle" and "Keke" for voucher matching
+      const standardizedVehicleType =
+        vehicleType.toLowerCase() === "tricycle"
+          ? "keke"
+          : vehicleType.toLowerCase()
+
+      // Automatically select the voucher based on standardized vehicle type
+      const selectedVoucher = vouchers.find(
+        (voucher) =>
+          voucher.type.toLowerCase() === standardizedVehicleType &&
+          voucher.category === "Driver Levy"
+      )
+
+      if (selectedVoucher) {
+        setVoucherType(selectedVoucher.type)
+        setAmount(selectedVoucher.price.toString())
+      } else {
+        setVoucherType("")
+        setAmount("")
+        toast({
+          title: "No voucher available",
+          description: `No voucher found for vehicle type: ${vehicleType}`,
+          status: "warning",
+          duration: 5000,
+          isClosable: true,
+        })
+      }
+    } catch (error) {
+      console.error("Error fetching driver details:", error)
+      toast({
+        title: "Driver not found",
+        description: "Please check the tag and try again",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAmount(event.target.value)
-  }
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    // Uncomment the line below to log the form data for testing purposes
-    // console.log({
-    //   selectedProduct,
-    //   selectedDriver,
-    //   amount,
-    // });
-    onClose()
+    try {
+      const payload = {
+        driverTag: driverDetails.tag,
+        voucherType: { type: voucherType, price: parseFloat(amount) },
+        agentId: Auth.getAgentId(),
+      }
+
+      const response = await usersService.issueVoucher(payload)
+      console.log("Voucher response:", response) // Add this to debug
+      toast({
+        title: "Voucher Issued",
+        description: "The voucher was successfully issued to the driver.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      })
+
+      // Call the onVoucherIssued function passed as prop
+      if (onVoucherIssued) {
+        onVoucherIssued(response) // Pass the response data (voucher details) to the dashboard
+      }
+
+      onClose()
+    } catch (error) {
+      console.error("Error issuing voucher:", error)
+      toast({
+        title: "Error",
+        description: "Failed to issue the voucher.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      })
+    }
+  }
+
+  if (voucherLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100%"
+      >
+        <Spinner size="xl" />
+      </Box>
+    )
   }
 
   return (
-    <Box p={6} bg={colors.gray[100]}>
-      <Heading mb={4} textAlign="center" size="lg" color={colors.brand.primary}>
-        Voucher
+    <Box p={6} bg={"gray.100"}>
+      <Heading mb={4} textAlign="center" size="lg" color={"brand.primary"}>
+        Issue Voucher
       </Heading>
       <form onSubmit={handleSubmit}>
         <VStack spacing={4}>
-          <FormControl id="selectDriver" isRequired>
-            <FormLabel>Driver ID</FormLabel>
-            <Select
-              placeholder="Select a Driver"
-              value={selectedDriver}
-              onChange={handleDriverChange}
-              bg={colors.white}
-            >
-              {Object.keys(properties).map((key) => (
-                <option key={key} value={key}>
-                  {properties[key]}
-                </option>
-              ))}
-            </Select>
+          {/* Search by Driver Tag */}
+          <FormControl id="driverTag" isRequired>
+            <FormLabel>Driver Tag</FormLabel>
+            <HStack>
+              <Input
+                placeholder="Enter Driver Tag"
+                value={driverTag}
+                onChange={(e) => setDriverTag(e.target.value)}
+                bg={"white"}
+              />
+              <Button
+                bg={"brand.primary"}
+                color={"white"}
+                onClick={handleSearchDriver}
+              >
+                Search
+              </Button>
+            </HStack>
           </FormControl>
 
-          <FormControl id="product" isRequired>
-            <FormLabel>Product Type</FormLabel>
-            <Select
-              placeholder="Select Product"
-              value={selectedProduct}
-              bg={colors.white}
-              isReadOnly
-            >
-              {Object.keys(products).map((productKey) => (
-                <option key={productKey} value={productKey}>
-                  {`Product ${productKey.charAt(productKey.length - 1)}`}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
+          {/* Driver details */}
+          {loading ? (
+            <Spinner />
+          ) : driverDetails ? (
+            <>
+              <FormControl id="driverName" isRequired>
+                <FormLabel>Driver Name</FormLabel>
+                <Input value={driverDetails.fullName} isReadOnly bg={"white"} />
+              </FormControl>
 
-          <FormControl id="amount" isRequired>
-            <FormLabel>Amount To Pay (₦)</FormLabel>
-            <Input type="number" value={amount} onChange={handleAmountChange} />
-          </FormControl>
+              <FormControl id="vehiclePlateNumber" isRequired>
+                <FormLabel>Vehicle Plate Number</FormLabel>
+                <Input
+                  value={driverDetails.vehiclePlateNumber}
+                  isReadOnly
+                  bg={"white"}
+                />
+              </FormControl>
+
+              <FormControl id="voucherType" isRequired>
+                <FormLabel>Voucher Type</FormLabel>
+                <Input value={voucherType} isReadOnly bg={"white"} />
+              </FormControl>
+
+              <FormControl id="amount" isRequired>
+                <FormLabel>Amount To Pay (₦)</FormLabel>
+                <Input type="number" value={amount} isReadOnly bg={"white"} />
+              </FormControl>
+            </>
+          ) : null}
 
           <HStack spacing={4}>
             <Button
-              bg={colors.brand.primary}
-              color={colors.white.text}
-              _hover={{ bg: colors.brand.primaryDark }}
+              bg={"brand.primary"}
+              color={"white"}
+              _hover={{ bg: "brand.primaryDark" }}
               type="submit"
+              isDisabled={!driverDetails || !voucherType}
             >
               Submit For Processing
             </Button>
             <Button
-              bg={colors.gray[300]}
-              color={colors.white.text}
-              _hover={{ bg: colors.gray[400] }}
+              bg={"gray.300"}
+              color={"white"}
+              _hover={{ bg: "gray.400" }}
               type="reset"
+              onClick={() => {
+                setDriverTag("")
+                setDriverDetails(null)
+                setVoucherType("")
+                setAmount("")
+              }}
             >
               Reset
             </Button>
@@ -133,8 +247,10 @@ const PaymentForm: React.FC<PaymentFormProps> = (
   )
 }
 
-PaymentForm.propTypes = {
-  selectedProduct: PropTypes.string.isRequired,
+IssueVoucher.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+  onVoucherIssued: PropTypes.func.isRequired, // New prop for handling issued voucher
 }
 
-export default PaymentForm
+export default IssueVoucher

@@ -5,7 +5,7 @@ import totalTransactions from "@/assets/totalTransaction.svg"
 import StatCards from "@/reusables/StatCards"
 import BarChart from "@/reusables/BarChart"
 import PieChart from "@/reusables/PieChart"
-import { nigerianStates } from "@/data/naijaStates"
+import { kanoLgas } from "@/data/kanolga"
 import Leaderboard from "./Leaderboard"
 import Map from "@/reusables/Map"
 import LineChart from "@/reusables/LineChart"
@@ -15,7 +15,7 @@ const statData = [
   {
     id: 1,
     icon: totalUsers,
-    text: "Total Users",
+    text: "Total Agents",
     value: "5,045",
     percentage: 12,
   },
@@ -30,21 +30,21 @@ const statData = [
     id: 3,
     icon: totalUsers,
     text: "Total Driver",
-    value: "390,456",
+    value: "600,456",
     percentage: 19,
   },
   {
     id: 4,
     icon: totalUsers,
-    text: "Total transaction value",
+    text: "Total Voucher Transaction Value ",
     value: "₦3,008,292",
     percentage: 12,
   },
   {
     id: 5,
     icon: totalTransactions,
-    text: "Total transaction value for April",
-    value: "₦144,100,583",
+    text: "Total Ticket transaction value ",
+    value: "₦14,100,583",
     percentage: 12,
   },
   {
@@ -78,7 +78,7 @@ const index = () => {
     <Box py="6" px="5" bg="#F6F6F6" minH="100vh">
       <Flex mb="10px" justifyContent="space-between">
         <Text fontSize="28px" fontWeight={500}>
-          Good {getDayPeriod()} Folashade!
+          Good {getDayPeriod()} Malik!
         </Text>
       </Flex>
       <Flex gap="20px" justify="start" align="center" wrap="wrap">
@@ -235,19 +235,19 @@ const index = () => {
           </Text>
           <BarChart
             orientation="horizontal"
-            data={[500, 700, 1000, 800, 700, 800, 600, 900, 100, 1000, 400]}
+            data={[3000, 4000, 10000, 1200, 3800, 6000]}
             labels={[
-              "Tailor",
-              "Vulcanizer",
-              "Hairdresser",
+              "Regulators",
+              "Voucher Agent",
+              "Keke Rider",
               "Bus Driver",
               "Motorcycle Rider",
-              "Barber",
-              "Carpentry",
-              "Plumber",
-              "Electrician",
-              "Petty Trader",
-              "Mechanic",
+              "Taxi Driver",
+              // "Carpentry",
+              // "Plumber",
+              // "Electrician",
+              // "Petty Trader",
+              // "Mechanic",
             ]}
           />
         </Box>
@@ -307,7 +307,7 @@ const index = () => {
             { length: 36 },
             () => Math.floor(Math.random() * 100) + 1
           )}
-          labels={nigerianStates}
+          labels={kanoLgas}
           barThickness={8}
         />
       </Box>

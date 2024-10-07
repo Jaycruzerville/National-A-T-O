@@ -88,7 +88,7 @@ const Customers: React.FC = () => {
   const columns: ColumnDef<any>[] = useMemo(
     () => [
       {
-        accessorKey: "customerId",
+        accessorKey: "userId",
         header: "Customer ID",
       },
       {

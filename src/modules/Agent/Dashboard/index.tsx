@@ -18,40 +18,100 @@ import { CgProfile } from "react-icons/cg"
 import MiniStatistics from "@/reusables/MiniStatistics"
 import IconBox from "@/reusables/icons/IconBox"
 import Transactions from "@/reusables/Transactions"
-import PaymentForm from "../Payments" // Existing form for voucher buying
-import FundingForm from "../Payments/Funding" // New form for account funding
+import IssueVoucher from "@/modules/Agent/Payments" // Existing form for voucher buying
+import FundingForm from "@/modules/Agent/Payments/Funding" // New form for account funding
 import { colors } from "@/theme/colors"
 import { getDayPeriod } from "@/utils/getDayPeriod"
+import usersService from "@/services/usersServices" // Import the service for fetching data
+import Auth from "@/utils/auth"
+import VoucherModal from "@/modules/Agent/Payments/VoucherModal" // Import VoucherModal
 
 const Index: React.FC = () => {
-  const [isPaymentFormOpen, setPaymentFormOpen] = useState(false)
+  const [isIssueVoucherOpen, setIssueVoucherOpen] = useState(false)
   const [isFundingFormOpen, setFundingFormOpen] = useState(false)
+  const [agentData, setAgentData] = useState({
+    firstName: "",
+    totalVoucherSales: 0,
+    walletBalance: 0,
+  })
+  const [loading, setLoading] = useState(true)
+
+  const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false) // New state for VoucherModal
+  const [issuedVoucherDetails, setIssuedVoucherDetails] = useState<any>(null) // Store issued voucher details
 
   const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100")
   const cardShadow = useColorModeValue("lg", "dark-lg")
 
-  // Use static data for "Boulevard"
-  const selectedDriver = {
-    id: 2,
-    name: "AG-23-76",
-    value: "27,579,360",
-    payments: "950,900",
-    tasks: "15",
-    projects: "4",
+  // Function to format numbers with commas
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+    }).format(amount)
+  }
+
+  // Fetch agent dashboard info when the component mounts
+  React.useEffect(() => {
+    const fetchDashboardInfo = async () => {
+      try {
+        const agentId = Auth.getAgentId() // Get userId from local storage
+
+        if (agentId) {
+          const data = await usersService.fetchAgentDashboardInfo(agentId)
+          setAgentData(data)
+        } else {
+          console.error("Agent ID (userId) not found in local storage")
+        }
+      } catch (error) {
+        console.error("Error fetching agent dashboard info:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardInfo()
+  }, [])
+
+  const refreshWalletBalance = async () => {
+    try {
+      const agentId = Auth.getAgentId()
+      if (agentId) {
+        const data = await usersService.fetchAgentDashboardInfo(agentId)
+        setAgentData(data)
+      } else {
+        console.error("Agent ID (userId) not found in local storage")
+      }
+    } catch (error) {
+      console.error("Error refreshing wallet balance:", error)
+    }
+  }
+
+  const handleVoucherSuccess = (voucher: any) => {
+    console.log("Voucher issued successfully:", voucher) // Add this line
+    if (voucher && voucher.driver) {
+      setIssuedVoucherDetails(voucher)
+      setIsVoucherModalOpen(true) // Open the voucher modal
+    } else {
+      console.error("Voucher details are missing")
+    }
+  }
+
+  if (loading) {
+    return <Text>Loading dashboard...</Text>
   }
 
   return (
     <Box py="6" px="5" bg="#F6F6F6" minH="100vh">
       <Flex mb="10px" justifyContent="space-between">
         <Text fontSize="28px" fontWeight={500}>
-          Good {getDayPeriod()} Kabiru!
+          Good {getDayPeriod()} {agentData.firstName}!
         </Text>
         <Flex>
           <Button
             bg="brand.primary"
             color="white"
             leftIcon={<Icon as={HiOutlineTicket} />}
-            onClick={() => setPaymentFormOpen(true)}
+            onClick={() => setIssueVoucherOpen(true)}
           >
             Get Voucher
           </Button>
@@ -67,16 +127,16 @@ const Index: React.FC = () => {
               bg={boxBg}
               icon={
                 <Icon
-                  w="32px"
-                  h="32px"
                   as={CgProfile}
+                  w="32px"
+                  h="32px"
                   color={colors.brand.primary}
                 />
               }
             />
           }
-          name="Agent ID"
-          value={selectedDriver.name}
+          name="Agent Name"
+          value={agentData.firstName}
         />
         <MiniStatistics
           shadow={cardShadow}
@@ -87,16 +147,16 @@ const Index: React.FC = () => {
               bg={boxBg}
               icon={
                 <Icon
-                  w="32px"
-                  h="32px"
                   as={TbCurrencyNaira}
+                  w="32px"
+                  h="32px"
                   color={colors.brand.primary}
                 />
               }
             />
           }
-          name="Total Voucher Sold"
-          value={`₦${selectedDriver.payments}`}
+          name="Total Voucher Sales"
+          value={formatCurrency(agentData.totalVoucherSales)}
         />
         <MiniStatistics
           shadow={cardShadow}
@@ -107,9 +167,9 @@ const Index: React.FC = () => {
               bg={boxBg}
               icon={
                 <Icon
+                  as={MdOutlineAccountBalanceWallet}
                   w="32px"
                   h="32px"
-                  as={MdOutlineAccountBalanceWallet}
                   color={colors.brand.primary}
                 />
               }
@@ -125,27 +185,51 @@ const Index: React.FC = () => {
               Fund
             </Button>
           }
-          name="Your balance"
-          value="0"
+          name="Wallet Balance"
+          value={formatCurrency(agentData.walletBalance)}
         />
       </SimpleGrid>
 
       {/* Voucher Buying Payment Form */}
       <Modal
-        isOpen={isPaymentFormOpen}
-        onClose={() => setPaymentFormOpen(false)}
+        isOpen={isIssueVoucherOpen}
+        onClose={() => {
+          setIssueVoucherOpen(false)
+        }}
         isCentered
         size="2x1"
         scrollBehavior="inside"
       >
         <ModalOverlay />
         <ModalContent maxW="980px" maxH="calc(100vh - 150px)" overflowY="auto">
-          <PaymentForm
-            onClose={() => setPaymentFormOpen(false)}
-            selectedProduct={""}
+          <IssueVoucher
+            onClose={() => setIssueVoucherOpen(false)}
+            onSuccess={refreshWalletBalance} // Refresh wallet balance on success
+            onVoucherIssued={handleVoucherSuccess} // Handle voucher issuance
           />
         </ModalContent>
       </Modal>
+
+      {/* Voucher Modal for displaying the issued voucher */}
+      {issuedVoucherDetails &&
+        issuedVoucherDetails.driver &&
+        isVoucherModalOpen && (
+          <VoucherModal
+            isOpen={isVoucherModalOpen}
+            onClose={() => {
+              setIsVoucherModalOpen(false)
+              setIssueVoucherOpen(false) // Close both modals when done
+            }}
+            voucherDetails={{
+              driverName: issuedVoucherDetails.driver.fullName,
+              vehiclePlateNumber:
+                issuedVoucherDetails.driver.vehiclePlateNumber,
+              type: issuedVoucherDetails.voucher.type,
+              amount: issuedVoucherDetails.voucher.price,
+              qrCode: issuedVoucherDetails.voucher.qrCode,
+            }}
+          />
+        )}
 
       {/* Account Funding Form */}
       <Modal
@@ -158,8 +242,9 @@ const Index: React.FC = () => {
         <ModalOverlay />
         <ModalContent maxW="980px" maxH="calc(100vh - 150px)" overflowY="auto">
           <FundingForm
-            onClose={() => setFundingFormOpen(false)}
             isOpen={isFundingFormOpen}
+            onClose={() => setFundingFormOpen(false)}
+            onSuccess={refreshWalletBalance} // Updated this line
           />
         </ModalContent>
       </Modal>

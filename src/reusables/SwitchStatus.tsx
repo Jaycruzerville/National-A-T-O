@@ -30,6 +30,20 @@ export const SwitchStatus = (status: string, content?: string) => {
           {content ?? "Successful"}
         </Box>
       )
+    case "success":
+      return (
+        <Box
+          bgColor="#9BFDD4"
+          p="4px 8px"
+          borderRadius="4px"
+          fontSize="12px"
+          color="#027A48"
+          width="fit-content"
+          fontWeight="500"
+        >
+          {content ?? "Successful"}
+        </Box>
+      )
     case "Failed":
       return (
         <Box

@@ -18,10 +18,10 @@ import React from "react"
 
 const AcceptClaimModal = ({
   claimId,
-  customerId,
+  userId,
 }: {
   claimId: string
-  customerId: string
+  userId: string
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const fontFamily = "'Cabinet Grotesk', sans-serif"
@@ -103,7 +103,7 @@ const AcceptClaimModal = ({
             <Button
               onClick={() => {
                 mutate({
-                  customer_id: customerId,
+                  customer_id: userId,
                   claim_id: claimId,
                   data,
                 })

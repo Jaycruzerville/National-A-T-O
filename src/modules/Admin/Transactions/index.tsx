@@ -508,10 +508,7 @@ const index = () => {
                 >
                   {Driver?.map(
                     (
-                      {
-                        DriverName,
-                        id,
-                      }: { DriverName: string; id: string },
+                      { DriverName, id }: { DriverName: string; id: string },
                       index: number
                     ) => (
                       <option value={id} key={index}>

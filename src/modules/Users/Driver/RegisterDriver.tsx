@@ -17,12 +17,12 @@ import {
   Stack,
   useToast,
 } from "@chakra-ui/react"
-import { colors } from "@/theme/colors"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import naijaStates from "@/data/naijaStates"
 import usersService from "@/services/usersServices"
-import vehicleData from "@/data/vehicleData.json" // Import the JSON data
+import vehicleData from "@/data/vehicleData.json"
+import { colors } from "@/theme/colors"
 
 interface RegisterDriverProps {
   onClose: () => void
@@ -35,23 +35,21 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
     fullName: "",
     gender: "",
     street: "",
-    city: "",
-    state: "",
-    zipCode: "",
+    lga: "",
     phoneNumber: "",
-    emailAddress: "",
     licenseNumber: "",
     licenseState: "",
     vehicleMake: "",
     vehicleModel: "",
     vehicleYear: "",
-    licensePlateNumber: "",
+    vehiclePlateNumber: "",
     vin: "",
     driverType: "",
     contactMethod: [] as string[],
     termsAgreed: false,
     privacyPolicyAgreed: false,
   })
+
   const [driverLicenseFile, setDriverLicenseFile] = useState<File | null>(null)
   const [vehicleRegistrationFile, setVehicleRegistrationFile] =
     useState<File | null>(null)
@@ -113,6 +111,9 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
         return
       }
 
+      // Log vehiclePictures to check if files are correctly selected
+      console.log("Vehicle Pictures Selected:", vehiclePictures)
+
       // Upload files
       const driverLicensePath = await usersService.uploadFile(driverLicenseFile)
       const vehicleRegistrationPath = await usersService.uploadFile(
@@ -129,15 +130,19 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
       // Create JSON payload
       const payload = {
         ...formValues,
-        dob: dob ? dob.toISOString().split("T")[0] : "",
+        dateOfBirth: dob ? dob.toISOString().split("T")[0] : "",
         licenseExpiryDate: licenseExpiryDate
           ? licenseExpiryDate.toISOString().split("T")[0]
           : "",
-        driverLicensePath,
-        vehicleRegistrationPath,
-        driverPictures: driverPicturePaths,
-        vehiclePictures: vehiclePicturePaths,
+        driverLicenseImage: driverLicensePath.path,
+        vehicleRegistrationImage: vehicleRegistrationPath.path,
+        driverImage: driverPicturePaths[0]?.path || "",
+        vehicleImages: vehiclePicturePaths.map((pic) => pic.path), // Ensure vehicle pictures are mapped to paths
+        preferredContactMethod: formValues.contactMethod[0]?.toLowerCase(),
+        vehicleType: formValues.driverType,
       }
+
+      console.log("Final Payload:", payload)
 
       await usersService.registerDriver(payload)
 
@@ -169,7 +174,6 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
         .filter((v) => v.make === formValues.vehicleMake)
         .map((v) => v.model)
     : []
-
   const years = Array.from(new Set(vehicleData.map((v) => v.year)))
 
   return (
@@ -202,14 +206,6 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
             value={formValues.fullName}
             onChange={handleInputChange}
           />
-          <InputField
-            label="Email Address"
-            name="emailAddress"
-            placeholder="Enter Email Address"
-            isRequired={true}
-            value={formValues.emailAddress}
-            onChange={handleInputChange}
-          />
           <FormControl isRequired>
             <FormLabel color={colors.brand.primary}>Date of Birth</FormLabel>
             <DatePicker
@@ -237,27 +233,11 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
             onChange={handleInputChange}
           />
           <InputField
-            label="City"
-            name="city"
-            placeholder="Enter City"
+            label="LGA"
+            name="lga"
+            placeholder="Enter LGA"
             isRequired={true}
-            value={formValues.city}
-            onChange={handleInputChange}
-          />
-          <SelectField
-            label="State"
-            name="state"
-            options={naijaStates}
-            isRequired={true}
-            value={formValues.state}
-            onChange={handleInputChange}
-          />
-          <InputField
-            label="Zip Code"
-            name="zipCode"
-            placeholder="Enter Zip Code"
-            isRequired={true}
-            value={formValues.zipCode}
+            value={formValues.lga}
             onChange={handleInputChange}
           />
 
@@ -274,6 +254,7 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
                 <Radio value="Taxi">Taxi</Radio>
                 <Radio value="Tricycle">Keke</Radio>
                 <Radio value="Motorbike">Bike</Radio>
+                <Radio value="Bus">Bus</Radio>
               </Stack>
             </RadioGroup>
           </FormControl>
@@ -283,7 +264,7 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
             onChange={(e) => setDriverLicenseFile(e.target.files?.[0] || null)}
           />
           <FileUploadField
-            label="Upload Driver Pictures"
+            label="Upload Driver Pictures;"
             isRequired={false}
             multiple={true}
             accept="image/*"
@@ -354,10 +335,10 @@ const RegisterDriver: React.FC<RegisterDriverProps> = ({ onClose }) => {
           />
           <InputField
             label="License Plate Number"
-            name="licensePlateNumber"
+            name="vehiclePlateNumber"
             placeholder="Enter License Plate Number"
             isRequired={true}
-            value={formValues.licensePlateNumber}
+            value={formValues.vehiclePlateNumber}
             onChange={handleInputChange}
           />
           <InputField

@@ -90,12 +90,12 @@ const initParams = {
 
 const DriverPage = () => {
   const navigate = useNavigate()
-  const { customerId } = useParams()
+  const { userId } = useParams()
   const [tableParams, setTableParams] = useState({
     ...initParams,
     pageSize: 10,
     page: 1,
-    customerId, // Add customerId to the params
+    userId, // Add userId to the params
   })
   const [filters, setFilters] = useState(initParams)
 
@@ -107,7 +107,7 @@ const DriverPage = () => {
         page: tableParams.page,
         searchQuery: tableParams.searchQuery,
         status: tableParams.status,
-        customerId, // Pass customerId in the query
+        userId, // Pass userId in the query
       },
     ],
     queryFn: usersService.getProperties,

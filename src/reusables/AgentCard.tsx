@@ -133,7 +133,7 @@ const AgentCard = ({
       <Box sx={agentInfo}>
         <Flex sx={agentInfoFlex} gap="20px">
           <Icon as={emailImage} height="24px" width="24px" />
-          <Text textStyle="headText">{data?.email ?? "-"}</Text>
+          <Text textStyle="headText">{data?.userId.email ?? "-"}</Text>
         </Flex>
         <Flex sx={agentInfoFlex} gap="20px">
           <Icon as={phoneImage} height="24px" width="24px" />
@@ -142,12 +142,12 @@ const AgentCard = ({
         <Flex sx={agentInfoFlex} gap="20px">
           <Icon as={addressImage} height="24px" width="24px" />
           <Text textStyle="headText">
-            {data?.DriverAddress
-              ? data.DriverAddress
+            {data?.address
+              ? data.address
               : data?.agentAddress?.state &&
                 `${data?.agentAddress?.location ?? ``} ${
-                  data?.agentAddress?.lga ?? ``
-                } LGA, ${data?.agentAddress?.state ?? ``} State ${
+                  data?.lga ?? ``
+                } LGA, ${data?.lga ?? ``} State ${
                   data?.agentAddress?.country ?? ``
                 }`}
           </Text>
@@ -200,7 +200,7 @@ const AgentCard = ({
                 Date Created
               </Text>
               <Text textStyle="headText" sx={moreInfoText}>
-                {dateCreated
+                {data?.CreatedAt
                   ? format(new Date(dateCreated), "dd MMMM yyyy")
                   : "--"}
               </Text>

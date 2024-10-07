@@ -190,11 +190,11 @@ const ClaimsDetails = () => {
             cell: () => (
               <Flex gap="10px">
                 <AcceptClaimModal
-                  customerId={claimsDetails?.data.customerDetails.id}
+                  userId={claimsDetails?.data.customerDetails.id}
                   claimId={claimsDetails?.data.id}
                 />
                 <RejectClaimModal
-                  customerId={claimsDetails?.data.customerDetails.id}
+                  userId={claimsDetails?.data.customerDetails.id}
                   claimId={claimsDetails?.data.id}
                 />
               </Flex>

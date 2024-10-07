@@ -3,14 +3,11 @@ import Api from "@/utils/api"
 import Auth from "@/utils/auth"
 import handleApiError from "@/utils/handleApiError"
 
-type loginData = { email: string; password: string }
+type loginData = { username: string; password: string }
 
 type signupData = {
-  firstName: string
-  lastName: string
-  email: string
+  username: string
   password: string
-  phoneNumber: string
 }
 
 type ChangePasswordData = {
@@ -20,21 +17,23 @@ type ChangePasswordData = {
 
 const login = async (params: loginData) => {
   try {
-    const { data } = await Api.post("/api/v1/auth/login", params)
-    console.log("API response data:", data) // Log the full response
+    const { data } = await Api.post("/api/auth/login", params) // Send username instead of email
 
-    // Store tokens, role, and customerId
+    // Store tokens, role, and userId
     Auth.setToken(data.accessToken)
     Auth.setRefreshToken(data.refreshToken)
     Auth.setUserRole(data.role)
+    Auth.setUserEmail(data.email)
+    Auth.setUserData(data.user)
 
-    // Store customerId if present
-    if (data?.claims?.customerId) {
-      Auth.setCustomerId(data.claims.customerId)
-    } else {
-      console.error("customerId not found in response")
+    // Store the corresponding ID based on role
+    if (data.user.agentId) {
+      Auth.setAgentId(data.user.agentId)
+    } else if (data.user.driverId) {
+      Auth.setDriverId(data.user.driverId)
+    } else if (data.user.adminId) {
+      Auth.setAdminId(data.user.adminId)
     }
-
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
@@ -44,7 +43,7 @@ const login = async (params: loginData) => {
 const signup = async (params: signupData) => {
   try {
     console.log("Signup request payload:", params)
-    const { data } = await Api.post("/api/v1/auth/signup", params)
+    const { data } = await Api.post("/api/auth/signup", params)
     console.log("Signup response data:", data)
     return data
   } catch (e) {

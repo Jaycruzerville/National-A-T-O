@@ -1,73 +1,124 @@
 import React from "react"
-import { Box, VStack, Text, Divider, SimpleGrid } from "@chakra-ui/react"
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Divider,
+  Image,
+  Badge,
+  SimpleGrid,
+  Center,
+} from "@chakra-ui/react"
 
 type DriverDetails = {
-  DriverID: string
-  LocalGovernment: string
-  DistrictArea: string
-  Street: string
-  HouseNumber: string
-  DriverUsage: string
-  LandArea: string
-  TotalBuildingFootprint: string
-  AssessedValue: string
-  LandUseCharge: string
-  BalanceCarriedForward: string
-  TotalAmountDue: string
-  DiscountedAmountDue: string
-  PaymentCode: string
-  OverdueCharges: string
+  fullName: string
+  phoneNumber: string
+  vehicleType: string
+  vehiclePlateNumber: string
+  vin: string
+  tag: string
+  qrCode?: string // QR code is optional
+  approved: boolean
+  activeForDay: boolean
+  createdAt: string
 }
 
 const DriverInfo: React.FC<{ details: DriverDetails }> = ({ details }) => {
-  const formatCurrency = (amount: string) => {
-    const numericAmount = parseFloat(amount.replace(/[^0-9.]/g, ""))
-    return `₦${numericAmount.toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-    })}`
-  }
-
-  const DriverInfoStyle = {
-    backgroundColor: "white",
-    borderRadius: "15px",
-    boxShadow: "0 4px 12px 0 rgba(0, 0, 0, 0.05)",
-    padding: "20px",
-    margin: "10px",
-    width: "100%",
-    maxWidth: "100%",
-    fontSize: "14px",
-  }
-
-  const infoItemStyle = {
-    paddingY: "2",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  }
+  const formatDate = (date: string) => new Date(date).toLocaleDateString()
 
   return (
-    <VStack sx={DriverInfoStyle} spacing={4} align="stretch">
-      <Text fontSize="lg" fontWeight="bold">
-        Driver Information
-      </Text>
-      <Divider />
-      <SimpleGrid columns={2} spacing={4}>
-        {Object.entries(details).map(([key, value]) => (
-          <Box key={key} sx={infoItemStyle}>
-            <Text fontWeight="semibold" textTransform="capitalize">
-              {key.replace(/([A-Z])/g, " $1")}
+    <Center py={6}>
+      <Box
+        maxW="lg"
+        w="full"
+        bg="white"
+        boxShadow="2xl"
+        rounded="lg"
+        p={6}
+        textAlign="center"
+      >
+        {/* Driver Name and QR Code */}
+        <HStack justifyContent="center" alignItems="center">
+          <Text fontSize="3xl" fontWeight="bold" color="teal.600">
+            {details.fullName}
+          </Text>
+          {details.qrCode && (
+            <Image src={details.qrCode} alt="QR Code" boxSize={70} />
+          )}
+        </HStack>
+
+        {/* Driver Status */}
+        <HStack justifyContent="center" mt={2} mb={4}>
+          <Badge
+            px={3}
+            py={1}
+            borderRadius="md"
+            colorScheme={details.approved ? "green" : "red"}
+          >
+            {details.approved ? "Approved" : "Not Approved"}
+          </Badge>
+          <Badge
+            px={3}
+            py={1}
+            borderRadius="md"
+            colorScheme={details.activeForDay ? "blue" : "gray"}
+          >
+            {details.activeForDay ? "Active Today" : "Inactive"}
+          </Badge>
+        </HStack>
+
+        {/* Divider */}
+        <Divider my={4} />
+
+        {/* Vehicle Information */}
+        <SimpleGrid columns={2} spacing={4}>
+          <Box>
+            <Text fontSize="md" fontWeight="semibold" color="gray.500">
+              Phone Number
             </Text>
-            <Text>
-              {key.toLowerCase().includes("value") ||
-              key.toLowerCase().includes("amount") ||
-              key.toLowerCase().includes("charge")
-                ? formatCurrency(value)
-                : value}
-            </Text>
+            <Text>{details.phoneNumber}</Text>
           </Box>
-        ))}
-      </SimpleGrid>
-    </VStack>
+          <Box>
+            <Text fontSize="md" fontWeight="semibold" color="gray.500">
+              Vehicle Type
+            </Text>
+            <Text>{details.vehicleType}</Text>
+          </Box>
+          <Box>
+            <Text fontSize="md" fontWeight="semibold" color="gray.500">
+              Plate Number
+            </Text>
+            <Text>{details.vehiclePlateNumber}</Text>
+          </Box>
+          <Box>
+            <Text fontSize="md" fontWeight="semibold" color="gray.500">
+              VIN
+            </Text>
+            <Text>{details.vin}</Text>
+          </Box>
+          <Box>
+            <Text fontSize="md" fontWeight="semibold" color="gray.500">
+              Tag
+            </Text>
+            <Text>{details.tag}</Text>
+          </Box>
+        </SimpleGrid>
+
+        {/* Divider */}
+        <Divider my={4} />
+
+        {/* Created At */}
+        <VStack spacing={4} mt={4}>
+          <Box>
+            <Text fontSize="md" fontWeight="semibold" color="gray.500">
+              Created At
+            </Text>
+            <Text>{formatDate(details.createdAt)}</Text>
+          </Box>
+        </VStack>
+      </Box>
+    </Center>
   )
 }
 

@@ -1,5 +1,4 @@
 import React from "react"
-
 import {
   Button,
   Modal,
@@ -18,13 +17,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import usersService from "@/services/usersServices"
 import { IError } from "@/types"
 
-const RejectClaimModal = ({
-  claimId,
-  customerId,
-}: {
-  claimId: string
-  customerId: string
-}) => {
+interface RejectClaimModalProps {
+  claimId?: string // Make claimId optional
+}
+
+const RejectClaimModal: React.FC<RejectClaimModalProps> = ({ claimId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const fontFamily = "'Cabinet Grotesk', sans-serif"
   const [review, setReview] = React.useState("")
@@ -32,11 +29,16 @@ const RejectClaimModal = ({
   const toast = useToast()
 
   const { mutate } = useMutation({
-    mutationFn: usersService.toggleClaimsStatus,
+    mutationFn: () => {
+      if (claimId) {
+        return usersService.declineSubmission(claimId, review)
+      }
+      return Promise.reject(new Error("No claim ID provided"))
+    },
     onSuccess: () => {
       toast({
-        title: "success",
-        description: "Claim Rejected",
+        title: "Success",
+        description: "Submission Rejected",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -47,20 +49,15 @@ const RejectClaimModal = ({
     },
     onError: (error: IError) => {
       toast({
-        title: "opps",
-        description: error?.message,
-        status: "warning",
+        title: "Error",
+        description: error?.message || "Failed to reject submission",
+        status: "error",
         duration: 5000,
         isClosable: true,
         position: "top",
       })
     },
   })
-
-  const data = {
-    status: "Rejected",
-    remark: review,
-  }
 
   return (
     <>
@@ -102,7 +99,7 @@ const RejectClaimModal = ({
               fontFamily={fontFamily}
               color="#101828"
             >
-              Reject claim
+              Reject Submission
             </Text>
             <Textarea
               color={"#667085"}
@@ -116,6 +113,7 @@ const RejectClaimModal = ({
               _placeholder={{
                 color: "#003E51",
               }}
+              value={review}
               onChange={(e) => {
                 setReview(e.target.value)
               }}
@@ -125,11 +123,7 @@ const RejectClaimModal = ({
           <ModalFooter>
             <Button
               onClick={() => {
-                mutate({
-                  customer_id: customerId,
-                  claim_id: claimId,
-                  data,
-                })
+                mutate() // Trigger the mutation
                 onClose()
               }}
               bgColor="brand.primary"
@@ -137,8 +131,9 @@ const RejectClaimModal = ({
               w="100%"
               h="48px"
               fontWeight={500}
+              isDisabled={!claimId} // Disable button if claimId is missing
             >
-              Reject Claim
+              Reject Submission
             </Button>
           </ModalFooter>
         </ModalContent>

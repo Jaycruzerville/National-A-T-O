@@ -26,9 +26,21 @@ import usersService from "@/services/usersServices"
 import { format } from "date-fns"
 import { BiSort } from "react-icons/bi"
 
-const columns: ColumnDef<any>[] = [
+// Define the type for the driver data
+interface Driver {
+  _id: string
+  fullName: string
+  phoneNumber: string
+  vehicleType: string
+  vehiclePlateNumber: string
+  tag: string
+  approved: boolean
+  createdAt: string
+}
+
+const columns: ColumnDef<Driver>[] = [
   {
-    accessorKey: "DriverName",
+    accessorKey: "fullName", // Driver's full name
     header: ({ column }) => (
       <Button
         paddingLeft={0}
@@ -43,23 +55,19 @@ const columns: ColumnDef<any>[] = [
     ),
   },
   {
-    accessorKey: "DriverCategory",
-    header: "Category",
+    accessorKey: "vehicleType", // Driver's vehicle type (e.g., Tricycle)
+    header: "Vehicle Type",
   },
   {
-    accessorKey: "DriverAddress",
-    header: "Location",
+    accessorKey: "vehiclePlateNumber", // Driver's vehicle plate number
+    header: "Vehicle Plate",
   },
   {
-    accessorKey: "DriverState",
-    header: "State",
+    accessorKey: "phoneNumber", // Driver's phone number
+    header: "Phone Number",
   },
   {
-    accessorKey: "DriverLGA",
-    header: "LGA",
-  },
-  {
-    accessorKey: "status",
+    accessorKey: "approved", // Driver's approval status
     header: ({ column }) => (
       <Button
         paddingLeft={0}
@@ -72,11 +80,25 @@ const columns: ColumnDef<any>[] = [
         Status <Icon as={BiSort} color="brand.primary" />
       </Button>
     ),
+    cell: (info: CellContext<Driver, any>) => (
+      <Box
+        bgColor={info.getValue() === true ? "#9BFDD4" : "#DCDBDD"} // Green for active, gray for inactive
+        p="4px 8px"
+        borderRadius="4px"
+        width="fit-content"
+        fontSize="12px"
+        color="#202020"
+        fontWeight="500"
+        textTransform="capitalize"
+      >
+        {info.getValue() === true ? "Active" : "Inactive"}
+      </Box>
+    ),
   },
   {
-    accessorKey: "dateCreated",
+    accessorKey: "createdAt", // Date the driver was created
     header: "Date Created",
-    cell: (info: CellContext<any, any>) => (
+    cell: (info: CellContext<Driver, any>) => (
       <Box>{format(new Date(info.getValue()), "yyyy-MM-dd")}</Box>
     ),
   },
@@ -85,7 +107,6 @@ const columns: ColumnDef<any>[] = [
 const initParams = {
   searchQuery: "",
   status: "",
-  registeredUsers: "",
 }
 
 const DriverPage = () => {
@@ -98,13 +119,9 @@ const DriverPage = () => {
   })
   const [filters, setFilters] = useState(initParams)
 
-  const queryFn = state
-    ? usersService.getPropertiesByState // If state is present, use the state-specific API
-    : usersService.getProperties // Otherwise, use the default API
-
   const { data: DriverList, isLoading: loadingDriver } = useQuery({
     queryKey: [
-      "properties",
+      "drivers",
       {
         pageSize: tableParams.pageSize,
         page: tableParams.page,
@@ -113,7 +130,7 @@ const DriverPage = () => {
       },
       state, // Pass state to the query if it exists
     ],
-    queryFn,
+    queryFn: usersService.getDrivers,
   })
 
   const updateParams = ({ param, value, filterValues }: any) => {
@@ -136,7 +153,7 @@ const DriverPage = () => {
     <Box bgColor="brand.bgLight" alignItems="center" p="25">
       <Flex alignItems="center" justifyContent="space-between">
         <Heading fontSize="20px" color="#0B1023">
-          {state ? `Properties in ${state}` : "All Properties"}
+          All Drivers
         </Heading>
         <Spacer />
         <InputGroup width="237px">
@@ -208,64 +225,6 @@ const DriverPage = () => {
                 </Select>
               </FormControl>
             </Flex>
-            <Text
-              fontWeight="500"
-              lineHeight="25px"
-              fontSize="20px"
-              letterSpacing="-1px"
-              pt="20px"
-              pb="12px"
-            >
-              Date
-            </Text>
-            <Flex gap="12px" width="100%" mb="5rem">
-              <FormControl width="50%">
-                <FormLabel
-                  lineHeight="20px"
-                  fontWeight="500"
-                  fontSize="0.75rem"
-                  color="#003E51"
-                >
-                  Date Created
-                </FormLabel>
-                <Input
-                  size="lg"
-                  width="100%"
-                  placeholder="Select Date"
-                  px="14px"
-                  type="date"
-                  name="dateCreated"
-                  _hover={{ outline: "none" }}
-                  _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-                  max={new Date().toISOString().split("T")[0]}
-                  onChange={(e) => updateFilters("dateCreated", e.target.value)}
-                />
-              </FormControl>
-              <FormControl width="50%">
-                <FormLabel
-                  lineHeight="20px"
-                  fontWeight="500"
-                  fontSize="0.75rem"
-                  color="#003E51"
-                >
-                  Last Active Date
-                </FormLabel>
-                <Input
-                  px="14px"
-                  width="100%"
-                  size="lg"
-                  placeholder="Select Date"
-                  name="lastActiveDate"
-                  type="date"
-                  _hover={{ outline: "none" }}
-                  _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-                  max={new Date().toISOString().split("T")[0]}
-                  onChange={(e) =>
-                    updateFilters("lastActiveDate", e.target.value)
-                  }
-                />
-              </FormControl>
-            </Flex>
           </Filter>
           <AddDriver />
         </Flex>
@@ -275,11 +234,20 @@ const DriverPage = () => {
           data={DriverList?.data || []}
           columns={columns}
           loading={loadingDriver}
-          onRowClick={(row) => navigate(`/Driver/${row.id}`)}
+          onRowClick={(row) => {
+            // Ensure the right path to _id is used
+            const driverId = row?._id
+
+            if (driverId) {
+              navigate(`/Driver/${driverId}`) // Use the correct driver ID for navigation
+            } else {
+              console.error("Row data is missing _id:", row)
+            }
+          }}
           pagination={{
             pageSize: tableParams?.pageSize,
             currentPage: tableParams?.page,
-            totalPages: DriverList?.data?.page?.totalPages || 0,
+            totalPages: DriverList?.pagination?.numberOfPages || 1,
             updateFn: updateParams,
           }}
         />

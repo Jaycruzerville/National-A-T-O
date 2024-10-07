@@ -27,7 +27,7 @@ const paths = [
   },
   {
     path: authPaths.EMAIL_VERIFICATION,
-    element: lazy(() => import("./EmailVerification")),
+    element: lazy(() => import("./VerifyEmail")),
   },
   {
     path: authPaths.APPLY,

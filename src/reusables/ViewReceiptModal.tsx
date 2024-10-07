@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react"
 import { Document, Page, pdfjs } from "react-pdf"
 import Eye from "@/assets/blue-eye-icon.svg"
-import Back from "@/assets/back-icon.svg"
+// import Back from "@/assets/back-icon.svg"
 import Forward from "@/assets/forward-icon.svg"
 import { Link as RouteLink } from "react-router-dom"
 
@@ -103,7 +103,11 @@ const ViewReceiptModal = ({ images }: { images: string[] }) => {
                   mr="31px"
                   disabled={currentIndex === 0}
                 >
-                  <Image src={Back} alt="Previous" />
+                  <Image
+                    src={Forward}
+                    alt="Previous"
+                    transform="rotate(180deg)"
+                  />
                 </Button>
                 <Box w="80%" minH="400px">
                   {images[currentIndex].endsWith(".pdf") ? (

@@ -19,12 +19,11 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
 
-const AcceptClaimModal = ({
-  claimId,
-  customerId,
+const ApproveSubmissionModal = ({
+  submissionId,
 }: {
-  claimId: string
-  customerId: string
+  submissionId: string
+  userId: string
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const fontFamily = "'Cabinet Grotesk', sans-serif"
@@ -35,35 +34,31 @@ const AcceptClaimModal = ({
   const [totalAmountDue, setTotalAmountDue] = useState("")
   const [discountedAmountDue, setDiscountedAmountDue] = useState("")
 
-  const { mutate } = useMutation({
-    mutationFn: usersService.toggleClaimsStatus,
+  // Mutation for approving submission
+  const { mutate: approveSubmission } = useMutation({
+    mutationFn: () => usersService.approveSubmission(submissionId), // Approve submission from userService
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Claim Approved",
+        description: "Submission approved successfully",
         status: "success",
         duration: 5000,
         isClosable: true,
         position: "top",
       })
-      queryClient.invalidateQueries({ queryKey: ["claims-list"] })
-      queryClient.invalidateQueries({ queryKey: ["claims-details"] })
+      queryClient.invalidateQueries({ queryKey: ["driver-submissions"] })
     },
     onError: (error: IError) => {
       toast({
-        title: "Oops",
+        title: "Error",
         description: error?.message,
-        status: "warning",
+        status: "error",
         duration: 5000,
         isClosable: true,
         position: "top",
       })
     },
   })
-
-  const data = {
-    status: "Approved",
-  }
 
   return (
     <>
@@ -80,14 +75,13 @@ const AcceptClaimModal = ({
       </Button>
 
       <Modal closeOnOverlayClick isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay bg="rgba(0, 0, 0, 0.8)" /> {/* Ensure darker overlay */}
+        <ModalOverlay bg="rgba(0, 0, 0, 0.8)" />
         <ModalContent
           w="408px"
           bg="white"
           color="black"
           borderRadius="md"
           boxShadow="lg"
-          opacity="1"
         >
           <ModalHeader
             fontSize={"36px"}
@@ -95,7 +89,7 @@ const AcceptClaimModal = ({
             fontFamily={fontFamily}
             top="24px"
           >
-            Acceptance
+            Approve Submission
           </ModalHeader>
           <ModalCloseButton top="25px" />
           <ModalBody pb={6}>
@@ -105,11 +99,12 @@ const AcceptClaimModal = ({
               fontFamily={fontFamily}
               color="#101828"
             >
-              Accept claim
+              Are you sure you want to approve this submission?
             </Text>
             <Text color="#667085" fontSize="14px" fontFamily={fontFamily}>
-              Do you want to accept this claim? This action is irreversible
+              This action is irreversible.
             </Text>
+
             <FormControl mt={4}>
               <FormLabel>Assessed Value</FormLabel>
               <Input
@@ -139,11 +134,7 @@ const AcceptClaimModal = ({
           <ModalFooter>
             <Button
               onClick={() => {
-                mutate({
-                  customer_id: customerId,
-                  claim_id: claimId,
-                  data,
-                })
+                approveSubmission() // Trigger the approval
                 onClose()
               }}
               bgColor="brand.primary"
@@ -152,7 +143,7 @@ const AcceptClaimModal = ({
               h="48px"
               fontWeight={500}
             >
-              Accept Claim
+              Approve Submission
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -161,4 +152,4 @@ const AcceptClaimModal = ({
   )
 }
 
-export default AcceptClaimModal
+export default ApproveSubmissionModal

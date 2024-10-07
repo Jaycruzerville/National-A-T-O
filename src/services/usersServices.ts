@@ -1,18 +1,34 @@
 import Api from "@/utils/api"
 import { IError } from "@/types"
-import Auth from "@/utils/auth"
 
 import handleApiError from "@/utils/handleApiError"
+
+interface UploadResponse {
+  path: string
+}
+
+// AGENTS API
 
 const getAgents = async ({ queryKey }: { queryKey: unknown[] }) => {
   const params = queryKey[1] as Record<string, unknown> | undefined
   try {
-    const { data } = await Api.get("/agents", { params })
+    const { data } = await Api.get("/api/agents", { params })
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
   }
 }
+
+const fetchAgentDashboardInfo = async (agentId: string) => {
+  try {
+    const response = await Api.get(`/api/agents/${agentId}/dashboard-info`)
+    return response.data
+  } catch (error) {
+    console.error("Error fetching agent dashboard info:", error)
+    throw error
+  }
+}
+
 const getAgentCustomers = async (
   id: string,
   params: Record<string, unknown>
@@ -25,9 +41,28 @@ const getAgentCustomers = async (
   }
 }
 
-const getAgentDetails = async (id: string) => {
+// Fetch transactions by agent ID
+const getTransactionsByAgentId = async (agentId: string) => {
   try {
-    const { data } = await Api.get(`/agents/${id}`)
+    const { data } = await Api.get(`/api/agents/${agentId}/transactions`)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+// Fetch a specific transaction by its ID
+const getTransactionById = async (transactionId: string) => {
+  try {
+    const { data } = await Api.get(`/api/agents/transactions/${transactionId}`)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+const issueVoucher = async (payload: Record<string, any>) => {
+  try {
+    const { data } = await Api.post("/api/vouchers/issue", payload)
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
@@ -142,13 +177,49 @@ const toggleAgentStatus = async (params: Record<string, unknown>) => {
 
 const addAgent = async (params?: Record<string, unknown>) => {
   try {
-    const { data } = await Api.post("/auth/users/invitations/", params)
+    const { data } = await Api.post("/api/admin/register-agent", params)
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
   }
 }
 
+const setAgentPassword = async (token: string, password: string) => {
+  try {
+    const { data } = await Api.post("/api/agents/set-password", {
+      token,
+      password,
+    })
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getAgentDetails = async (id: string) => {
+  try {
+    const { data } = await Api.get(`/api/agents/${id}`)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+// CUSTOMERS
+
+const getCustomerApplications = async (
+  userId: string,
+  params: { pageNo?: number; pageSize?: number } = { pageNo: 0, pageSize: 10 }
+) => {
+  try {
+    const { data } = await Api.get(`/api/v1/applications/customer/${userId}`, {
+      params,
+    })
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
 const getCustomers = async ({ queryKey }: { queryKey: unknown[] }) => {
   const params = queryKey[1] as Record<string, unknown> | undefined
   try {
@@ -181,7 +252,11 @@ const getCustomerPlans = async ({ queryKey }: { queryKey: unknown[] }) => {
   }
 }
 
-const getCustomerClaims = async ({ queryKey }: { queryKey: unknown[] }) => {
+const getCustomerClaims = async (
+  userId: string,
+  p0: { pageNo: number; pageSize: number },
+  { queryKey }: { queryKey: unknown[] }
+) => {
   const params = queryKey[1] as Record<string, unknown> | undefined
 
   try {
@@ -219,11 +294,99 @@ const getApplications = async ({ queryKey }: { queryKey: unknown[] }) => {
   }
 }
 
-const getClaims = async ({ queryKey }: { queryKey: unknown[] }) => {
+// DRIVERS API
+
+const getDriverCustomers = async (
+  id: string | undefined,
+  pageSize: number,
+  page: number,
+  { queryKey }: { queryKey: unknown[] }
+) => {
+  const params = queryKey[1] as Record<string, unknown> | undefined
+  try {
+    const { data } = await Api.get(`/Driver/${params?.id}/customers/`, params)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getDriverByTag = async (driverTag: string) => {
+  try {
+    const { data } = await Api.get(`/api/driver/tag/${driverTag}`)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getDriverDetails = async ({ queryKey }: { queryKey: unknown[] }) => {
+  // Ensure params is safely extracted and is of the expected type
+  const params = queryKey[1] as { id?: string } | undefined
+
+  if (!params?.id) {
+    throw new Error("Driver ID is required to fetch driver details.")
+  }
+
+  try {
+    const { data } = await Api.get(`/api/driver/${params.id}`)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getDriverummary = async ({ queryKey }: { queryKey: unknown[] }) => {
+  const params = queryKey[1] as Record<string, unknown> | undefined
+  try {
+    const { data } = await Api.get(`/Driver/${params?.id}/user-summary`, params)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getDriverTransactions = async ({ queryKey }: { queryKey: unknown[] }) => {
+  const params = queryKey[1] as Record<string, unknown> | undefined
+  try {
+    const { data } = await Api.get(
+      `/Driver/${params?.id}/transaction-summary`,
+      { params }
+    )
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const registerDriver = async (payload: Record<string, any>) => {
+  try {
+    const { data } = await Api.post("/api/driver-submission/submit", payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getDrivers = async ({ queryKey }: { queryKey: unknown[] }) => {
+  const params = queryKey[1] as Record<string, unknown> | undefined
+  try {
+    const { data } = await Api.get("/api/driver", { params })
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getDriverSubmissions = async ({ queryKey }: { queryKey: unknown[] }) => {
   const params = queryKey[1] as Record<string, unknown> | undefined
 
   try {
-    const { data } = await Api.get(`/claims`, { params })
+    const { data } = await Api.get(`/api/driver-submission`, { params }) // Adjust the endpoint
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
@@ -250,24 +413,34 @@ const handleApplication = async (
   }
 }
 
-const getClaimsDetails = async (applicationId: string) => {
+const declineSubmission = async (submissionId: any, declineReason: any) => {
   try {
-    const { data } = await Api.get(`/api/v1/applications/${applicationId}`)
+    const { data } = await Api.post(
+      `/api/driver-submission/${submissionId}/decline`,
+      {
+        declineReason,
+      }
+    )
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
   }
 }
 
-const getCustomerApplications = async (
-  customerId: string,
-  params: { pageNo?: number; pageSize?: number } = { pageNo: 0, pageSize: 10 }
-) => {
+const approveSubmission = async (submissionId: any) => {
   try {
-    const { data } = await Api.get(
-      `/api/v1/applications/customer/${customerId}`,
-      { params }
+    const { data } = await Api.post(
+      `/api/driver-submission/${submissionId}/approve`
     )
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getDriverSubmissionDetails = async (submissionId: string) => {
+  try {
+    const { data } = await Api.get(`/api/driver-submission/${submissionId}`)
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
@@ -298,6 +471,8 @@ const editUser = async (formData?: FormData) => {
     throw new Error(handleApiError(e as IError))
   }
 }
+
+// TRANSACTIONS API
 
 const getTransactions = async ({ queryKey }: { queryKey: unknown[] }) => {
   const params = queryKey[1] as Record<string, unknown> | undefined
@@ -332,159 +507,88 @@ const getTransactionsDetails = async ({
   }
 }
 
-const getProperties = async ({ queryKey }: { queryKey: unknown[] }) => {
-  const params = queryKey[1] as Record<string, unknown> | undefined
-  const customerId = params?.customerId || Auth.getCustomerId()
-  if (!customerId) {
-    throw new Error("Customer ID is missing")
-  }
-
+// Store transaction details
+const storeTransaction = async (params: Record<string, any>) => {
   try {
-    const { data } = await Api.get(
-      `/api/v1/properties/customer/${customerId}`,
-      { params }
-    )
+    const { data } = await Api.post("/api/agents/transactions", params)
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
   }
 }
 
-const getPropertiesByState = async ({ queryKey }: { queryKey: unknown[] }) => {
-  const params = queryKey[1] as Record<string, unknown> | undefined
-  const state = queryKey[2] as string
-
-  if (!state) {
-    throw new Error("State is missing")
-  }
-
+// Store voucher sold details
+const storeVoucherSold = async (params: Record<string, any>) => {
   try {
-    const { data } = await Api.get(`/api/v1/properties/state/${state}`, {
-      params,
-    })
+    const { data } = await Api.post("/api/agents/vouchers-sold", params)
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
   }
 }
 
-const getVerifiedWithOwnersProperties = async ({
-  queryKey,
-}: {
-  queryKey: unknown[]
+const getVouchers = async () => {
+  try {
+    const { data } = await Api.get("/api/vouchers") // Ensure this matches your backend route
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+//PAYMENTS
+const initializeFundingTransaction = async (
+  params: Record<string, unknown>
+) => {
+  try {
+    const { data } = await Api.post("/api/payment/initialize", params)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const verifyFundingTransaction = async (params: {
+  reference: string
+  gateway: string
 }) => {
-  const params = queryKey[1] as Record<string, unknown> | undefined
   try {
-    const { data } = await Api.get("/api/v1/properties/verified-with-owners", {
-      params,
-    })
+    const { data } = await Api.get(`/api/payment/verify`, { params })
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
   }
 }
 
-const getVerifiedNoOwnersProperties = async ({
-  queryKey,
-}: {
-  queryKey: unknown[]
-}) => {
-  const params = queryKey[1] as Record<string, unknown> | undefined
-  try {
-    const { data } = await Api.get("/api/v1/properties/verified-no-owners", {
-      params,
-    })
-    return data
-  } catch (e) {
-    throw new Error(handleApiError(e as IError))
-  }
-}
+// FILE UPLOADS
 
-const getDriverCustomers = async ({ queryKey }: { queryKey: unknown[] }) => {
-  const params = queryKey[1] as Record<string, unknown> | undefined
-  try {
-    const { data } = await Api.get(`/Driver/${params?.id}/customers/`, params)
-    return data
-  } catch (e) {
-    throw new Error(handleApiError(e as IError))
-  }
-}
-
-const getDriverDetails = async ({ queryKey }: { queryKey: unknown[] }) => {
-  const params = queryKey[1] as Record<string, unknown> | undefined
-
-  try {
-    const { data } = await Api.get(`/Driver/${params?.id}/`)
-    return data
-  } catch (e) {
-    throw new Error(handleApiError(e as IError))
-  }
-}
-
-const getDriverummary = async ({ queryKey }: { queryKey: unknown[] }) => {
-  const params = queryKey[1] as Record<string, unknown> | undefined
-  try {
-    const { data } = await Api.get(`/Driver/${params?.id}/user-summary`, params)
-    return data
-  } catch (e) {
-    throw new Error(handleApiError(e as IError))
-  }
-}
-
-const getDriverTransactions = async ({ queryKey }: { queryKey: unknown[] }) => {
-  const params = queryKey[1] as Record<string, unknown> | undefined
-  try {
-    const { data } = await Api.get(
-      `/Driver/${params?.id}/transaction-summary`,
-      { params }
-    )
-    return data
-  } catch (e) {
-    throw new Error(handleApiError(e as IError))
-  }
-}
-
-const registerDriver = async (payload: Record<string, any>) => {
-  try {
-    const { data } = await Api.post("/api/v1/properties", payload, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    return data
-  } catch (e) {
-    throw new Error(handleApiError(e as IError))
-  }
-}
-
-const uploadFile = async (file: File) => {
+const uploadFile = async (file: string | Blob): Promise<UploadResponse> => {
   const formData = new FormData()
   formData.append("file", file)
 
   try {
-    const { data } = await Api.post("/api/v1/files", formData, {
+    // API call to upload the file
+    const { data } = await Api.post<UploadResponse>("/api/files", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     })
 
-    console.log("Upload response:", data) // Log the actual response
-
-    // If the response is a string (which is the file path), return it directly
-    if (typeof data === "string") {
+    // If the response contains a 'path' property, return that
+    if (data && typeof data === "object" && data.path) {
       return data
     } else {
-      console.error("Unexpected response format:", data)
-      throw new Error("File upload failed or response is malformed.")
+      throw new Error("Invalid file upload response")
     }
   } catch (e) {
-    console.error("Error during file upload:", e)
+    // Handle the error using your error handler utility
     throw new Error(handleApiError(e as IError))
   }
 }
 
 const usersService = {
   getAgents,
+  getDrivers,
   getAgentCustomers,
   getAgentDetails,
   getSuperAgents,
@@ -498,9 +602,12 @@ const usersService = {
   getCustomerPlans,
   getCustomerClaims,
   getApplications,
-  getClaims,
+  getDriverSubmissions,
   handleApplication,
-  getClaimsDetails,
+  approveSubmission,
+  declineSubmission,
+  getDriverSubmissionDetails,
+  setAgentPassword,
   getCustomerApplications,
   getAgentSummary,
   getAgentTransactions,
@@ -512,16 +619,22 @@ const usersService = {
   getTransactions,
   getTransactionsStats,
   getTransactionsDetails,
-  getProperties,
-  getPropertiesByState,
-  getVerifiedWithOwnersProperties,
-  getVerifiedNoOwnersProperties,
   getDriverCustomers,
   getDriverDetails,
   getDriverummary,
   getDriverTransactions,
   registerDriver,
+  initializeFundingTransaction,
+  verifyFundingTransaction,
   uploadFile,
+  storeTransaction,
+  storeVoucherSold,
+  fetchAgentDashboardInfo,
+  getTransactionsByAgentId,
+  getTransactionById,
+  issueVoucher,
+  getDriverByTag,
+  getVouchers,
 }
 
 export default usersService

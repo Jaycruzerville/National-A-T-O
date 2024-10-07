@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import React, { useEffect, useState } from "react"
 import {
   Box,
@@ -8,13 +9,16 @@ import {
   Stack,
   VStack,
   Tooltip,
+  Image,
 } from "@chakra-ui/react"
 import { BsEye } from "react-icons/bs"
+import { RiMotorbikeFill } from "react-icons/ri" // Motorbike
+import { FaTaxi, FaBusAlt } from "react-icons/fa" // Taxi, Bus
+import { MdElectricRickshaw } from "react-icons/md" // Rickshaw
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 import StyledTable from "@/reusables/StyledTable"
-import AcceptClaimModal from "./components/AcceptClaimModal"
-import RejectClaimModal from "./components/RejectClaimModal"
 import ViewReceiptModal from "@/reusables/ViewReceiptModal"
+import RejectClaimModal from "./components/RejectClaimModal" // Import RejectClaimModal
 import { useNavigate, useParams } from "react-router-dom"
 import { formatDate } from "@/utils/formatDate"
 import usersService from "@/services/usersServices"
@@ -50,41 +54,59 @@ const historyColorMap: HistoryColorMap = {
   },
 }
 
-const ClaimsDetails: React.FC = () => {
-  const { id: applicationId } = useParams<{ id: string }>()
-  const [applicationData, setApplicationData] = useState<any>(null)
-  const [customerApplications, setCustomerApplications] = useState<any[]>([])
+// Helper function to get the appropriate vehicle icon with customizable size
+const getVehicleIcon = (vehicleType: any, size = 27) => {
+  switch (vehicleType) {
+    case "Motorbike":
+      return <RiMotorbikeFill size={size} />
+    case "Taxi":
+      return <FaTaxi size={size} />
+    case "Bus":
+      return <FaBusAlt size={size} />
+    case "Tricycle":
+      return <MdElectricRickshaw size={size} />
+    default:
+      return null
+  }
+}
+
+const DriverSubmissionDetails: React.FC = () => {
+  const { id: submissionId } = useParams<{ id: string }>()
+  const [submissionData, setSubmissionData] = useState<any>(null)
+  const [customerSubmissions, setCustomerSubmissions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [loadingCustomerApplications, setLoadingCustomerApplications] =
+  const [loadingCustomerSubmissions, setLoadingCustomerSubmissions] =
     useState(true)
   const toast = useToast()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!applicationId) {
+    if (!submissionId) {
       toast({
         title: "Error",
-        description: "No application ID found in the URL.",
+        description: "No submission ID found in the URL.",
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "top",
       })
-      navigate("/claims")
+      navigate("/driver-submissions")
       return
     }
 
-    const fetchApplicationDetails = async () => {
+    const fetchSubmissionDetails = async () => {
       try {
-        const response = await usersService.getClaimsDetails(applicationId)
-        if (response && response.data) {
-          setApplicationData(response.data)
-          // Hardcoding customerId to 22 for now
-          fetchCustomerApplications("22")
+        const response = await usersService.getDriverSubmissionDetails(
+          submissionId
+        )
+
+        if (response) {
+          setSubmissionData(response)
+          fetchCustomerSubmissions(response.userId._id) // Dynamically fetch customer submissions by userId
         } else {
           toast({
             title: "Error",
-            description: "No data found for this application.",
+            description: "No data found for this submission.",
             status: "error",
             duration: 5000,
             isClosable: true,
@@ -94,7 +116,7 @@ const ClaimsDetails: React.FC = () => {
       } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to load application details.",
+          description: "Failed to load submission details.",
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -105,75 +127,111 @@ const ClaimsDetails: React.FC = () => {
       }
     }
 
-    const fetchCustomerApplications = async (customerId: string) => {
+    const fetchCustomerSubmissions = async (userId: string) => {
       try {
-        const response = await usersService.getCustomerApplications(
-          customerId,
-          {
-            pageNo: 0,
-            pageSize: 10,
-          }
-        )
+        const response = await usersService.getCustomerClaims(userId, {
+          pageNo: 0,
+          pageSize: 10,
+        })
         if (response && response.data?.content) {
-          setCustomerApplications(response.data.content)
+          setCustomerSubmissions(response.data.content)
         }
       } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to load customer applications.",
+          description: "Failed to load customer submissions.",
           status: "error",
           duration: 5000,
           isClosable: true,
           position: "top",
         })
       } finally {
-        setLoadingCustomerApplications(false)
+        setLoadingCustomerSubmissions(false)
       }
     }
 
-    fetchApplicationDetails()
-  }, [applicationId, toast, navigate])
+    fetchSubmissionDetails()
+  }, [submissionId, toast, navigate])
 
-  const claimsColumns: ColumnDef<any>[] = [
+  const handleApprove = async () => {
+    try {
+      await usersService.approveSubmission(submissionId)
+      toast({
+        title: "Success",
+        description: "Submission approved successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      })
+      // Optionally refetch data after approval
+      setSubmissionData({ ...submissionData, status: "approved" })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to approve the submission",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      })
+    }
+  }
+
+  const submissionColumns: ColumnDef<any>[] = [
     {
-      accessorKey: "Driver.DriverName",
+      accessorKey: "fullName",
       header: "Driver Name",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "Driver.DriverStreetName",
+      accessorKey: "street",
       header: "Street Name",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "Driver.city",
-      header: "City",
+      accessorKey: "lga",
+      header: "LGA",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "Driver.state",
-      header: "State",
-      cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
-    },
-    {
-      accessorKey: "Driver.surveyPlanNumber",
-      header: "Survey Plan Number",
-      cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
-    },
-    {
-      accessorKey: "Driver.purchaseDate",
-      header: "Purchase Date",
+      accessorKey: "licenseExpiryDate",
+      header: "License Expiry Date",
       cell: (info: CellContext<any, any>) => (
         <Text>{formatDate(info.getValue())}</Text>
       ),
     },
     {
-      accessorKey: "documents",
+      accessorKey: "vehiclePlateNumber",
+      header: "Vehicle Plate Number",
+      cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
+    },
+    {
+      accessorKey: "gender",
+      header: "Gender",
+      cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
+    },
+    {
+      accessorKey: "driverImage",
       header: "Documents",
-      cell: () => {
+      cell: (info: CellContext<any, any>) => {
+        const baseUrl = "http://localhost:5000"
+        const buildUrl = (img: string) =>
+          img.startsWith("http") ? img : `${baseUrl}/${img}`
+
         const documents = [
-          ...(applicationData?.Driver?.DriverPictures || []),
-          applicationData?.Driver?.certificateOfOccupancy,
+          ...(Array.isArray(info.row.original?.vehicleImages)
+            ? info.row.original?.vehicleImages.map(buildUrl)
+            : []),
+          ...(Array.isArray(info.row.original?.driverLicenseImage)
+            ? info.row.original?.driverLicenseImage.map(buildUrl)
+            : []),
+          ...(Array.isArray(info.row.original?.vehicleRegistrationImage)
+            ? info.row.original?.vehicleRegistrationImage.map(buildUrl)
+            : []),
+          ...(Array.isArray(info.row.original?.driverImage)
+            ? info.row.original?.driverImage.map(buildUrl)
+            : []),
         ].filter(Boolean)
 
         return documents.length > 0 ? (
@@ -184,44 +242,53 @@ const ClaimsDetails: React.FC = () => {
       },
     },
     {
-      accessorKey: "applicationStatus",
+      accessorKey: "status",
       header: "Status",
       cell: () => {
         if (
-          applicationData?.applicationStatus === "Approved" ||
-          applicationData?.applicationStatus === "Rejected"
+          submissionData?.status === "approved" ||
+          submissionData?.status === "rejected"
         ) {
-          return <Box></Box>
+          return <Text>{submissionData?.status}</Text>
         }
         return (
           <Flex gap="10px">
-            <AcceptClaimModal
-              customerId={applicationData?.Driver?.id}
-              claimId={applicationData?.applicationId}
-            />
-            <RejectClaimModal
-              customerId={applicationData?.Driver?.id}
-              claimId={applicationData?.applicationId}
-            />
+            <Button
+              bgColor={"#9BFDD4"}
+              borderRadius="4px"
+              fontSize="12px"
+              color={"#027A48"}
+              fontWeight="500"
+              h={"26px"}
+              onClick={handleApprove}
+            >
+              Approve
+            </Button>
+            <RejectClaimModal claimId={submissionId} />
           </Flex>
         )
       },
     },
   ]
 
-  const customerApplicationsColumns: ColumnDef<any>[] = [
+  const customerSubmissionsColumns: ColumnDef<any>[] = [
     {
-      accessorKey: "applicationId",
-      header: "Application ID",
+      accessorKey: "submissionId",
+      header: "Submission ID",
       cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
     },
     {
-      accessorKey: "applicationType",
-      header: "Application Type",
-      cell: (info: CellContext<any, any>) => <Text>{info.getValue()}</Text>,
+      accessorKey: "vehicleType",
+      header: "Vehicle Type",
+      cell: (info: CellContext<any, any>) => (
+        <Flex alignItems="center" gap="8px">
+          {getVehicleIcon(info.getValue())}
+          <Text>{info.getValue()}</Text>
+        </Flex>
+      ),
     },
     {
-      accessorKey: "applicationStatus",
+      accessorKey: "submissionStatus",
       header: "Status",
       cell: (info: CellContext<any, any>) => (
         <Flex
@@ -234,22 +301,10 @@ const ClaimsDetails: React.FC = () => {
         >
           <Text
             bgColor={
-              info.getValue().toLowerCase() === "approved"
-                ? "#9BFDD4"
-                : info.getValue().toLowerCase() === "pending"
-                ? "#FEF0C7"
-                : info.getValue().toLowerCase() === "rejected"
-                ? "#F7CECA"
-                : "#DCDBDD"
+              historyColorMap[info.getValue().toLowerCase()]?.bg || "#DCDBDD"
             }
             color={
-              info.getValue().toLowerCase() === "approved"
-                ? "#027A48"
-                : info.getValue().toLowerCase() === "pending"
-                ? "#DC6803"
-                : info.getValue().toLowerCase() === "rejected"
-                ? "#D92D20"
-                : "#202020"
+              historyColorMap[info.getValue().toLowerCase()]?.color || "#202020"
             }
             h="100%"
             p="4px 8px"
@@ -278,33 +333,31 @@ const ClaimsDetails: React.FC = () => {
         gap="10px"
       >
         <Text fontSize="20px" fontWeight={700} color="#0B1023">
-          {applicationData?.applicantName} |{" "}
-          {applicationData?.assignedDriverId || "No Driver Assigned"}
+          {submissionData?.fullName} |{" "}
+          {submissionData?.vehiclePlateNumber || "No Vehicle Assigned"}
         </Text>
         <Button
           variant="app-primary"
           fontWeight="normal"
           size="sm"
           rightIcon={<BsEye />}
-          onClick={() => navigate(`/customers/${applicationData?.Driver?.id}`)}
-          isDisabled={!applicationData?.Driver?.id}
+          onClick={() => navigate(`/customers/${submissionData?.userId?._id}`)}
+          isDisabled={!submissionData?.userId?._id}
         >
           View Customer
         </Button>
       </Flex>
 
       <Box sx={{ m: "20px" }}>
-        {/* First Table */}
         <Box mb={"24px"} p="20px" bg="#fff">
           <StyledTable
-            data={applicationData ? [applicationData] : []}
-            columns={claimsColumns}
+            data={submissionData ? [submissionData] : []}
+            columns={submissionColumns}
             loading={loading}
             paddingBottom="23px"
           />
         </Box>
 
-        {/* Claim Reason and Claim History */}
         <Flex justifyContent={"space-between"} mb="20px" gap="20px">
           <Box bgColor={"white"} w="40%" px="24px" py="20px">
             <Text
@@ -313,12 +366,48 @@ const ClaimsDetails: React.FC = () => {
               color={"brand.primary"}
               mb="12px"
             >
-              Claim Reason
+              Submission Reason
             </Text>
-            <Text fontWeight={400} fontSize="14px">
-              {applicationData?.applicationType}
+            <Flex alignItems="center" gap="8px">
+              {getVehicleIcon(submissionData?.vehicleType)}
+              <Text fontWeight={600} fontSize="14px">
+                {submissionData?.vehicleType}
+              </Text>
+            </Flex>
+            <Text fontWeight={600} mt="8px" fontSize="14px">
+              Vehicle Make: {submissionData?.vehicleMake || "N/A"}
             </Text>
+            <Text fontWeight={600} mt="4px" fontSize="14px">
+              VIN: {submissionData?.vin || "N/A"}
+            </Text>
+            {submissionData?.driverImage && (
+              <Box mt="12px">
+                <Text fontWeight={600} fontSize="14px" mb="4px">
+                  Driver Image:
+                </Text>
+                <Image
+                  src={
+                    Array.isArray(submissionData?.driverImage)
+                      ? `${
+                          submissionData?.driverImage[0].startsWith("http")
+                            ? ""
+                            : "http://localhost:5000/"
+                        }${submissionData?.driverImage[0]}`
+                      : `${
+                          submissionData?.driverImage.startsWith("http")
+                            ? ""
+                            : "http://localhost:5000/"
+                        }${submissionData?.driverImage}`
+                  }
+                  alt="Driver"
+                  boxSize="100px"
+                  objectFit="cover"
+                  borderRadius="8px"
+                />
+              </Box>
+            )}
           </Box>
+
           <Box bgColor={"white"} w="60%" px="20px" py="20px">
             <Text
               fontWeight={700}
@@ -326,10 +415,11 @@ const ClaimsDetails: React.FC = () => {
               color={"brand.primary"}
               mb="12px"
             >
-              Claim History
+              Submission History
             </Text>
-            {applicationData ? (
+            {submissionData ? (
               <VStack align="start">
+                {/* Initial status - Submission Initiated */}
                 <Stack direction="row" spacing={4} align="center" mb="24px">
                   <Box position="relative">
                     <Box
@@ -337,7 +427,7 @@ const ClaimsDetails: React.FC = () => {
                       h="26px"
                       bgColor={"brand.primary"}
                       borderRadius="50%"
-                    ></Box>
+                    />
                   </Box>
                   <Box minWidth="80px">
                     <Text
@@ -355,7 +445,7 @@ const ClaimsDetails: React.FC = () => {
                     </Text>
                   </Box>
                   <Box width="200px">
-                    <Tooltip label="Claim Initiated">
+                    <Tooltip label="Submission Initiated">
                       <Text
                         textOverflow="ellipsis"
                         whiteSpace="nowrap"
@@ -364,18 +454,120 @@ const ClaimsDetails: React.FC = () => {
                         fontSize="12px"
                         fontWeight={600}
                       >
-                        Claim Initiated
+                        Submission Initiated
                       </Text>
                     </Tooltip>
                   </Box>
                   <Text fontSize="12px" color={"#2D4875"} marginLeft="auto">
-                    {applicationData?.createDate &&
+                    {submissionData?.submittedAt &&
                       format(
-                        new Date(applicationData?.createDate),
+                        new Date(submissionData?.submittedAt),
                         "dd MM yyyy"
                       )}
                   </Text>
                 </Stack>
+
+                {/* Approved status */}
+                {submissionData?.status === "approved" &&
+                  submissionData?.approvedAt && (
+                    <Stack direction="row" spacing={4} align="center" mb="24px">
+                      <Box position="relative">
+                        <Box
+                          w="26px"
+                          h="26px"
+                          bgColor={"#9BFDD4"}
+                          borderRadius="50%"
+                        />
+                      </Box>
+                      <Box minWidth="80px">
+                        <Text
+                          width="fit-content"
+                          fontWeight={600}
+                          px="8px"
+                          py="4px"
+                          bgColor={historyColorMap["approved"]?.bg}
+                          color={historyColorMap["approved"]?.color}
+                          borderRadius="4px"
+                          textAlign="center"
+                          fontSize="12px"
+                        >
+                          Approved
+                        </Text>
+                      </Box>
+                      <Box width="200px">
+                        <Tooltip label="Submission Approved">
+                          <Text
+                            textOverflow="ellipsis"
+                            whiteSpace="nowrap"
+                            maxWidth="200px"
+                            overflow="hidden"
+                            fontSize="12px"
+                            fontWeight={600}
+                          >
+                            Submission Approved
+                          </Text>
+                        </Tooltip>
+                      </Box>
+                      <Text fontSize="12px" color={"#2D4875"} marginLeft="auto">
+                        {submissionData?.approvedAt &&
+                          format(
+                            new Date(submissionData?.approvedAt),
+                            "dd MM yyyy"
+                          )}
+                      </Text>
+                    </Stack>
+                  )}
+
+                {/* Rejected status */}
+                {submissionData?.status === "rejected" &&
+                  submissionData?.rejectedAt && (
+                    <Stack direction="row" spacing={4} align="center" mb="24px">
+                      <Box position="relative">
+                        <Box
+                          w="26px"
+                          h="26px"
+                          bgColor={"#F7CECA"}
+                          borderRadius="50%"
+                        />
+                      </Box>
+                      <Box minWidth="80px">
+                        <Text
+                          width="fit-content"
+                          fontWeight={600}
+                          px="8px"
+                          py="4px"
+                          bgColor={historyColorMap["rejected"]?.bg}
+                          color={historyColorMap["rejected"]?.color}
+                          borderRadius="4px"
+                          textAlign="center"
+                          fontSize="12px"
+                        >
+                          Rejected
+                        </Text>
+                      </Box>
+                      <Box width="200px">
+                        <Tooltip label="Submission Rejected">
+                          <Text
+                            textOverflow="ellipsis"
+                            whiteSpace="nowrap"
+                            maxWidth="200px"
+                            overflow="hidden"
+                            fontSize="12px"
+                            fontWeight={600}
+                          >
+                            Submission Rejected
+                          </Text>
+                        </Tooltip>
+                      </Box>
+                      <Text fontSize="12px" color={"#2D4875"} marginLeft="auto">
+                        {submissionData?.rejectedAt &&
+                          format(
+                            new Date(submissionData?.rejectedAt),
+                            "dd MM yyyy"
+                          )}
+                      </Text>
+                    </Stack>
+                  )}
               </VStack>
             ) : (
               <Text>No history available</Text>
@@ -383,7 +575,6 @@ const ClaimsDetails: React.FC = () => {
           </Box>
         </Flex>
 
-        {/* Customer Applications Table */}
         <Box mt="10px" p="20px" bg="#fff">
           <Text
             fontWeight={700}
@@ -391,12 +582,12 @@ const ClaimsDetails: React.FC = () => {
             color="brand.primary"
             mb="12px"
           >
-            Other Applications by {applicationData?.applicantName}
+            Other Submissions by {submissionData?.fullName}
           </Text>
           <StyledTable
-            data={customerApplications}
-            columns={customerApplicationsColumns}
-            loading={loadingCustomerApplications}
+            data={customerSubmissions}
+            columns={customerSubmissionsColumns}
+            loading={loadingCustomerSubmissions}
           />
         </Box>
       </Box>
@@ -404,4 +595,4 @@ const ClaimsDetails: React.FC = () => {
   )
 }
 
-export default ClaimsDetails
+export default DriverSubmissionDetails

@@ -18,29 +18,29 @@ import {
 } from "@chakra-ui/react"
 import { DownloadIcon } from "@chakra-ui/icons"
 import { BiSort } from "react-icons/bi"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import { useDeferredValue } from "react"
 import searchLight from "@/assets/search-light.svg"
 import ClaimTable from "@/reusables/ClaimTable"
 import Filter from "@/reusables/Filter"
-import usersService from "@/services/usersServices"
+import usersServices from "@/services/usersServices"
 import { IError } from "@/types"
 import { formatDate } from "@/utils/formatDate"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 
-type ApplicationData = {
-  applicationId: string
-  applicantName: string
-  assignedDriverId: string | null
-  applicationType: string
-  applicationStatus: string
-  handlerName: string
-  createDate: string
-  comments: string | null
+type DriverSubmissionData = {
+  _id: string
+  fullName: string
+  phoneNumber: string
+  vehicleType: string
+  vehiclePlateNumber: string
+  status: string
+  submittedAt: string
+  handlerName: string | null
 }
 
-const Claims: React.FC = () => {
+const DriverSubmissions: React.FC = () => {
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -49,19 +49,18 @@ const Claims: React.FC = () => {
       searchQuery: "",
       pageNo: 0,
       pageSize: 10,
-      initiatedBy: "",
       status: "",
-      planType: "",
-      dateInitiated: "",
+      vehicleType: "",
+      dateSubmitted: "",
     }),
     []
   )
 
   const [tableParams, setTableParams] = useState(initParams)
   const [filters, setFilters] = useState(initParams)
-  const [loadingApplicationId, setLoadingApplicationId] = useState<
-    string | null
-  >(null)
+  const [loadingSubmissionId, setLoadingSubmissionId] = useState<string | null>(
+    null
+  )
 
   const deferredSearchValue = useDeferredValue(tableParams.searchQuery)
 
@@ -89,20 +88,17 @@ const Claims: React.FC = () => {
     setFilters({ ...filters, [filter]: value })
   }
 
-  const {
-    data: applicationsList,
-    isLoading: loadingApplications,
-    refetch,
-  } = useQuery({
+  // Fetch driver submissions using usersServices.getDriverSubmissions
+  const { data: driverSubmissions, isLoading: loadingSubmissions } = useQuery({
     queryKey: [
-      "applications-list",
+      "driver-submissions-list",
       {
         pageNo: tableParams.pageNo,
         pageSize: tableParams.pageSize,
         searchQuery: deferredSearchValue,
       },
     ],
-    queryFn: usersService.getApplications,
+    queryFn: usersServices.getDriverSubmissions, // Use the correct service function
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -115,52 +111,19 @@ const Claims: React.FC = () => {
     },
   })
 
-  const { mutate: handleApplication } = useMutation({
-    mutationFn: (applicationId: string) =>
-      usersService.handleApplication(applicationId, {
-        handlerName: "Admin Name",
-      }), // Adjust payload as needed
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    onError: (error: IError) => {
-      setLoadingApplicationId(null)
-      toast({
-        title: "Error",
-        description: "Failed to handle the application.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      })
-    },
-    onSuccess: (response) => {
-      setLoadingApplicationId(null)
-      toast({
-        title: "Success",
-        description: "Application handled successfully.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      })
-      console.log("Application handled:", response)
-      refetch() // Refetch the applications list to update the table
-    },
-  })
-
-  const handleButtonClick = (applicationId: string) => {
-    setLoadingApplicationId(applicationId)
-    handleApplication(applicationId)
+  const handleButtonClick = (submissionId: string) => {
+    setLoadingSubmissionId(submissionId)
+    // handleSubmission(submissionId)
   }
 
-  const handleViewButtonClick = (applicationId: string) => {
-    console.log("Navigating to application ID:", applicationId)
-    navigate(`/claims/${applicationId}`)
+  const handleViewButtonClick = (submissionId: string) => {
+    navigate(`/claims/${submissionId}`)
   }
 
-  const columns: ColumnDef<ApplicationData>[] = useMemo(
+  const columns: ColumnDef<DriverSubmissionData>[] = useMemo(
     () => [
       {
-        accessorKey: "applicantName",
+        accessorKey: "fullName", // Correct field from backend response
         header: ({ column }) => (
           <Button
             gap="4px"
@@ -170,22 +133,26 @@ const Claims: React.FC = () => {
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Applicant Name <Icon as={BiSort} color="brand.primary" />
+            Full Name <Icon as={BiSort} color="brand.primary" />
           </Button>
         ),
       },
       {
-        accessorKey: "applicationId",
-        header: "Application ID",
+        accessorKey: "phoneNumber", // Correct field from backend response
+        header: "Phone Number",
       },
       {
-        accessorKey: "applicationType",
-        header: "Application Type",
+        accessorKey: "vehicleType", // Correct field from backend response
+        header: "Vehicle Type",
       },
       {
-        accessorKey: "applicationStatus",
+        accessorKey: "vehiclePlateNumber", // Correct field from backend response
+        header: "Vehicle Plate Number",
+      },
+      {
+        accessorKey: "status", // Correct field from backend response
         header: "Status",
-        cell: (info: CellContext<ApplicationData, any>) => (
+        cell: (info: CellContext<DriverSubmissionData, any>) => (
           <Flex
             justifyContent={"flex-start"}
             alignSelf="center"
@@ -222,21 +189,21 @@ const Claims: React.FC = () => {
         ),
       },
       {
-        accessorKey: "handlerName",
-        header: "Handled by",
-      },
-      {
-        accessorKey: "createDate",
-        header: "Date Created",
-        cell: (info: CellContext<ApplicationData, any>) => {
+        accessorKey: "submittedAt", // Correct field from backend response
+        header: "Date Submitted",
+        cell: (info: CellContext<DriverSubmissionData, any>) => {
           return <Text>{formatDate(info.getValue())}</Text>
         },
       },
       {
+        accessorKey: "handlerName", // Correct field from backend response
+        header: "Handled by",
+      },
+      {
         id: "actions",
         header: "Actions",
-        cell: (info: CellContext<ApplicationData, any>) => {
-          const applicationId = info.row.original.applicationId
+        cell: (info: CellContext<DriverSubmissionData, any>) => {
+          const submissionId = info.row.original._id // Use the correct field for ID
           const handlerName = info.row.original.handlerName
           return (
             <Flex gap="10px">
@@ -244,8 +211,8 @@ const Claims: React.FC = () => {
                 <Button
                   size="sm"
                   colorScheme="green"
-                  onClick={() => handleButtonClick(applicationId)}
-                  isLoading={loadingApplicationId === applicationId}
+                  onClick={() => handleButtonClick(submissionId)}
+                  isLoading={loadingSubmissionId === submissionId}
                 >
                   Handle
                 </Button>
@@ -254,7 +221,7 @@ const Claims: React.FC = () => {
                 size="sm"
                 bgColor="#FEF0C7"
                 color="#DC6803"
-                onClick={() => handleViewButtonClick(applicationId)}
+                onClick={() => handleViewButtonClick(submissionId)}
               >
                 View
               </Button>
@@ -263,7 +230,7 @@ const Claims: React.FC = () => {
         },
       },
     ],
-    [loadingApplicationId]
+    [loadingSubmissionId]
   )
 
   return (
@@ -276,7 +243,7 @@ const Claims: React.FC = () => {
         gap="10px"
       >
         <Heading fontSize="20px" color="#0B1023">
-          Applications
+          Driver Submissions
         </Heading>
         <Spacer />
         <InputGroup width="237px" h="28px">
@@ -284,7 +251,7 @@ const Claims: React.FC = () => {
             <Image src={searchLight} />
           </InputRightElement>
           <Input
-            placeholder="Search with applicant name or application ID"
+            placeholder="Search with driver name or phone number"
             fontSize="12px"
             borderRadius="4px"
             height="28px"
@@ -309,6 +276,7 @@ const Claims: React.FC = () => {
             handleFilter={onFilter}
             handleClear={() => {
               setFilters(initParams)
+              setFilters(initParams)
               updateParams({ filterValues: initParams })
             }}
           >
@@ -319,7 +287,7 @@ const Claims: React.FC = () => {
               letterSpacing="-1px"
               pb="12px"
             >
-              Plan & Status
+              Vehicle Type & Status
             </Text>
             <Flex gap="12px">
               <FormControl>
@@ -329,24 +297,25 @@ const Claims: React.FC = () => {
                   fontSize="0.75rem"
                   color="#003E51"
                 >
-                  Plan
+                  Vehicle Type
                 </FormLabel>
                 <Select
-                  placeholder="Select plan"
+                  placeholder="Select vehicle type"
                   _placeholder={{ color: "#003E51" }}
-                  name="planType"
-                  value={filters.planType}
+                  name="vehicleType"
+                  value={filters.vehicleType}
                   fontSize="14px"
                   _hover={{ outline: "none" }}
                   _focusVisible={{ borderColor: "none", boxShadow: "none" }}
                   height="48px"
                   onChange={(e) => {
-                    updateFilters("planType", e.target.value)
+                    updateFilters("vehicleType", e.target.value)
                   }}
                 >
-                  <option value="Micro Pension">Micro Pension</option>
-                  <option value="Micro Insurance">Micro Insurance</option>
-                  <option value="Micro Savings">Micro Savings</option>
+                  <option value="Taxi">Taxi</option>
+                  <option value="Tricycle">Tricycle</option>
+                  <option value="Motorbike">Motorbike</option>
+                  <option value="Bus">Bus</option>
                 </Select>
               </FormControl>
               <FormControl>
@@ -370,7 +339,7 @@ const Claims: React.FC = () => {
                     updateFilters("status", e.target.value)
                   }}
                 >
-                  <option value="Processing">Processing</option>
+                  <option value="Pending">Pending</option>
                   <option value="Approved">Approved</option>
                   <option value="Rejected">Rejected</option>
                 </Select>
@@ -395,7 +364,7 @@ const Claims: React.FC = () => {
                   fontSize="0.75rem"
                   color="#003E51"
                 >
-                  Date Initiated
+                  Date Submitted
                 </FormLabel>
                 <Input
                   size="lg"
@@ -403,12 +372,12 @@ const Claims: React.FC = () => {
                   placeholder="Select Date"
                   px="14px"
                   type="date"
-                  name="dateInitiated"
+                  name="dateSubmitted"
                   _hover={{ outline: "none" }}
                   _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-                  value={filters.dateInitiated}
+                  value={filters.dateSubmitted}
                   onChange={(e) =>
-                    updateFilters("dateInitiated", e.target.value)
+                    updateFilters("dateSubmitted", e.target.value)
                   }
                 />
               </FormControl>
@@ -429,16 +398,17 @@ const Claims: React.FC = () => {
           </Button>
         </Flex>
       </Flex>
-
       <Box p="20px">
         <ClaimTable
-          data={applicationsList?.data?.content || []}
+          data={driverSubmissions || []}
           columns={columns}
-          loading={loadingApplications}
+          loading={loadingSubmissions}
           pagination={{
             pageSize: tableParams?.pageSize,
             currentPage: tableParams?.pageNo,
-            totalPages: applicationsList?.data?.page?.totalPages || 0,
+            totalPages: Math.ceil(
+              (driverSubmissions?.length || 0) / tableParams.pageSize
+            ),
             updateFn: updateParams,
           }}
         />
@@ -446,5 +416,4 @@ const Claims: React.FC = () => {
     </Box>
   )
 }
-
-export default Claims
+export default DriverSubmissions

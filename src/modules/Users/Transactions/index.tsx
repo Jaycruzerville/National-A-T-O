@@ -862,10 +862,8 @@ const index = () => {
                 _active={{ backgroundColor: "none" }}
                 _hover={{ backgroundColor: "none", opacity: "0.8" }}
                 onClick={() =>
-                  transactionDetails?.data?.customerId
-                    ? navigate(
-                        `/customers/${transactionDetails?.data?.customerId}`
-                      )
+                  transactionDetails?.data?.userId
+                    ? navigate(`/customers/${transactionDetails?.data?.userId}`)
                     : toast({
                         title: "Error",
                         description: "No customer details found",

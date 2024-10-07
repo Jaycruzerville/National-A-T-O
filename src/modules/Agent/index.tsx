@@ -38,6 +38,10 @@ const paths = [
     element: lazy(() => import("./Kyc")),
   },
   {
+    path: agents.VERIFYPAYMENT,
+    element: lazy(() => import("./VerifyPayment")),
+  },
+  {
     path: agents.TRANSACTIONS,
     element: lazy(() => import("./Transactions")),
   },

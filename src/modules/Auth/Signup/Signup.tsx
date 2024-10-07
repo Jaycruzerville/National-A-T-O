@@ -12,7 +12,6 @@ import {
   InputGroup,
   InputRightElement,
   IconButton,
-  SimpleGrid,
   Link,
   useToast,
 } from "@chakra-ui/react"
@@ -34,38 +33,31 @@ const Signup = () => {
 
   const formik = useFormik({
     initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
+      username: "",
       password: "",
       confirmPassword: "",
-      phoneNumber: "",
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required("Required"),
-      lastName: Yup.string().required("Required"),
-      email: Yup.string().email("Invalid email address").required("Required"),
+      username: Yup.string().required("Required"),
       password: Yup.string().required("Required"),
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("password"), ""], "Passwords must match")
         .required("Required"),
-      phoneNumber: Yup.string().required("Required"),
     }),
     onSubmit: (values) => {
-      // eslint-disable-next-line unused-imports/no-unused-vars
-      const { confirmPassword, ...payload } = values
+      const { username, password } = values // Only extract username and password
+      const payload = { username, password } // Prepare payload with just these fields
       mutate(payload)
     },
   })
 
   const { mutate, isLoading } = useMutation({
-    mutationFn: (
-      payload: Omit<typeof formik.initialValues, "confirmPassword">
-    ) => authService.signup(payload),
+    mutationFn: (payload: { username: string; password: string }) =>
+      authService.signup(payload),
     onError: (error: IError) => {
       toast({
         title: "Error",
-        description: error.message || "An error occurred",
+        description: error.message || "An error occurred during registration",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -96,13 +88,13 @@ const Signup = () => {
         bg={colors.gray[100]}
         p="24px"
         w="auto"
-        maxW="600px" // Increased width to accommodate two columns
+        maxW="600px"
         boxShadow="0px 8px 32px rgba(0, 0, 0, 0.06)"
         borderRadius="4px"
       >
         <Image
           src={logo}
-          w="20%" // Adjusted for better fit in larger box
+          w="20%"
           alt="Company Logo"
           mb={4}
           style={{ display: "block", margin: "0 auto" }}
@@ -111,114 +103,70 @@ const Signup = () => {
           REGISTER
         </Heading>
         <form onSubmit={formik.handleSubmit}>
-          <SimpleGrid columns={2} spacing={5} mb={4}>
-            <FormControl
-              isInvalid={!!formik.errors.firstName}
-              id="first-name"
-              isRequired
-            >
-              <FormLabel>First Name</FormLabel>
+          <FormControl
+            isInvalid={!!formik.errors.username}
+            id="username"
+            isRequired
+          >
+            <FormLabel>Username</FormLabel>
+            <Input
+              name="username"
+              placeholder="Username"
+              onChange={formik.handleChange}
+              value={formik.values.username}
+            />
+          </FormControl>
+          <FormControl
+            isInvalid={!!formik.errors.password}
+            id="password"
+            isRequired
+            mt={4}
+          >
+            <FormLabel>Password</FormLabel>
+            <InputGroup>
               <Input
-                name="firstName"
-                placeholder="First Name"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
                 onChange={formik.handleChange}
-                value={formik.values.firstName}
+                value={formik.values.password}
               />
-            </FormControl>
-            <FormControl
-              isInvalid={!!formik.errors.lastName}
-              id="surname"
-              isRequired
-            >
-              <FormLabel>Surname</FormLabel>
-              <Input
-                name="lastName"
-                placeholder="Surname"
-                onChange={formik.handleChange}
-                value={formik.values.lastName}
-              />
-            </FormControl>
-            <FormControl
-              isInvalid={!!formik.errors.email}
-              id="email"
-              isRequired
-            >
-              <FormLabel>Email Address</FormLabel>
-              <Input
-                name="email"
-                type="email"
-                placeholder="Email Address"
-                onChange={formik.handleChange}
-                value={formik.values.email}
-              />
-            </FormControl>
-            <FormControl
-              isInvalid={!!formik.errors.phoneNumber}
-              id="phone-number"
-              isRequired
-            >
-              <FormLabel>Phone Number</FormLabel>
-              <Input
-                name="phoneNumber"
-                type="tel"
-                placeholder="Phone Number"
-                onChange={formik.handleChange}
-                value={formik.values.phoneNumber}
-              />
-            </FormControl>
-            <FormControl
-              isInvalid={!!formik.errors.password}
-              id="password"
-              isRequired
-            >
-              <FormLabel>Password</FormLabel>
-              <InputGroup>
-                <Input
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  onChange={formik.handleChange}
-                  value={formik.values.password}
+              <InputRightElement width="4.5rem">
+                <IconButton
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  onClick={() => setShowPassword(!showPassword)}
+                  size="sm"
                 />
-                <InputRightElement width="4.5rem">
-                  <IconButton
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                    icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                    onClick={() => setShowPassword(!showPassword)}
-                    size="sm"
-                  />
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-            <FormControl
-              isInvalid={!!formik.errors.confirmPassword}
-              id="confirm-password"
-              isRequired
-            >
-              <FormLabel>Confirm Password</FormLabel>
-              <InputGroup>
-                <Input
-                  name="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Confirm Password"
-                  onChange={formik.handleChange}
-                  value={formik.values.confirmPassword}
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
+          <FormControl
+            isInvalid={!!formik.errors.confirmPassword}
+            id="confirm-password"
+            isRequired
+            mt={4}
+          >
+            <FormLabel>Confirm Password</FormLabel>
+            <InputGroup>
+              <Input
+                name="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="Confirm Password"
+                onChange={formik.handleChange}
+                value={formik.values.confirmPassword}
+              />
+              <InputRightElement width="4.5rem">
+                <IconButton
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  onClick={() => setShowPassword(!showPassword)}
+                  size="sm"
                 />
-                <InputRightElement width="4.5rem">
-                  <IconButton
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                    icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                    onClick={() => setShowPassword(!showPassword)}
-                    size="sm"
-                  />
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-          </SimpleGrid>
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
+
           <Button
             bg={colors.brand.primary}
             color="white"

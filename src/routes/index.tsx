@@ -52,11 +52,11 @@ const renderRoute = ({ Component, ...route }: RouteProps) => {
 export const AppRoutes = () => {
   const roleRoutes: Record<string, Array<RouteProps>> = {
     SUPER_ADMIN: usersRoutes,
-    ROLE_ADMIN: adminRoutes,
-    AGENT: agentRoutes,
+    Admin: adminRoutes,
+    Agent: agentRoutes,
     SUPER_AGENT: superAgentRoutes,
     BASE: baseRoutes,
-    ROLE_REGULAR: agentRoutes, // Mapping ROLE_REGULAR to usersRoutes
+    Driver: usersRoutes, // Mapping Driver to usersRoutes
   }
 
   const userRole = Auth.getUserRole() || "BASE"

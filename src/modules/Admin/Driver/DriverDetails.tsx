@@ -29,6 +29,7 @@ import { useParams } from "react-router-dom"
 import { getPercentageChange } from "@/utils/getStatPercentile"
 import { format } from "date-fns"
 import { FeatureCollection } from "geojson"
+import { Spinner } from "@chakra-ui/react"
 
 const DriverDetails = () => {
   const toast = useToast()
@@ -51,7 +52,12 @@ const DriverDetails = () => {
     setTableParams({ ...tableParams, ...filterValues })
   }
 
-  const { data: DriverDetails } = useQuery({
+  // Fetch driver details from backend
+  const {
+    data: driverData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["Driver-details", { id }],
     queryFn: usersService.getDriverDetails,
     onError: (error: IError) => {
@@ -65,6 +71,25 @@ const DriverDetails = () => {
       })
     },
   })
+
+  if (isLoading) {
+    return (
+      <Container centerContent>
+        <Spinner size="xl" />
+        <Text>Loading driver details...</Text>
+      </Container>
+    )
+  }
+
+  if (error || !driverData) {
+    return (
+      <Container centerContent>
+        <Text color="red.500">
+          Error fetching driver details: {error?.message}
+        </Text>
+      </Container>
+    )
+  }
 
   const mockDetails = {
     DriverID: "67363883GY7878382T7F",
@@ -87,9 +112,10 @@ const DriverDetails = () => {
     OverdueCharges: "800,009,890",
   }
 
+  // Extract coordinates for the map
   const coordinates: [number, number] = [
-    parseFloat(mockDetails.Latitude),
-    parseFloat(mockDetails.Longitude),
+    parseFloat(driverData?.Latitude || "6.457033576389855"),
+    parseFloat(driverData?.Longitude || "3.292990616327566"),
   ]
 
   const mockGeoJSON: FeatureCollection = {
@@ -105,29 +131,6 @@ const DriverDetails = () => {
       },
     ],
   }
-
-  const { data: DriverCustomers, isLoading: loadingProperties } = useQuery({
-    queryKey: [
-      "Driver-customers",
-      {
-        id,
-        pageSize: tableParams.pageSize,
-        page: tableParams.page,
-      },
-    ],
-    queryFn: usersService.getDriverCustomers,
-    enabled: tabIndex === 1,
-    onError: (error: IError) => {
-      toast({
-        title: "Error",
-        description: error?.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      })
-    },
-  })
 
   type Agent = {
     id: number
@@ -225,11 +228,12 @@ const DriverDetails = () => {
       id: 1,
       icon: totalUsers,
       text: "Total users",
-      value: DriverDetails?.data?.registeredUsersCount ?? 0,
-      percentage: getPercentageChange(
-        parseInt(DriverDetails?.data?.registeredUsers?.currentMonth),
-        parseInt(DriverDetails?.data?.registeredUsers?.previousMonth)
-      )?.percentageChange,
+      value: driverData?.registeredUsersCount || 1000, // Use dummy value
+      percentage:
+        getPercentageChange(
+          parseInt(driverData?.registeredUsers?.currentMonth || "500"),
+          parseInt(driverData?.registeredUsers?.previousMonth || "400")
+        )?.percentageChange || 20, // Use dummy percentage change
     },
     {
       id: 2,
@@ -238,12 +242,13 @@ const DriverDetails = () => {
         month: "long",
       })}`,
       value: `₦${new Intl.NumberFormat("en-GB").format(
-        DriverDetails?.data?.totalTransactionValue?.currentMonth ?? 0
-      )}`,
-      percentage: getPercentageChange(
-        parseInt(DriverDetails?.data?.totalTransactionValue?.currentMonth),
-        parseInt(DriverDetails?.data?.totalTransactionValue?.previousMonth)
-      )?.percentageChange,
+        driverData?.totalTransactionValue?.currentMonth || 500000
+      )}`, // Dummy transaction value
+      percentage:
+        getPercentageChange(
+          parseInt(driverData?.totalTransactionValue?.currentMonth || "500000"),
+          parseInt(driverData?.totalTransactionValue?.previousMonth || "400000")
+        )?.percentageChange || 10, // Dummy percentage change
     },
   ]
 
@@ -252,7 +257,7 @@ const DriverDetails = () => {
       <Flex sx={agentStatus} h={{ base: "68px" }}>
         <Flex sx={spaceFlex}>
           <Text textStyle="headText" sx={agentName}>
-            {DriverDetails?.data?.DriverName}
+            {driverData?.FullName || "Driver Name"}
           </Text>
         </Flex>
       </Flex>
@@ -289,7 +294,7 @@ const DriverDetails = () => {
                   ))}
                 </Flex>
                 <Box sx={spaceFlex} w="99%">
-                  <DriverInfo details={mockDetails} />
+                  <DriverInfo details={driverData} />
                 </Box>
               </Box>
               <Box w="33.3%">
@@ -315,13 +320,13 @@ const DriverDetails = () => {
           >
             <Box p="20px" bg="#FFF">
               <StyledTable
-                data={DriverCustomers?.data ?? []}
+                data={driverData?.data ?? []}
                 columns={columns}
-                loading={loadingProperties}
+                loading={isLoading}
                 pagination={{
                   pageSize: tableParams?.pageSize,
                   currentPage: tableParams?.page,
-                  totalPages: DriverCustomers?.pagination?.numberOfPages,
+                  totalPages: driverData?.pagination?.numberOfPages,
                   updateFn: updateParams,
                 }}
               />

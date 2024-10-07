@@ -30,13 +30,14 @@ const Login = () => {
 
   const toast = useToast()
 
+  // Change form field to `username` instead of `email`
   const formik = useFormik({
     initialValues: {
-      email: "string2", // Pre-filled demo credentials
-      password: "string",
+      username: "", // Changed from email to username
+      password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string().required("Required"), // Allow any string
+      username: Yup.string().required("Required"), // Validation for username
       password: Yup.string().required("Required"),
     }),
     onSubmit: () => {
@@ -44,6 +45,7 @@ const Login = () => {
     },
   })
 
+  // Adjust mutation to reflect `username` login
   const { mutate, isLoading } = useMutation({
     mutationFn: () => authService.login(formik.values),
     onError: (error: IError) => {
@@ -59,23 +61,24 @@ const Login = () => {
     onSuccess: (response) => {
       console.log("Login successful", response)
 
-      const { accessToken, refreshToken, role, claims } = response.data
+      // Correctly destructure response
+      const { accessToken, refreshToken, role, user, email } = response // Use response directly
 
-      console.log("Before setting tokens:", localStorage)
-
+      // Store the tokens and role
       Auth.setToken(accessToken)
       Auth.setRefreshToken(refreshToken)
       Auth.setUserRole(role)
+      Auth.setUserEmail(email)
+      Auth.setUserData(user)
 
-      if (claims?.customerId) {
-        Auth.setCustomerId(claims.customerId)
+      if (user?.id) {
+        Auth.setuserId(user.id)
       } else {
-        console.error("customerId not found in response")
+        console.error("userId not found in response")
       }
 
-      console.log("After setting tokens and customerId:", localStorage)
-
-      if (role === "ROLE_REGULAR") {
+      // Redirect based on user role
+      if (role === "Driver") {
         window.location.replace("/super-admin")
       } else {
         window.location.replace("/")
@@ -112,14 +115,15 @@ const Login = () => {
         />
 
         <form onSubmit={formik.handleSubmit}>
-          <FormControl isInvalid={!!formik.errors.email}>
-            <FormLabel>Email Address</FormLabel>
+          {/* Change label and input name to `Username` */}
+          <FormControl isInvalid={!!formik.errors.username}>
+            <FormLabel>Username</FormLabel>
             <Input
-              name="email"
-              type="text" // Use text instead of email to allow any input
-              placeholder="Enter your Email Address"
+              name="username" // Changed from email to username
+              type="text" // Use text input for username
+              placeholder="Enter your Username"
               onChange={formik.handleChange}
-              value={formik.values.email}
+              value={formik.values.username}
             />
           </FormControl>
 

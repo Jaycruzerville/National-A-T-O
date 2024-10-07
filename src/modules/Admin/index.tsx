@@ -12,6 +12,14 @@ const paths = [
     element: lazy(() => import("./Applications")),
   },
   {
+    path: Admin.AGENTS,
+    element: lazy(() => import("./Agents")),
+  },
+  {
+    path: Admin.AGENTS_DETAILS,
+    element: lazy(() => import("./Agents/AgentsDetails")),
+  },
+  {
     path: Admin.Charges,
     element: lazy(() => import("./Charges")),
   },
@@ -57,6 +65,10 @@ const paths = [
   },
   {
     path: Admin.CUSTOMERS,
+    element: lazy(() => import("./Customers")),
+  },
+  {
+    path: Admin.AGENTS,
     element: lazy(() => import("./Customers")),
   },
   {
