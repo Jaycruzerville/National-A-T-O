@@ -97,12 +97,17 @@ const getDriverId = () => {
   return localStorage.getItem("driverId")
 }
 
-const setAdminId = (adminId: string) => {
-  localStorage.setItem("adminId", adminId)
+const setSuperAgentId = (superAgentId: string) => {
+  localStorage.setItem("superAgentId", superAgentId)
 }
 
-const getAdminId = () => {
-  return localStorage.getItem("adminId")
+const getSuperAgentId = () => {
+  return localStorage.getItem("superAgentId")
+}
+
+const getUserData = () => {
+  const userData = localStorage.getItem("Data")
+  return userData ? JSON.parse(userData) : null
 }
 
 const Auth = {
@@ -125,8 +130,9 @@ const Auth = {
   getAgentId,
   setDriverId,
   getDriverId,
-  setAdminId,
-  getAdminId,
+  setSuperAgentId,
+  getSuperAgentId,
+  getUserData,
 }
 
 export default Auth

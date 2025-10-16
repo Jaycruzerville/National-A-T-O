@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { useDeferredValue, useState } from "react"
+import React, { useDeferredValue, useState } from "react"
 import {
   Box,
   // Button,
@@ -20,7 +20,6 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
-  Spacer,
   Spinner,
   Text,
   UnorderedList,
@@ -46,51 +45,16 @@ import Auth from "@/utils/auth"
 type Transactions = {
   _id: string
   agentId: string
+  agent?: {
+    firstName: string
+    lastName: string
+  }
   amount: number
   reference: string
   status: string
   createdAt: string
   gateway: string // added if needed for display
 }
-
-const columns: ColumnDef<Transactions>[] = [
-  {
-    accessorKey: "reference", // This matches the API response
-    header: "Transaction ID",
-    cell: (info: CellContext<Transactions, any>) => (
-      <>{info.getValue().toUpperCase()}</>
-    ),
-  },
-  {
-    accessorKey: "amount", // Use "amount" as per your API response
-    header: "Amount",
-    cell: (info: CellContext<Transactions, any>) => (
-      <>{formatToCurrency(info.getValue())}</>
-    ),
-  },
-  {
-    accessorKey: "gateway", // Corresponds to the "gateway" field in the API response
-    header: "Gateway",
-  },
-  {
-    accessorKey: "status", // Use "status" to display transaction status
-    header: "Status",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cell: (info: CellContext<Transactions, any>) => (
-      <>{SwitchStatus(info.getValue())}</>
-    ),
-  },
-  {
-    accessorKey: "createdAt", // Use "createdAt" for the date
-    header: "Date",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cell: (info: CellContext<Transactions, any>) => (
-      <Box>
-        {info?.getValue() && format(new Date(info?.getValue()), "yyyy-MM-dd")}
-      </Box>
-    ),
-  },
-]
 
 const initParams = {
   search: "",
@@ -104,11 +68,75 @@ const initParams = {
   endDate: "",
 }
 
-const TransactionsPage = () => {
+const getColumns = (userRole: string | null): ColumnDef<Transactions>[] => [
+  {
+    accessorKey: "reference", // This matches the API response
+    header: "Transaction ID",
+    cell: (info: CellContext<Transactions, string>) => (
+      <>{info.getValue().toUpperCase()}</>
+    ),
+  },
+  ...(userRole === "Admin"
+    ? [
+        {
+          accessorKey: "agent",
+          header: "Agent Name",
+          cell: (
+            info: CellContext<
+              Transactions,
+              { firstName: string; lastName: string } | undefined
+            >
+          ) => {
+            const agent = info.getValue()
+            return <>{agent ? `${agent.firstName} ${agent.lastName}` : "-"}</>
+          },
+        },
+      ]
+    : []),
+  {
+    accessorKey: "amount", // Use "amount" as per your API response
+    header: "Amount",
+    cell: (info: CellContext<Transactions, number>) => (
+      <>{formatToCurrency(info.getValue())}</>
+    ),
+  },
+  {
+    accessorKey: "gateway", // Corresponds to the "gateway" field in the API response
+    header: "Gateway",
+  },
+  {
+    accessorKey: "status", // Use "status" to display transaction status
+    header: "Status",
+    cell: (info: CellContext<Transactions, string>) => (
+      <>{SwitchStatus(info.getValue())}</>
+    ),
+  },
+  {
+    accessorKey: "createdAt", // Use "createdAt" for the date
+    header: "Date",
+    cell: (info: CellContext<Transactions, string>) => (
+      <Box>
+        {info?.getValue() && format(new Date(info?.getValue()), "yyyy-MM-dd")}
+      </Box>
+    ),
+  },
+]
+
+interface TransactionsProps {
+  limit?: number
+  showFilters?: boolean // eslint-disable-line @typescript-eslint/no-unused-vars
+  compact?: boolean // eslint-disable-line @typescript-eslint/no-unused-vars
+}
+
+const TransactionsPage: React.FC<TransactionsProps> = ({
+  limit = 10,
+  showFilters = true,
+  compact = false,
+}) => {
   const toast = useToast()
   const [tableParams, setTableParams] = useState({
     ...initParams,
-    pageSize: 10,
+    pageSize: limit,
     page: 1,
     search: "",
   })
@@ -118,12 +146,14 @@ const TransactionsPage = () => {
   const [transactionId, setTransactionId] = useState<string | null>(null)
   // const navigate = useNavigate()
 
+  const userRole = Auth.getUserRole()
   const agentId = Auth.getAgentId()
+  const columns = getColumns(userRole)
 
-  // Fetch transactions by agent ID if agentId is not null
+  // Fetch transactions using the agent-specific endpoint for dashboard
   const { data: transactionsList, isLoading: loadingTransactions } = useQuery({
     queryKey: [
-      "all_transactions",
+      "dashboard_transactions",
       {
         pageSize: tableParams.pageSize,
         page: tableParams.page,
@@ -132,21 +162,22 @@ const TransactionsPage = () => {
     ],
     queryFn: () => {
       if (!agentId) {
-        throw new Error("Agent ID is null")
+        throw new Error("Agent ID is required")
       }
       return usersService.getTransactionsByAgentId(agentId)
     },
+    enabled: !!agentId, // Only run query if agentId exists
     onError: (error: IError) => {
+      console.error("Transaction fetch error:", error)
       toast({
         title: "Error",
-        description: error?.message,
+        description: error?.message || "Failed to load transactions",
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "top",
       })
     },
-    enabled: !!agentId, // Ensure query only runs if agentId is not null
   })
 
   // Fetch specific transaction details by ID
@@ -199,32 +230,38 @@ const TransactionsPage = () => {
         bgColor="white"
         alignItems="center"
       ></Flex>
-      <Box bg="#F6F6F6" p="20px">
+      <Box bg="#F6F6F6" p={{ base: "10px", md: "20px" }}>
         <Flex
           bg="brand.primary"
-          py="12px"
-          px="40px"
-          mt="40px"
+          py={{ base: "8px", md: "12px" }}
+          px={{ base: "16px", md: "40px" }}
+          mt={{ base: "16px", md: "40px" }}
           borderTopRadius="12px"
-          gap="20px"
+          gap={{ base: "12px", md: "20px" }}
+          flexDirection={{ base: "column", md: "row" }}
+          alignItems={{ base: "stretch", md: "center" }}
         >
-          <Text color="#ffffff" fontSize="20px" fontWeight="500">
+          <Text
+            color="#ffffff"
+            fontSize={{ base: "16px", md: "20px" }}
+            fontWeight="500"
+            mb={{ base: "8px", md: "0" }}
+          >
             Transactions
           </Text>
-          <Spacer />
-          <InputGroup width="237px">
+          <InputGroup width={{ base: "100%", md: "237px" }}>
             <InputRightElement height="100%">
               <Image src={searchLight} />
             </InputRightElement>
             <Input
               placeholder="Search Transactions"
-              fontSize="12px"
+              fontSize={{ base: "14px", md: "12px" }}
               borderRadius="4px"
-              height="28px"
+              height={{ base: "40px", md: "28px" }}
               border="1px solid #C0C9D8"
               bgColor="#ffffff"
               _placeholder={{
-                fontSize: "10px",
+                fontSize: { base: "12px", md: "10px" },
                 letterSpacing: "-0.02em",
                 lineHeight: "12px",
                 color: "#000e1a",
@@ -247,13 +284,17 @@ const TransactionsPage = () => {
             <Text
               fontWeight="500"
               lineHeight="25px"
-              fontSize="20px"
+              fontSize={{ base: "18px", md: "20px" }}
               letterSpacing="-1px"
               pb="12px"
             >
               Status & Type
             </Text>
-            <Flex gap="12px" pb="20px">
+            <Flex
+              gap="12px"
+              pb="20px"
+              flexDirection={{ base: "column", md: "row" }}
+            >
               <FormControl>
                 <FormLabel
                   lineHeight="20px"
@@ -309,7 +350,7 @@ const TransactionsPage = () => {
                 </Select>
               </FormControl>
             </Flex>
-            <FormControl width="50%" pb="20px">
+            <FormControl width={{ base: "100%", md: "50%" }} pb="20px">
               <FormLabel
                 lineHeight="20px"
                 fontWeight="500"
@@ -336,13 +377,17 @@ const TransactionsPage = () => {
             <Text
               fontWeight="500"
               lineHeight="25px"
-              fontSize="20px"
+              fontSize={{ base: "18px", md: "20px" }}
               letterSpacing="-1px"
               pb="12px"
             >
               Plan & Association
             </Text>
-            <Flex gap="12px" pb="20px">
+            <Flex
+              gap="12px"
+              pb="20px"
+              flexDirection={{ base: "column", md: "row" }}
+            >
               <FormControl>
                 <FormLabel
                   lineHeight="20px"
@@ -405,14 +450,21 @@ const TransactionsPage = () => {
             <Text
               fontWeight="500"
               lineHeight="25px"
-              fontSize="20px"
+              fontSize={{ base: "18px", md: "20px" }}
               letterSpacing="-1px"
               pb="12px"
             >
               Date Range
             </Text>
-            <Flex gap="12px" pb="20px">
-              <FormControl mb="20px" width="50%">
+            <Flex
+              gap="12px"
+              pb="20px"
+              flexDirection={{ base: "column", md: "row" }}
+            >
+              <FormControl
+                mb={{ base: "10px", md: "20px" }}
+                width={{ base: "100%", md: "50%" }}
+              >
                 <FormLabel
                   lineHeight="20px"
                   fontWeight="500"
@@ -435,7 +487,10 @@ const TransactionsPage = () => {
                   onChange={(e) => updateFilters("startDate", e.target.value)}
                 />
               </FormControl>
-              <FormControl mb="20px" width="50%">
+              <FormControl
+                mb={{ base: "10px", md: "20px" }}
+                width={{ base: "100%", md: "50%" }}
+              >
                 <FormLabel
                   lineHeight="20px"
                   fontWeight="500"
@@ -461,7 +516,7 @@ const TransactionsPage = () => {
             </Flex>
           </Filter>
         </Flex>
-        <Box mt="20px" bg="#ffffff">
+        <Box mt="20px" bg="#ffffff" overflowX={{ base: "auto", md: "visible" }}>
           <StyledTable
             data={transactionsList}
             columns={columns}
@@ -477,26 +532,32 @@ const TransactionsPage = () => {
         </Box>
       </Box>
       <>
-        <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        <Modal
+          isOpen={isOpen}
+          onClose={onClose}
+          size={{ base: "full", md: "lg" }}
+        >
           <ModalOverlay bg="rgba(0, 0, 0, 0.6)" />
           <ModalContent
             bg="white"
             color="black"
-            p={5}
+            p={{ base: 3, md: 5 }}
             borderRadius="md"
             boxShadow="lg"
             opacity="1"
+            mx={{ base: 2, md: "auto" }}
+            my={{ base: 2, md: "auto" }}
           >
             <ModalCloseButton
-              top="3rem"
+              top={{ base: "1rem", md: "3rem" }}
               color="brand.primary"
               onClick={() => setTransactionId(null)}
             />
             <ModalHeader
-              pt="40px"
+              pt={{ base: "20px", md: "40px" }}
               fontWeight="500"
-              fontSize="36px"
-              lineHeight="45px"
+              fontSize={{ base: "24px", md: "36px" }}
+              lineHeight={{ base: "30px", md: "45px" }}
               letterSpacing="-2px"
               color="brand.primary"
               pb="0px"
@@ -526,9 +587,9 @@ const TransactionsPage = () => {
             ) : (
               <ModalBody>
                 <UnorderedList
-                  pt="50px"
+                  pt={{ base: "30px", md: "50px" }}
                   ml="0px"
-                  px="46px"
+                  px={{ base: "20px", md: "46px" }}
                   display="flex"
                   flexDir="column"
                   gap="10px"
@@ -536,13 +597,17 @@ const TransactionsPage = () => {
                   <ListItem
                     listStyleType="none"
                     display="flex"
+                    flexDirection={{ base: "column", md: "row" }}
                     justifyContent="space-between"
+                    alignItems={{ base: "flex-start", md: "center" }}
+                    gap={{ base: 1, md: 0 }}
                   >
                     <Text
                       color="#8E8E8E"
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       Transaction Date:
                     </Text>
@@ -551,6 +616,7 @@ const TransactionsPage = () => {
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       {format(
                         new Date(transactionDetails?.createdAt),
@@ -561,13 +627,17 @@ const TransactionsPage = () => {
                   <ListItem
                     listStyleType="none"
                     display="flex"
+                    flexDirection={{ base: "column", md: "row" }}
                     justifyContent="space-between"
+                    alignItems={{ base: "flex-start", md: "center" }}
+                    gap={{ base: 1, md: 0 }}
                   >
                     <Text
                       color="#8E8E8E"
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       Reference ID:
                     </Text>
@@ -576,6 +646,7 @@ const TransactionsPage = () => {
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       {transactionDetails?.reference ?? "-"}
                     </Text>
@@ -583,13 +654,17 @@ const TransactionsPage = () => {
                   <ListItem
                     listStyleType="none"
                     display="flex"
+                    flexDirection={{ base: "column", md: "row" }}
                     justifyContent="space-between"
+                    alignItems={{ base: "flex-start", md: "center" }}
+                    gap={{ base: 1, md: 0 }}
                   >
                     <Text
                       color="#8E8E8E"
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       Amount:
                     </Text>
@@ -598,6 +673,7 @@ const TransactionsPage = () => {
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       {formatToCurrency(transactionDetails?.amount ?? 0)}
                     </Text>
@@ -605,13 +681,17 @@ const TransactionsPage = () => {
                   <ListItem
                     listStyleType="none"
                     display="flex"
+                    flexDirection={{ base: "column", md: "row" }}
                     justifyContent="space-between"
+                    alignItems={{ base: "flex-start", md: "center" }}
+                    gap={{ base: 1, md: 0 }}
                   >
                     <Text
                       color="#8E8E8E"
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       Status
                     </Text>
@@ -620,6 +700,7 @@ const TransactionsPage = () => {
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       {transactionDetails?.status ?? "-"}
                     </Text>
@@ -627,13 +708,17 @@ const TransactionsPage = () => {
                   <ListItem
                     listStyleType="none"
                     display="flex"
+                    flexDirection={{ base: "column", md: "row" }}
                     justifyContent="space-between"
+                    alignItems={{ base: "flex-start", md: "center" }}
+                    gap={{ base: 1, md: 0 }}
                   >
                     <Text
                       color="#8E8E8E"
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       Payment channel:
                     </Text>
@@ -642,6 +727,7 @@ const TransactionsPage = () => {
                       letterSpacing="-1px"
                       fontWeight={600}
                       lineHeight="25px"
+                      fontSize={{ base: "14px", md: "16px" }}
                     >
                       {transactionDetails?.gateway ?? "-"}
                     </Text>
@@ -650,7 +736,11 @@ const TransactionsPage = () => {
               </ModalBody>
             )}
 
-            <ModalFooter justifyContent="center" pt="62px" pb="42px">
+            <ModalFooter
+              justifyContent="center"
+              pt={{ base: "30px", md: "62px" }}
+              pb={{ base: "20px", md: "42px" }}
+            >
               {/* <Button
                 width="fit-content"
                 fontSize="20px"

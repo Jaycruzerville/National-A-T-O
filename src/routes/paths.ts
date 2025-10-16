@@ -85,8 +85,32 @@ export const Admin = {
   SERVICEPROVIDERS_DETAILS: "/serviceproviders/:id",
   NOTIFICATIONS: "/notifications",
   TRANSACTIONS: "/transactions",
+  REVENUE: "/revenue",
   SETTINGS: "/settings",
   PROFILE: "/profile",
   KYCFORM: "/kycform",
   PAYMENTS: "/payments",
+}
+export const superAgent = {
+  DASHBOARD: "/dashboard",
+  USERS: "/users", // List all agents
+  USERS_DETAILS: "/users/:id",
+  CREATE_AGENT: "/create-agent", // Feature to create agents
+  AGENTS: "/agents",
+  AGENTS_DETAILS: "/agents/:id",
+  Driver: "/Driver",
+  Driver_DETAILS: "/Driver/:id",
+  Driver_REGISTER: "/Driver/Register",
+  CLAIMS: "/claims",
+  CLAIMS_DETAILS: "/claims/:id",
+  SUBMISSIONS: "/submissions",
+  SUBMISSIONS_DETAILS: "/submissions/:id",
+  SETTINGS: "/settings",
+  COMPLAINTS: "/complaints",
+  PROFILE: "/profile",
+  NOTIFICATIONS: "/notifications",
+  KYCFORM: "/kycform",
+  PAYMENTS: "/payments",
+  TRANSACTIONS: "/transactions",
+  VERIFYPAYMENT: "/payment/verify",
 }

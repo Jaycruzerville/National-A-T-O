@@ -54,7 +54,7 @@ export const AppRoutes = () => {
     SUPER_ADMIN: usersRoutes,
     Admin: adminRoutes,
     Agent: agentRoutes,
-    SUPER_AGENT: superAgentRoutes,
+    SuperAgent: superAgentRoutes,
     BASE: baseRoutes,
     Driver: usersRoutes, // Mapping Driver to usersRoutes
   }

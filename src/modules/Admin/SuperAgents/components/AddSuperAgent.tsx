@@ -1,32 +1,53 @@
-import useStateAndLGA from "@/hooks/useStateAndLGA"
-import AppFormLabel from "@/reusables/AppFormLabel"
+import { useState } from "react"
 import DrawerComponent from "@/reusables/DrawerComponent"
-import usersService from "@/services/usersServices"
-import { IError } from "@/types"
+import AppFormLabel from "@/reusables/AppFormLabel"
+import adminServices from "@/services/adminServices"
+import type { IError } from "@/types"
 import {
   Button,
   Flex,
   FormControl,
-  Heading,
   Input,
   Select,
   Text,
   useToast,
+  Spacer,
   useDisclosure,
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useFormik } from "formik"
-import { useState } from "react"
 import * as Yup from "yup"
+import { useGetRoleId } from "@/hooks/useGetRoleId"
+import PhoneInput from "@/reusables/PhoneInput"
+import lgaofo from "@/data/lgaofo" // Import the LGA data object
+
+const AddSuperAgentSchema = Yup.object().shape({
+  username: Yup.string().required("Username is required"),
+  firstName: Yup.string().required("First name is required"),
+  lastName: Yup.string().required("Last name is required"),
+  phoneNumber: Yup.string().required("Phone number is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  address: Yup.string().required("Address is required"),
+  lga: Yup.string().required("LGA is required"),
+  union: Yup.string().required("Union is required"),
+  nin: Yup.string()
+    .length(11, "NIN must be 11 digits long")
+    .required("NIN is required"),
+})
 
 const AddSuperAgentDrawer = () => {
-  const [selectedState, setselectedState] = useState("")
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { states, LGAs, loadingLGAs } = useStateAndLGA(selectedState)
+  const [formattedPhoneNumber, setFormattedPhoneNumber] = useState<
+    string | undefined
+  >()
+  useGetRoleId("Agent")
   const queryClient = useQueryClient()
   const toast = useToast()
 
-  const { mutate, isLoading } = useMutation(usersService.addSuperAgent, {
+  // Filter LGAs to only show Kano LGAs
+  const kanoLGAs = lgaofo["Kano"] || [] // Access only Kano state LGAs
+
+  const { mutate, isLoading } = useMutation(adminServices.createSuperAgent, {
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -40,7 +61,7 @@ const AddSuperAgentDrawer = () => {
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "SuperAgent added successfully",
+        description: "Super Agent added successfully",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -53,50 +74,31 @@ const AddSuperAgentDrawer = () => {
 
   const { handleChange, handleSubmit, values, errors } = useFormik({
     initialValues: {
-      DriverName: "",
-      DriverDescription: "",
-      DriverAddress: "",
-      DriverCategory: "",
-      state: "",
-      lga: "",
-      adminFirstName: "",
-      adminLastName: "",
-      adminPhoneNumber: "",
-      adminEmail: "",
+      username: "",
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      email: "",
+      address: "",
+      lga: "", // LGA field for Kano LGAs
+      union: "", // Union field
+      nin: "", // NIN field
     },
-    validationSchema: Yup.object({
-      DriverName: Yup.string().required("Required"),
-      DriverDescription: Yup.string().required("Required"),
-      DriverAddress: Yup.string().required("Required"),
-      DriverCategory: Yup.string().required("Required"),
-      state: Yup.string().required("Required"),
-      lga: Yup.string().required("Required"),
-      adminFirstName: Yup.string().required("Required"),
-      adminLastName: Yup.string().required("Required"),
-      adminPhoneNumber: Yup.string().required("Required"),
-      adminEmail: Yup.string().required("Required"),
-    }),
+    validationSchema: AddSuperAgentSchema,
     onSubmit: (values) => {
-      const {
-        adminFirstName,
-        adminLastName,
-        adminEmail,
-        adminPhoneNumber,
-        state,
-        lga,
-        ...otherValues
-      } = values
       const data = {
-        ...otherValues,
-        stateId: state,
-        lgaId: lga,
-        DriverAdminDetails: {
-          adminFirstName,
-          adminLastName,
-          adminEmail,
-          adminPhoneNumber,
-        },
+        username: values.username,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        phoneNumber:
+          formattedPhoneNumber?.replace(/\s/g, "") || values.phoneNumber,
+        email: values.email,
+        address: values.address,
+        lga: values.lga,
+        union: values.union,
+        nin: values.nin,
       }
+
       mutate(data)
     },
   })
@@ -106,270 +108,207 @@ const AddSuperAgentDrawer = () => {
       isOpen={isOpen}
       onClose={onClose}
       onOpen={onOpen}
-      title="Add new SuperAgent"
-      buttonText="Add SuperAgent"
+      title="Add new Super Agent"
+      buttonText="Add new Super Agent"
     >
       <form onSubmit={handleSubmit}>
         <Flex flexDir="column" gap="12px">
-          <FormControl isInvalid={!!errors.DriverName}>
-            <AppFormLabel title="Union/Driver name" />
+          <FormControl isInvalid={!!errors.username}>
+            <AppFormLabel title="Username" />
             <Input
-              type="name"
-              placeholder="Enter Union Name"
+              type="text"
+              placeholder="Enter Username"
               fontSize="14px"
               _hover={{ outline: "none" }}
               _focusVisible={{ borderColor: "none", boxShadow: "none" }}
               _placeholder={{ color: "#003E5160" }}
-              id="name"
-              name="DriverName"
+              id="username"
+              name="username"
               height="48px"
               onChange={handleChange}
-              value={values.DriverName}
-            />{" "}
-            {!!errors.DriverName && (
+              value={values.username}
+            />
+            {!!errors.username && (
               <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.DriverName}
+                {errors.username}
               </Text>
             )}
           </FormControl>
-          <FormControl isInvalid={!!errors.DriverCategory}>
-            <AppFormLabel title="Select category" />
-            <Select
-              placeholder="Select Driver Category"
-              _placeholder={{ color: "#003E5160" }}
-              fontSize="14px"
-              _hover={{ outline: "none" }}
-              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-              name="DriverCategory"
-              onChange={(e) => {
-                handleChange(e)
-              }}
-            >
-              {[
-                {
-                  name: "Transport",
-                  id: 1,
-                },
-                {
-                  name: "Academic",
-                  id: 2,
-                },
-                {
-                  name: "Health",
-                  id: 3,
-                },
-                {
-                  name: "Education",
-                  id: 3,
-                },
-                {
-                  name: "Religious",
-                  id: 3,
-                },
-                {
-                  name: "Artisans",
-                  id: 3,
-                },
-              ]?.map(({ name, id }: { name: string; id: number }) => (
-                <option value={name} key={id}>
-                  {name}
-                </option>
-              ))}
-            </Select>
-            {!!errors.DriverCategory && (
-              <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.DriverCategory}
-              </Text>
-            )}
-          </FormControl>
-          <FormControl isInvalid={!!errors.DriverDescription}>
-            <AppFormLabel title="Description" />
+
+          <FormControl isInvalid={!!errors.firstName}>
+            <AppFormLabel title="Firstname" />
             <Input
-              type="name"
-              placeholder="Enter Union Name"
+              type="text"
+              placeholder="Enter Firstname"
               fontSize="14px"
               _hover={{ outline: "none" }}
               _focusVisible={{ borderColor: "none", boxShadow: "none" }}
               _placeholder={{ color: "#003E5160" }}
-              id="name"
-              name="DriverDescription"
+              id="firstName"
+              name="firstName"
               height="48px"
               onChange={handleChange}
-              value={values.DriverDescription}
-            />{" "}
-            {!!errors.DriverDescription && (
+              value={values.firstName}
+            />
+            {!!errors.firstName && (
               <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.DriverDescription}
+                {errors.firstName}
               </Text>
             )}
           </FormControl>
-          <FormControl isInvalid={!!errors.DriverAddress}>
+
+          <FormControl isInvalid={!!errors.lastName}>
+            <AppFormLabel title="Lastname" />
+            <Input
+              type="text"
+              placeholder="Enter Lastname"
+              fontSize="14px"
+              _hover={{ outline: "none" }}
+              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+              _placeholder={{ color: "#003E5160" }}
+              id="lastName"
+              name="lastName"
+              height="48px"
+              onChange={handleChange}
+              value={values.lastName}
+            />
+            {!!errors.lastName && (
+              <Text as="span" fontSize="10px" pt="12px" color="red">
+                {errors.lastName}
+              </Text>
+            )}
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.phoneNumber}>
+            <AppFormLabel title="Phone Number" />
+            <PhoneInput
+              onChange={handleChange}
+              value={values.phoneNumber}
+              name="phoneNumber"
+              setInternationalFormat={setFormattedPhoneNumber}
+            />
+            {!!errors.phoneNumber && (
+              <Text as="span" fontSize="10px" pt="12px" color="red">
+                {errors.phoneNumber}
+              </Text>
+            )}
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.email}>
+            <AppFormLabel title="Email" />
+            <Input
+              type="email"
+              placeholder="Enter Email Address"
+              fontSize="14px"
+              _hover={{ outline: "none" }}
+              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+              _placeholder={{ color: "#003E5160" }}
+              id="email"
+              name="email"
+              height="48px"
+              onChange={handleChange}
+              value={values.email}
+            />
+            {!!errors.email && (
+              <Text as="span" fontSize="10px" pt="12px" color="red">
+                {errors.email}
+              </Text>
+            )}
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.address}>
             <AppFormLabel title="Address" />
             <Input
               type="text"
-              placeholder="Enter Agent Full Address"
+              placeholder="Enter Full Address"
               fontSize="14px"
               _hover={{ outline: "none" }}
               _focusVisible={{ borderColor: "none", boxShadow: "none" }}
               _placeholder={{ color: "#003E5160" }}
               id="address"
-              name="DriverAddress"
+              name="address"
               height="48px"
               onChange={handleChange}
-              value={values.DriverAddress}
-            />{" "}
-            {!!errors.DriverAddress && (
+              value={values.address}
+            />
+            {!!errors.address && (
               <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.DriverAddress}
+                {errors.address}
               </Text>
             )}
           </FormControl>
-          <FormControl isInvalid={!!errors.state}>
-            <AppFormLabel title="Select state" />
-            <Select
-              placeholder="Select Agent State"
-              _placeholder={{ color: "#003E5160" }}
-              fontSize="14px"
-              _hover={{ outline: "none" }}
-              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-              name="state"
-              onChange={(e) => {
-                handleChange(e)
-                setselectedState(e.target.value)
-              }}
-            >
-              {states?.map(
-                ({ name, id }: { name: string; id: string }, index: number) => (
-                  <option value={id} key={index}>
-                    {name}
-                  </option>
-                )
-              )}
-            </Select>
-            {!!errors.state && (
-              <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.state}
-              </Text>
-            )}
-          </FormControl>
+
+          {/* LGA Selection (only Kano LGAs) */}
           <FormControl isInvalid={!!errors.lga}>
             <AppFormLabel title="Select LGA" />
             <Select
-              placeholder={loadingLGAs ? "loading...." : "Select Agent LGA"}
+              placeholder="Select LGA"
               _placeholder={{ color: "#003E5160" }}
               fontSize="14px"
               _hover={{ outline: "none" }}
               _focusVisible={{ borderColor: "none", boxShadow: "none" }}
               name="lga"
               onChange={handleChange}
-              isDisabled={loadingLGAs}
             >
-              {LGAs?.map(
-                ({ name, id }: { name: string; id: string }, index: number) => (
-                  <option value={id} key={index}>
-                    {name}
-                  </option>
-                )
-              )}
+              {kanoLGAs?.map((lgaName, index) => (
+                <option value={lgaName} key={index}>
+                  {lgaName}
+                </option>
+              ))}
             </Select>
-            {!!errors.state && (
+            {!!errors.lga && (
               <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.state}
-              </Text>
-            )}
-          </FormControl>
-          <Heading
-            fontSize="24px"
-            lineHeight="32px"
-            fontWeight={700}
-            letterSpacing={-1}
-          >
-            SuperAgent Admin
-          </Heading>
-          <FormControl isInvalid={!!errors.adminFirstName}>
-            <AppFormLabel title="Firstname" />
-            <Input
-              type="name"
-              placeholder="Enter Admin Firstname"
-              fontSize="14px"
-              _hover={{ outline: "none" }}
-              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-              _placeholder={{ color: "#003E5160" }}
-              id="name"
-              name="adminFirstName"
-              height="48px"
-              onChange={handleChange}
-              value={values.adminFirstName}
-            />{" "}
-            {!!errors.adminFirstName && (
-              <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.adminFirstName}
-              </Text>
-            )}
-          </FormControl>
-          <FormControl isInvalid={!!errors.adminLastName}>
-            <AppFormLabel title="Lastname" />
-            <Input
-              type="name"
-              placeholder="Enter Admin lastname"
-              fontSize="14px"
-              _hover={{ outline: "none" }}
-              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-              _placeholder={{ color: "#003E5160" }}
-              id="name"
-              name="adminLastName"
-              height="48px"
-              onChange={handleChange}
-              value={values.adminLastName}
-            />{" "}
-            {!!errors.adminLastName && (
-              <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.adminLastName}
-              </Text>
-            )}
-          </FormControl>
-          <FormControl isInvalid={!!errors.adminPhoneNumber}>
-            <AppFormLabel title="Phone Number" />
-            <Input
-              placeholder="Enter Agent Phone Number"
-              fontSize="14px"
-              _hover={{ outline: "none" }}
-              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-              _placeholder={{ color: "#003E5160" }}
-              id="number"
-              name="adminPhoneNumber"
-              height="48px"
-              onChange={handleChange}
-              value={values.adminPhoneNumber}
-            />{" "}
-            {!!errors.adminPhoneNumber && (
-              <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.adminPhoneNumber}
-              </Text>
-            )}
-          </FormControl>
-          <FormControl isInvalid={!!errors.adminEmail}>
-            <AppFormLabel title="Email" />
-            <Input
-              type="email"
-              placeholder="Enter Agent Email Address"
-              fontSize="14px"
-              _hover={{ outline: "none" }}
-              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-              _placeholder={{ color: "#003E5160" }}
-              id="email"
-              name="adminEmail"
-              height="48px"
-              onChange={handleChange}
-              value={values.adminEmail}
-            />{" "}
-            {!!errors.adminEmail && (
-              <Text as="span" fontSize="10px" pt="12px" color="red">
-                {errors.adminEmail}
+                {errors.lga}
               </Text>
             )}
           </FormControl>
 
+          <FormControl isInvalid={!!errors.union}>
+            <AppFormLabel title="Union" />
+            <Input
+              type="text"
+              placeholder="Enter Union"
+              fontSize="14px"
+              _hover={{ outline: "none" }}
+              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+              _placeholder={{ color: "#003E5160" }}
+              id="union"
+              name="union"
+              height="48px"
+              onChange={handleChange}
+              value={values.union}
+            />
+            {!!errors.union && (
+              <Text as="span" fontSize="10px" pt="12px" color="red">
+                {errors.union}
+              </Text>
+            )}
+          </FormControl>
+
+          {/* NIN Field */}
+          <FormControl isInvalid={!!errors.nin}>
+            <AppFormLabel title="National Identification Number (NIN)" />
+            <Input
+              type="text"
+              placeholder="Enter NIN"
+              fontSize="14px"
+              _hover={{ outline: "none" }}
+              _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+              _placeholder={{ color: "#003E5160" }}
+              id="nin"
+              name="nin"
+              height="48px"
+              onChange={handleChange}
+              value={values.nin}
+            />
+            {!!errors.nin && (
+              <Text as="span" fontSize="10px" pt="12px" color="red">
+                {errors.nin}
+              </Text>
+            )}
+          </FormControl>
+
+          <Spacer />
           <Button
             bgColor="brand.primary"
             type="submit"

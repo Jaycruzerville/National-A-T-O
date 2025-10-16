@@ -33,6 +33,8 @@ const login = async (params: loginData) => {
       Auth.setDriverId(data.user.driverId)
     } else if (data.user.adminId) {
       Auth.setAdminId(data.user.adminId)
+    } else if (data.user.superAgentId) {
+      Auth.setSuperAgentId(data.user.superAgentId)
     }
     return data
   } catch (e) {
@@ -71,15 +73,15 @@ const getRoles = async () => {
 }
 
 const refreshAccessToken = async () => {
-  const params = {
-    accessToken: Auth.getToken(),
-    refreshToken: Auth.getRefreshToken(),
+  const refreshToken = Auth.getRefreshToken()
+  if (!refreshToken) {
+    throw new Error("No refresh token available")
   }
   try {
-    const { data } = await Api.post("/auth/refresh/", params)
-    Auth.setToken(data?.accessToken)
-    Auth.setRefreshToken(data?.refreshToken)
-    return data?.accessToken
+    const { data } = await Api.post("/api/auth/refresh-token", { refreshToken })
+    Auth.setToken(data.accessToken)
+    Auth.setRefreshToken(data.refreshToken)
+    return data.accessToken
   } catch (e) {
     throw new Error(handleApiError(e as IError))
   }

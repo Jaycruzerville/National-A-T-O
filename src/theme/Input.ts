@@ -1,4 +1,23 @@
 export const Input = {
+  baseStyle: {
+    field: {
+      borderRadius: "8px",
+      border: "1px solid",
+      borderColor: "gray.300",
+      background: "white",
+      _focus: {
+        borderColor: "blue.500",
+        boxShadow: "0 0 0 1px rgba(59, 130, 246, 0.5)",
+        outline: "none",
+      },
+      _hover: {
+        borderColor: "gray.400",
+      },
+      _placeholder: {
+        color: "gray.500",
+      },
+    },
+  },
   variants: {
     "app-input": {
       field: {
@@ -13,27 +32,36 @@ export const Input = {
         fontWeight: 400,
         borderRadius: "8px",
         border: "1px solid #D9DDE3",
+        boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        _focus: {
+          borderColor: "blue.500",
+          boxShadow: "0 0 0 1px rgba(59, 130, 246, 0.5)",
+        },
         _disabled: {
-          background: "#D3D3D3",
-          border: "1px solid #D9DDE3",
-          color: "#003E51",
+          background: "#F9FAFB",
+          border: "1px solid #D1D5DB",
+          color: "#6B7280",
           opacity: 1,
         },
         _invalid: {
-          border: "2px solid red",
+          borderColor: "red.500",
+          boxShadow: "0 0 0 1px rgba(239, 68, 68, 0.5)",
         },
       },
     },
     "form-input": {
       field: {
         border: "1px solid",
-        borderColor: "gray.500",
-        boxShadow: "0px 1px 2px rgba(16, 24, 40, 0.05)",
+        borderColor: "gray.300",
+        boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
         background: "#fff",
-        focusBorderColor: "#0C288D",
+        borderRadius: "8px",
+        _focus: {
+          borderColor: "blue.500",
+          boxShadow: "0 0 0 1px rgba(59, 130, 246, 0.5)",
+        },
         _placeholder: {
-          color: "#003E51",
-          fontWeight: "light",
+          color: "gray.500",
           fontSize: "14px",
           opacity: 1,
         },

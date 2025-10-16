@@ -12,7 +12,6 @@ import {
   InputRightElement,
   Select,
   Text,
-  Spacer,
 } from "@chakra-ui/react"
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
@@ -130,25 +129,37 @@ const DriverPage = () => {
   }
 
   return (
-    <Box bgColor="brand.bgLight" alignItems="center" p="25">
-      <Flex alignItems="center" justifyContent="space-between">
-        <Heading fontSize="20px" color="#0B1023">
+    <Box bgColor="brand.bgLight" alignItems="center" p={{ base: "4", md: "6" }}>
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        alignItems={{ base: "stretch", md: "center" }}
+        justifyContent={{ base: "flex-start", md: "space-between" }}
+        gap={{ base: "4", md: "0" }}
+        mb={{ base: "4", md: "0" }}
+      >
+        <Heading
+          fontSize={{ base: "18px", md: "20px" }}
+          color="#0B1023"
+          mb={{ base: "2", md: "0" }}
+        >
           All Properties
         </Heading>
-        <Spacer />
-        <InputGroup width="237px">
+        <InputGroup
+          width={{ base: "100%", md: "237px" }}
+          mb={{ base: "3", md: "0" }}
+        >
           <InputRightElement height="100%">
             <Image src={searchLight} />
           </InputRightElement>
           <Input
             placeholder="Search"
-            fontSize="12px"
+            fontSize={{ base: "14px", md: "12px" }}
             borderRadius="4px"
-            height="28px"
+            height={{ base: "40px", md: "28px" }}
             border="1px solid #C0C9D8"
             bgColor="#ffffff"
             _placeholder={{
-              fontSize: "10px",
+              fontSize: { base: "12px", md: "10px" },
               letterSpacing: "-0.02em",
               lineHeight: "12px",
               color: "#D5D5D5",
@@ -160,7 +171,12 @@ const DriverPage = () => {
             }
           />
         </InputGroup>
-        <Flex gap="8px" alignItems="center">
+        <Flex
+          gap={{ base: "2", md: "8px" }}
+          alignItems="center"
+          direction={{ base: "column", sm: "row" }}
+          w={{ base: "full", md: "auto" }}
+        >
           <Filter
             handleFilter={onFilter}
             handleClear={() => {
@@ -171,14 +187,14 @@ const DriverPage = () => {
             <Text
               fontWeight="500"
               lineHeight="25px"
-              fontSize="20px"
+              fontSize={{ base: "18px", md: "20px" }}
               letterSpacing="-1px"
               pb="12px"
             >
               Status
             </Text>
-            <Flex gap="12px">
-              <FormControl width="50%">
+            <Flex gap="12px" direction={{ base: "column", md: "row" }}>
+              <FormControl width={{ base: "100%", md: "50%" }}>
                 <FormLabel
                   lineHeight="20px"
                   fontWeight="500"
@@ -208,15 +224,20 @@ const DriverPage = () => {
             <Text
               fontWeight="500"
               lineHeight="25px"
-              fontSize="20px"
+              fontSize={{ base: "18px", md: "20px" }}
               letterSpacing="-1px"
               pt="20px"
               pb="12px"
             >
               Date
             </Text>
-            <Flex gap="12px" width="100%" mb="5rem">
-              <FormControl width="50%">
+            <Flex
+              gap="12px"
+              width="100%"
+              mb="5rem"
+              direction={{ base: "column", md: "row" }}
+            >
+              <FormControl width={{ base: "100%", md: "50%" }}>
                 <FormLabel
                   lineHeight="20px"
                   fontWeight="500"
@@ -238,7 +259,7 @@ const DriverPage = () => {
                   onChange={(e) => updateFilters("dateCreated", e.target.value)}
                 />
               </FormControl>
-              <FormControl width="50%">
+              <FormControl width={{ base: "100%", md: "50%" }}>
                 <FormLabel
                   lineHeight="20px"
                   fontWeight="500"
@@ -267,7 +288,7 @@ const DriverPage = () => {
           <AddDriver />
         </Flex>
       </Flex>
-      <Box p="20px">
+      <Box p={{ base: "4", md: "5" }}>
         <StyledTable
           data={DriverList?.data || []}
           columns={columns}

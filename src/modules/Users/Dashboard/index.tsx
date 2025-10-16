@@ -9,6 +9,8 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
+  Spinner,
+  Center,
 } from "@chakra-ui/react"
 import {
   FaArrowCircleUp,
@@ -19,48 +21,92 @@ import {
   FaQrcode,
 } from "react-icons/fa"
 import QRCode from "react-qr-code"
-import Transactions from "@/reusables/Transactions"
+import DailyVouchers from "@/reusables/DailyVouchers"
 import MiniStatistics from "@/reusables/MiniStatistics"
 import IconBox from "@/reusables/icons/IconBox"
 import RegisterDriver from "@/modules/Users/Driver/RegisterDriver"
 import { colors } from "@/theme/colors"
 import { getDayPeriod } from "@/utils/getDayPeriod"
+import lookupService from "@/services/lookupService"
 
-interface Driver {
-  id: number
+interface DriverProfile {
   name: string
   vehicle: string
-  status: string // Active or Inactive
+  status: string
   qrCodeValue: string
   registrationDate: string
 }
 
 const Index: React.FC = () => {
-  const [, setDrivers] = useState<Driver[]>([])
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
+  const [selectedDriver, setSelectedDriver] = useState<DriverProfile | null>(
+    null
+  )
   const [isRegisterDriverOpen, setRegisterDriverOpen] = useState(false)
   const [isBuyVoucherOpen, setBuyVoucherOpen] = useState(false)
+  const [isPendingApproval, setIsPendingApproval] = useState(false)
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const driver = {
-      id: 1,
-      name: "John Doe",
-      vehicle: "Toyota Camry 2019",
-      status: "Active",
-      qrCodeValue: "QR-1234567890",
-      registrationDate: "2023-08-30",
+    const initializeDashboard = async () => {
+      try {
+        const status = await lookupService.getDriverSubmissionStatus()
+        if (!status.submitted) {
+          setRegisterDriverOpen(true)
+        } else if (status.status === "pending") {
+          setIsPendingApproval(true)
+        } else {
+          const profile = await lookupService.getDriverProfile()
+          setSelectedDriver({
+            name: profile.fullName,
+            vehicle: `${profile.vehicleType} ${profile.vehicleMake} ${profile.plateNumber} ${profile.vin}`,
+            status: profile.activeForDay ? "Active" : "Inactive",
+            qrCodeValue: profile.qrCode,
+            registrationDate: new Date(
+              profile.registrationDate
+            ).toLocaleDateString(),
+          })
+        }
+      } catch (error) {
+        console.error("Dashboard initialization failed:", error)
+      } finally {
+        setLoading(false)
+      }
     }
-    setDrivers([driver])
-    setSelectedDriver(driver)
-  }, [])
+
+    initializeDashboard()
+  }, [hasSubmitted])
+
+  if (loading) {
+    return (
+      <Center minH="100vh">
+        <Spinner size="xl" color={colors.brand.primary} />
+      </Center>
+    )
+  }
 
   return (
     <Box py="6" px="5" bg="#F6F6F6" minH="100vh">
+      {isPendingApproval && (
+        <Box
+          bg={colors.gray[100]}
+          p={4}
+          mb={6}
+          borderRadius="md"
+          color={colors.gray[600]}
+        >
+          <Text fontWeight="medium">
+            Your registration is pending approval from a SuperAgent. Please
+            check back later.
+          </Text>
+        </Box>
+      )}
+
       <Flex mb="10px" justifyContent="space-between" alignItems="center">
         <Text
           fontSize="28px"
           fontWeight={500}
-          display={{ base: "none", md: "block" }} // Hide on small screens, show on medium and larger screens
+          display={{ base: "none", md: "block" }}
         >
           Good {getDayPeriod()} Folashade!
         </Text>
@@ -83,15 +129,13 @@ const Index: React.FC = () => {
           </Button>
         </Flex>
       </Flex>
-      <Flex
-        mb="20px"
-        direction={{ base: "column", lg: "row" }} // Stack vertically on smaller screens
-      >
+
+      <Flex mb="20px" direction={{ base: "column", lg: "row" }}>
         <SimpleGrid
           columns={{ base: 1, md: 2 }}
           spacing="20px"
           flex="3"
-          mb={{ base: "20px", lg: "0" }} // Add margin-bottom for small screens
+          mb={{ base: "20px", lg: "0" }}
         >
           <MiniStatistics
             startContent={
@@ -142,12 +186,12 @@ const Index: React.FC = () => {
                     w="32px"
                     h="32px"
                     as={
-                      selectedDriver && selectedDriver.status === "Active"
+                      selectedDriver?.status === "Active"
                         ? FaCheckCircle
                         : FaTimesCircle
                     }
                     color={
-                      selectedDriver && selectedDriver.status === "Active"
+                      selectedDriver?.status === "Active"
                         ? colors.success[800]
                         : colors.danger[800]
                     }
@@ -178,6 +222,7 @@ const Index: React.FC = () => {
             value={selectedDriver ? selectedDriver.registrationDate : "Unknown"}
           />
         </SimpleGrid>
+
         <Box
           p="16px"
           bg={colors.white.text}
@@ -187,7 +232,7 @@ const Index: React.FC = () => {
           alignItems="center"
           justifyContent="center"
           flexDirection="column"
-          ml={{ base: "0", lg: "20px" }} // No margin-left on small screens
+          ml={{ base: "0", lg: "20px" }}
           flex="1"
         >
           <Icon
@@ -203,7 +248,9 @@ const Index: React.FC = () => {
           </Text>
         </Box>
       </Flex>
-      <Transactions /> {/* Transaction table remains here */}
+
+      <DailyVouchers />
+
       <Modal
         isOpen={isRegisterDriverOpen}
         onClose={() => setRegisterDriverOpen(false)}
@@ -213,9 +260,13 @@ const Index: React.FC = () => {
       >
         <ModalOverlay />
         <ModalContent maxW="980px" maxH="calc(100vh - 150px)" overflowY="auto">
-          <RegisterDriver onClose={() => setRegisterDriverOpen(false)} />
+          <RegisterDriver
+            onClose={() => setRegisterDriverOpen(false)}
+            setHasSubmitted={setHasSubmitted}
+          />
         </ModalContent>
       </Modal>
+
       <Modal
         isOpen={isBuyVoucherOpen}
         onClose={() => setBuyVoucherOpen(false)}
@@ -224,7 +275,6 @@ const Index: React.FC = () => {
       >
         <ModalOverlay />
         <ModalContent>
-          {/* You can place the Buy Voucher form or functionality here */}
           <Box p="4">
             <Text>Buy Voucher Functionality Here</Text>
           </Box>

@@ -24,26 +24,27 @@ import { CellContext, ColumnDef } from "@tanstack/react-table"
 import { useNavigate } from "react-router-dom"
 import Filter from "@/reusables/Filter"
 import AddSuperAgentDrawer from "./components/AddSuperAgent"
-import usersService from "@/services/usersServices"
 import { IError } from "@/types"
 import { format } from "date-fns"
 import { BiSort } from "react-icons/bi"
+import superAgentService from "@/services/superAgentServices"
 
-type Agent = {
+type SuperAgent = {
   id: string
   firstName: string
   lastName: string
-  agentCode: string
+  tag: string
   phoneNumber: string
-  businessAddress: string
-  registeredUsers: string
+  email: string
+  address: string
+  lga: string
+  union: string
+  agentsCreated: number
   status: string
-  lastActiveDate: string
-  dateCreated?: string
   createdAt?: string
 }
 
-const columns: ColumnDef<Agent>[] = [
+const columns: ColumnDef<SuperAgent>[] = [
   {
     accessorKey: "firstName",
     header: ({ column }) => (
@@ -57,46 +58,38 @@ const columns: ColumnDef<Agent>[] = [
         Name <Icon as={BiSort} color="brand.primary" />
       </Button>
     ),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cell: (info: CellContext<Agent, any>) => (
+    cell: (info: CellContext<SuperAgent, unknown>) => (
       <Box>
         {`${info.row.original.firstName} ${info.row.original.lastName}`}
       </Box>
     ),
   },
   {
-    accessorKey: "agentCode",
-    header: "Agent ID",
+    accessorKey: "tag",
+    header: "SuperAgent Tag",
   },
   {
     accessorKey: "phoneNumber",
     header: "Phone Number",
   },
   {
-    accessorKey: "businessAddress",
-    header: "Location",
+    accessorKey: "email",
+    header: "Email",
   },
   {
-    accessorKey: "registeredUsers",
-    header: ({ column }) => (
-      <Button
-        gap="4px"
-        _hover={{ backgroundColor: "none" }}
-        _active={{ background: "none" }}
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Users <Icon as={BiSort} color="brand.primary" />
-      </Button>
-    ),
+    accessorKey: "lga",
+    header: "LGA",
+  },
+  {
+    accessorKey: "union",
+    header: "Union",
   },
   {
     accessorKey: "status",
     header: "Status",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cell: (info: CellContext<Agent, any>) => (
+    cell: (info: CellContext<SuperAgent, unknown>) => (
       <Box
-        bgColor={info.getValue() === "ACTIVE" ? "#9BFDD4" : "#DCDBDD"}
+        bgColor={info.getValue() === "active" ? "#9BFDD4" : "#DCDBDD"}
         p="4px 8px"
         borderRadius="4px"
         fontSize="12px"
@@ -105,20 +98,19 @@ const columns: ColumnDef<Agent>[] = [
         fontWeight="500"
         textTransform="capitalize"
       >
-        {info.getValue().toLowerCase()}
+        {info.getValue()}
       </Box>
     ),
   },
   {
-    accessorKey: "lastActiveDate",
-    header: "Last Date Active",
-  },
-  {
-    accessorKey: "dateCreated",
-    header: "Date Created",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cell: (info: CellContext<Agent, any>) => (
-      <Box>{format(new Date(info.getValue()), "yyyy-MM-dd")}</Box>
+    accessorKey: "createdAt",
+    header: "Created At",
+    cell: (info: CellContext<SuperAgent, unknown>) => (
+      <Box>
+        {info.getValue()
+          ? format(new Date(info.getValue() as string), "yyyy-MM-dd")
+          : ""}
+      </Box>
     ),
   },
 ]
@@ -171,7 +163,7 @@ const index = () => {
         status: tableParams.status,
       },
     ],
-    queryFn: usersService.getSuperAgents,
+    queryFn: superAgentService.listSuperAgents,
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -327,10 +319,39 @@ const index = () => {
         <Box p="20px">
           <StyledTable
             data={
-              superAgentList?.data
-                ? superAgentList?.data?.map((data: Agent) => ({
-                    ...data,
-                    dateCreated: new Date(),
+              Array.isArray(superAgentList?.data)
+                ? superAgentList.data.map((agent: any) => ({
+                    id: agent._id,
+                    firstName: agent.firstName,
+                    lastName: agent.lastName,
+                    tag: agent.tag,
+                    phoneNumber: agent.phoneNumber,
+                    email: agent.email,
+                    address: agent.address,
+                    lga: agent.lga,
+                    union: agent.union,
+                    agentsCreated: Array.isArray(agent.agentsCreated)
+                      ? agent.agentsCreated.length
+                      : 0,
+                    status: agent.userId?.status?.toLowerCase() || "inactive",
+                    createdAt: agent.createdAt,
+                  }))
+                : Array.isArray(superAgentList)
+                ? superAgentList.map((agent: any) => ({
+                    id: agent._id,
+                    firstName: agent.firstName,
+                    lastName: agent.lastName,
+                    tag: agent.tag,
+                    phoneNumber: agent.phoneNumber,
+                    email: agent.email,
+                    address: agent.address,
+                    lga: agent.lga,
+                    union: agent.union,
+                    agentsCreated: Array.isArray(agent.agentsCreated)
+                      ? agent.agentsCreated.length
+                      : 0,
+                    status: agent.userId?.status?.toLowerCase() || "inactive",
+                    createdAt: agent.createdAt,
                   }))
                 : []
             }
@@ -340,7 +361,9 @@ const index = () => {
             pagination={{
               pageSize: tableParams?.pageSize,
               currentPage: tableParams?.page,
-              totalPages: superAgentList?.pagination?.numberOfPages,
+              totalPages:
+                superAgentList?.totalPages ||
+                superAgentList?.pagination?.numberOfPages,
               updateFn: updateParams,
             }}
           />

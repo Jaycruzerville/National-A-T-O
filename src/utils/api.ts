@@ -10,6 +10,8 @@ const Api = axios.create({
   baseURL: base_url,
 })
 
+let isRefreshing = false
+
 Api.interceptors.request.use(
   (config) => {
     if (Auth.isAuthenticated()) {
@@ -26,16 +28,31 @@ Api.interceptors.response.use(
     const originalRequest = error.config
 
     if (error?.response?.status === 401 && !originalRequest?._retry) {
-      originalRequest._retry = true
-      const token = await authService.refreshAccessToken()
-      const newRequest = {
-        ...originalRequest,
-        headers: {
-          ...originalRequest.headers,
-          Authorization: `Bearer ${token}`,
-        },
+      if (isRefreshing) {
+        // If already refreshing, wait or reject
+        return Promise.reject(error)
       }
-      return Api(newRequest)
+
+      originalRequest._retry = true
+      isRefreshing = true
+
+      try {
+        const token = await authService.refreshAccessToken()
+        isRefreshing = false
+        const newRequest = {
+          ...originalRequest,
+          headers: {
+            ...originalRequest.headers,
+            Authorization: `Bearer ${token}`,
+          },
+        }
+        return Api(newRequest)
+      } catch (refreshError) {
+        isRefreshing = false
+        // Refresh failed, logout
+        Auth.logOut()
+        return Promise.reject(refreshError)
+      }
     }
 
     return Promise.reject(error)

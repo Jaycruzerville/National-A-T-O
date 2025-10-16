@@ -15,11 +15,13 @@ import { MdOutlineAccountBalanceWallet } from "react-icons/md"
 import { HiOutlineTicket } from "react-icons/hi2"
 import { TbCurrencyNaira } from "react-icons/tb"
 import { CgProfile } from "react-icons/cg"
+import { MdQrCodeScanner } from "react-icons/md"
 import MiniStatistics from "@/reusables/MiniStatistics"
 import IconBox from "@/reusables/icons/IconBox"
 import Transactions from "@/reusables/Transactions"
 import IssueVoucher from "@/modules/Agent/Payments" // Existing form for voucher buying
 import FundingForm from "@/modules/Agent/Payments/Funding" // New form for account funding
+import QRScanner from "@/reusables/QRScanner" // Import QR Scanner
 import { colors } from "@/theme/colors"
 import { getDayPeriod } from "@/utils/getDayPeriod"
 import usersService from "@/services/usersServices" // Import the service for fetching data
@@ -29,10 +31,16 @@ import VoucherModal from "@/modules/Agent/Payments/VoucherModal" // Import Vouch
 const Index: React.FC = () => {
   const [isIssueVoucherOpen, setIssueVoucherOpen] = useState(false)
   const [isFundingFormOpen, setFundingFormOpen] = useState(false)
+  const [isQRScannerOpen, setIsQRScannerOpen] = useState(false) // New state for QR Scanner
   const [agentData, setAgentData] = useState({
     firstName: "",
     totalVoucherSales: 0,
     walletBalance: 0,
+  })
+  const [voucherSalesData, setVoucherSalesData] = useState({
+    totalAmount: 0,
+    totalCount: 0,
+    todaySales: 0,
   })
   const [loading, setLoading] = useState(true)
 
@@ -59,6 +67,10 @@ const Index: React.FC = () => {
         if (agentId) {
           const data = await usersService.fetchAgentDashboardInfo(agentId)
           setAgentData(data)
+
+          // Also fetch voucher sales data
+          const salesData = await usersService.getAgentVoucherSales(agentId)
+          setVoucherSalesData(salesData)
         } else {
           console.error("Agent ID (userId) not found in local storage")
         }
@@ -78,6 +90,10 @@ const Index: React.FC = () => {
       if (agentId) {
         const data = await usersService.fetchAgentDashboardInfo(agentId)
         setAgentData(data)
+
+        // Also refresh voucher sales data
+        const salesData = await usersService.getAgentVoucherSales(agentId)
+        setVoucherSalesData(salesData)
       } else {
         console.error("Agent ID (userId) not found in local storage")
       }
@@ -101,35 +117,70 @@ const Index: React.FC = () => {
   }
 
   return (
-    <Box py="6" px="5" bg="#F6F6F6" minH="100vh">
-      <Flex mb="10px" justifyContent="space-between">
-        <Text fontSize="28px" fontWeight={500}>
+    <Box
+      py={{ base: "4", md: "6" }}
+      px={{ base: "3", md: "5" }}
+      bg="#F6F6F6"
+      minH="100vh"
+    >
+      <Flex
+        mb="10px"
+        direction={{ base: "column", md: "row" }}
+        align={{ base: "flex-start", md: "center" }}
+        justifyContent={{ base: "flex-start", md: "space-between" }}
+        gap={{ base: "4", md: "0" }}
+      >
+        <Text
+          fontSize={{ base: "24px", md: "28px" }}
+          fontWeight={500}
+          mb={{ base: "0", md: "0" }}
+        >
           Good {getDayPeriod()} {agentData.firstName}!
         </Text>
-        <Flex>
+        <Flex
+          direction={{ base: "column", sm: "row" }}
+          gap={{ base: "2", sm: "3" }}
+          w={{ base: "full", md: "auto" }}
+        >
           <Button
             bg="brand.primary"
             color="white"
             leftIcon={<Icon as={HiOutlineTicket} />}
             onClick={() => setIssueVoucherOpen(true)}
+            w={{ base: "full", sm: "auto" }}
+            size={{ base: "md", md: "md" }}
           >
             Get Voucher
           </Button>
+          <Button
+            bg="blue.500"
+            color="white"
+            leftIcon={<Icon as={MdQrCodeScanner} />}
+            onClick={() => setIsQRScannerOpen(true)}
+            w={{ base: "full", sm: "auto" }}
+            size={{ base: "md", md: "md" }}
+          >
+            Scan QR
+          </Button>
         </Flex>
       </Flex>
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap="20px" mb="20px">
+      <SimpleGrid
+        columns={{ base: 1, md: 2, lg: 3 }}
+        gap={{ base: "16px", md: "20px" }}
+        mb="20px"
+      >
         <MiniStatistics
           shadow={cardShadow}
           startContent={
             <IconBox
-              w="56px"
-              h="56px"
+              w={{ base: "48px", md: "56px" }}
+              h={{ base: "48px", md: "56px" }}
               bg={boxBg}
               icon={
                 <Icon
                   as={CgProfile}
-                  w="32px"
-                  h="32px"
+                  w={{ base: "24px", md: "32px" }}
+                  h={{ base: "24px", md: "32px" }}
                   color={colors.brand.primary}
                 />
               }
@@ -142,34 +193,34 @@ const Index: React.FC = () => {
           shadow={cardShadow}
           startContent={
             <IconBox
-              w="56px"
-              h="56px"
+              w={{ base: "48px", md: "56px" }}
+              h={{ base: "48px", md: "56px" }}
               bg={boxBg}
               icon={
                 <Icon
                   as={TbCurrencyNaira}
-                  w="32px"
-                  h="32px"
+                  w={{ base: "24px", md: "32px" }}
+                  h={{ base: "24px", md: "32px" }}
                   color={colors.brand.primary}
                 />
               }
             />
           }
           name="Total Voucher Sales"
-          value={formatCurrency(agentData.totalVoucherSales)}
+          value={formatCurrency(voucherSalesData.totalAmount)}
         />
         <MiniStatistics
           shadow={cardShadow}
           startContent={
             <IconBox
-              w="56px"
-              h="56px"
+              w={{ base: "48px", md: "56px" }}
+              h={{ base: "48px", md: "56px" }}
               bg={boxBg}
               icon={
                 <Icon
                   as={MdOutlineAccountBalanceWallet}
-                  w="32px"
-                  h="32px"
+                  w={{ base: "24px", md: "32px" }}
+                  h={{ base: "24px", md: "32px" }}
                   color={colors.brand.primary}
                 />
               }
@@ -179,7 +230,7 @@ const Index: React.FC = () => {
             <Button
               bg={colors.brand.primary}
               color="white"
-              size="sm"
+              size={{ base: "xs", md: "sm" }}
               onClick={() => setFundingFormOpen(true)}
             >
               Fund
@@ -197,11 +248,17 @@ const Index: React.FC = () => {
           setIssueVoucherOpen(false)
         }}
         isCentered
-        size="2x1"
+        size={{ base: "full", md: "2xl" }}
         scrollBehavior="inside"
       >
         <ModalOverlay />
-        <ModalContent maxW="980px" maxH="calc(100vh - 150px)" overflowY="auto">
+        <ModalContent
+          maxW={{ base: "100vw", md: "980px" }}
+          maxH={{ base: "100vh", md: "calc(100vh - 150px)" }}
+          m={{ base: "0", md: "auto" }}
+          borderRadius={{ base: "0", md: "md" }}
+          overflowY="auto"
+        >
           <IssueVoucher
             onClose={() => setIssueVoucherOpen(false)}
             onSuccess={refreshWalletBalance} // Refresh wallet balance on success
@@ -236,11 +293,17 @@ const Index: React.FC = () => {
         isOpen={isFundingFormOpen}
         onClose={() => setFundingFormOpen(false)}
         isCentered
-        size="2x1"
+        size={{ base: "full", md: "2xl" }}
         scrollBehavior="inside"
       >
         <ModalOverlay />
-        <ModalContent maxW="980px" maxH="calc(100vh - 150px)" overflowY="auto">
+        <ModalContent
+          maxW={{ base: "100vw", md: "980px" }}
+          maxH={{ base: "100vh", md: "calc(100vh - 150px)" }}
+          m={{ base: "0", md: "auto" }}
+          borderRadius={{ base: "0", md: "md" }}
+          overflowY="auto"
+        >
           <FundingForm
             isOpen={isFundingFormOpen}
             onClose={() => setFundingFormOpen(false)}
@@ -249,7 +312,32 @@ const Index: React.FC = () => {
         </ModalContent>
       </Modal>
 
-      <Transactions />
+      {/* QR Scanner Modal */}
+      <QRScanner
+        isOpen={isQRScannerOpen}
+        onClose={() => setIsQRScannerOpen(false)}
+      />
+
+      {/* Recent Transactions Section */}
+      <Box mt={{ base: "4", md: "6" }}>
+        <Text
+          fontSize={{ base: "18px", md: "20px" }}
+          fontWeight="600"
+          mb="4"
+          color="brand.primary"
+        >
+          Recent Transactions
+        </Text>
+        <Box
+          bg="white"
+          borderRadius="12px"
+          p={{ base: "3", md: "4" }}
+          boxShadow="sm"
+          overflowX={{ base: "auto", md: "visible" }}
+        >
+          <Transactions />
+        </Box>
+      </Box>
     </Box>
   )
 }

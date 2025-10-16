@@ -1,63 +1,82 @@
 import { glass } from "./customStyles"
 
 export const Button = {
+  baseStyle: {
+    borderRadius: "8px",
+    fontWeight: "500",
+    fontSize: "14px",
+    _focus: {
+      boxShadow: "0 0 0 2px rgba(59, 130, 246, 0.5)",
+    },
+  },
   variants: {
     "app-primary": {
       backgroundColor: "brand.primary",
-      fontWeight: "bold",
       color: "#FFFFFF",
-      borderRadius: "4px",
+      borderRadius: "8px",
+      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
       _hover: {
-        opacity: 0.8,
         backgroundColor: "brand.primary",
-        color: "#FFFFFF",
+        opacity: 0.9,
+        boxShadow:
+          "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
         _disabled: {
-          opacity: 0.3,
+          opacity: 0.5,
           backgroundColor: "brand.primary",
-          color: "#FFFFFF",
           cursor: "not-allowed",
         },
+      },
+      _active: {
+        backgroundColor: "brand.primary",
+        boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
       },
     },
     "app-secondary": {
       backgroundColor: "#FFFFFF",
-      fontWeight: "bold",
       color: "brand.primary",
-      borderRadius: "4px",
+      border: "1px solid",
+      borderColor: "gray.300",
+      borderRadius: "8px",
+      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      _hover: {
+        backgroundColor: "gray.50",
+        borderColor: "gray.400",
+        boxShadow:
+          "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      },
     },
     "app-danger": {
-      backgroundColor: "danger.800",
-      fontWeight: "normal",
-      color: "#fff",
+      backgroundColor: "#DC2626",
+      color: "#FFFFFF",
+      borderRadius: "8px",
+      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
       _hover: {
-        opacity: 0.8,
-        backgroundcolor: "danger.800",
-        color: "#FFFFFF",
+        backgroundColor: "#B91C1C",
+        boxShadow:
+          "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
         _disabled: {
-          opacity: 0.3,
-          backgroundcolor: "danger.800",
-          color: "#FFFFFF",
+          opacity: 0.5,
+          backgroundColor: "#DC2626",
           cursor: "not-allowed",
         },
       },
     },
     "app-safety": {
-      backgroundColor: "success.800",
-      fontWeight: "normal",
+      backgroundColor: "#16A34A",
       color: "#FFFFFF",
+      borderRadius: "8px",
+      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
       _hover: {
-        opacity: 0.8,
-        backgroundcolor: "success.800",
-        color: "#FFFFFF",
+        backgroundColor: "#15803D",
+        boxShadow:
+          "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
         _disabled: {
-          opacity: 0.3,
-          backgroundcolor: "success.800",
-          color: "#FFFFFF",
+          opacity: 0.5,
+          backgroundColor: "#16A34A",
           cursor: "not-allowed",
         },
       },
     },
-
     "app-iconButton": glass,
   },
   sizes: {

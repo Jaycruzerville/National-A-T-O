@@ -92,6 +92,10 @@ const paths = [
     element: lazy(() => import("./Transactions")),
   },
   {
+    path: Admin.REVENUE,
+    element: lazy(() => import("./Revenue")),
+  },
+  {
     path: Admin.NOTIFICATIONS,
     element: lazy(() => import("./Notifications")),
   },

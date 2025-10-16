@@ -29,9 +29,9 @@ import { IError } from "@/types"
 import { useQuery } from "@tanstack/react-query"
 import { BiSort } from "react-icons/bi"
 
-import ViewReceiptModal from "@/reusables/ViewReceiptModal"
 import { formatToCurrency } from "@/utils/formatToCurrency"
 import { formatDate } from "@/utils/formatDate"
+import Auth from "@/utils/auth"
 
 type claimsData = {
   id: string
@@ -48,7 +48,7 @@ type claimsData = {
 
 const columns: ColumnDef<claimsData>[] = [
   {
-    accessorKey: "customerName",
+    accessorKey: "driverName",
     header: ({ column }) => (
       <Button
         gap="4px"
@@ -58,13 +58,17 @@ const columns: ColumnDef<claimsData>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Customer Name <Icon as={BiSort} color="brand.primary" />
+        Driver Name <Icon as={BiSort} color="brand.primary" />
       </Button>
     ),
   },
   {
-    accessorKey: "claimCode",
-    header: "Claim ID",
+    accessorKey: "driverTag",
+    header: "Driver Tag",
+  },
+  {
+    accessorKey: "voucherCode",
+    header: "Voucher Type",
   },
   {
     accessorKey: "amount",
@@ -75,12 +79,8 @@ const columns: ColumnDef<claimsData>[] = [
     },
   },
   {
-    accessorKey: "initiatedBy",
-    header: "Initiated by",
-  },
-  {
-    accessorKey: "claimType",
-    header: "Plan Type",
+    accessorKey: "vehicleType",
+    header: "Vehicle Type",
   },
   {
     accessorKey: "status",
@@ -97,51 +97,30 @@ const columns: ColumnDef<claimsData>[] = [
       >
         <Text
           bgColor={
-            info.getValue().toLowerCase() === "approved"
+            info.getValue().toLowerCase() === "active"
               ? "#9BFDD4"
-              : info.getValue().toLowerCase() === "processing"
-              ? "#FEF0C7"
-              : info.getValue().toLowerCase() === "disapproved"
-              ? "#F7CECA"
-              : info.getValue().toLowerCase() === "rejected"
+              : info.getValue().toLowerCase() === "expired"
               ? "#F7CECA"
               : "#DCDBDD"
           }
           color={
-            info.getValue().toLowerCase() === "approved"
+            info.getValue().toLowerCase() === "active"
               ? "#027A48"
-              : info.getValue().toLowerCase() === "processing"
-              ? "#DC6803"
-              : info.getValue().toLowerCase() === "disapproved"
-              ? "#D92D20"
-              : info.getValue().toLowerCase() === "rejected"
+              : info.getValue().toLowerCase() === "expired"
               ? "#D92D20"
               : "#202020"
           }
           h="100%"
           p="4px 8px"
         >
-          {info.getValue() === "Disapproved" ? "Rejected" : info.getValue()}
+          {info.getValue()}
         </Text>
       </Flex>
     ),
   },
   {
-    accessorKey: "supportingDocuments",
-    header: "Documents",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cell: (info: CellContext<claimsData, any>) => {
-      const images: string[] = info
-        .getValue()
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((document: any) => document.url)
-
-      return <ViewReceiptModal images={images} />
-    },
-  },
-  {
     accessorKey: "createdAt",
-    header: "Date Initiated",
+    header: "Date Issued",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cell: (info: CellContext<claimsData, any>) => {
       return <Text>{formatDate(info.getValue())}</Text>
@@ -156,10 +135,8 @@ const Claims = () => {
     searchQuery: "",
     startDate: "",
     endDate: "",
-    initiatedBy: "",
+    voucherType: "",
     status: "",
-    planType: "",
-    dateInitiated: "",
   }
 
   const [tableParams, setTableParams] = useState({
@@ -194,18 +171,19 @@ const Claims = () => {
 
   const { data: claimsList, isLoading: loadingClaims } = useQuery({
     queryKey: [
-      "claims-list",
+      "agent-vouchers",
       {
+        agentId: Auth.getAgentId(),
         pageSize: tableParams.pageSize,
         page: tableParams.page,
         searchQuery: deferredSearchValue,
-        initiatedBy: tableParams.initiatedBy,
+        startDate: tableParams.startDate,
+        endDate: tableParams.endDate,
+        voucherType: tableParams.voucherType,
         status: tableParams.status,
-        dateInitiated: tableParams.dateInitiated,
-        planType: tableParams.planType,
       },
     ],
-    queryFn: usersService.getClaims,
+    queryFn: usersService.getVouchersByAgent,
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -228,7 +206,7 @@ const Claims = () => {
         gap="10px"
       >
         <Heading fontSize="20px" color="#0B1023">
-          Claims
+          Issued Vouchers
         </Heading>
         <Spacer />
         <InputGroup width="237px" h="28px">
@@ -236,7 +214,7 @@ const Claims = () => {
             <Image src={searchLight} />
           </InputRightElement>
           <Input
-            placeholder="Search with customer name or phone number"
+            placeholder="Search with driver name or tag"
             fontSize="12px"
             borderRadius="4px"
             height="28px"
@@ -271,7 +249,7 @@ const Claims = () => {
               letterSpacing="-1px"
               pb="12px"
             >
-              Plan & status
+              Voucher & status
             </Text>
             <Flex gap="12px">
               <FormControl>
@@ -281,24 +259,26 @@ const Claims = () => {
                   fontSize="0.75rem"
                   color="#003E51"
                 >
-                  Plan
+                  Voucher Type
                 </FormLabel>
                 <Select
-                  placeholder="Select plan"
+                  placeholder="Select type"
                   _placeholder={{ color: "#003E51" }}
-                  name="planType"
-                  value={filters.planType}
+                  name="voucherType"
+                  value={filters.voucherType}
                   fontSize="14px"
                   _hover={{ outline: "none" }}
                   _focusVisible={{ borderColor: "none", boxShadow: "none" }}
                   height="48px"
                   onChange={(e) => {
-                    updateFilters("planType", e.target.value)
+                    updateFilters("voucherType", e.target.value)
                   }}
                 >
-                  <option value="Micro Pension">Micro Pension</option>
-                  <option value="Micro Insurance">Micro Insurance</option>
-                  <option value="Micro Savings">Micro Savings</option>
+                  <option value="Keke">Keke</option>
+                  <option value="Taxi">Taxi</option>
+                  <option value="1day">1 Day</option>
+                  <option value="3hrs">3 Hours</option>
+                  <option value="5hrs">5 Hours</option>
                 </Select>
               </FormControl>
               <FormControl>
@@ -311,7 +291,7 @@ const Claims = () => {
                   Status
                 </FormLabel>
                 <Select
-                  placeholder="Select statue"
+                  placeholder="Select status"
                   _placeholder={{ color: "#003E51" }}
                   fontSize="14px"
                   _hover={{ outline: "none" }}
@@ -322,9 +302,8 @@ const Claims = () => {
                     updateFilters("status", e.target.value)
                   }}
                 >
-                  <option value="Processing">Processing</option>
-                  <option value="Approved">Approved</option>
-                  <option value="Rejected">Rejected</option>
+                  <option value="Active">Active</option>
+                  <option value="Expired">Expired</option>
                 </Select>
               </FormControl>
             </Flex>
@@ -337,7 +316,7 @@ const Claims = () => {
               pt="20px"
               pb="12px"
             >
-              Date
+              Date Range
             </Text>
             <Flex gap="12px" width="100%" mb="5rem">
               <FormControl width="50%">
@@ -347,7 +326,7 @@ const Claims = () => {
                   fontSize="0.75rem"
                   color="#003E51"
                 >
-                  Date Initiated
+                  Start Date
                 </FormLabel>
                 <Input
                   size="lg"
@@ -355,13 +334,33 @@ const Claims = () => {
                   placeholder="Select Date"
                   px="14px"
                   type="date"
-                  name="dateInitiated"
+                  name="startDate"
                   _hover={{ outline: "none" }}
                   _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-                  value={filters.dateInitiated}
-                  onChange={(e) =>
-                    updateFilters("dateInitiated", e.target.value)
-                  }
+                  value={filters.startDate}
+                  onChange={(e) => updateFilters("startDate", e.target.value)}
+                />
+              </FormControl>
+              <FormControl width="50%">
+                <FormLabel
+                  lineHeight="20px"
+                  fontWeight="500"
+                  fontSize="0.75rem"
+                  color="#003E51"
+                >
+                  End Date
+                </FormLabel>
+                <Input
+                  size="lg"
+                  width="100%"
+                  placeholder="Select Date"
+                  px="14px"
+                  type="date"
+                  name="endDate"
+                  _hover={{ outline: "none" }}
+                  _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+                  value={filters.endDate}
+                  onChange={(e) => updateFilters("endDate", e.target.value)}
                 />
               </FormControl>
             </Flex>

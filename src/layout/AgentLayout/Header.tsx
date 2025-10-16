@@ -24,6 +24,7 @@ import Notification from "@/modules/Users/Notifications"
 import { HiOutlineLogout } from "react-icons/hi"
 import Auth from "@/utils/auth"
 import { ReactComponent as Logo } from "@/assets/Kano_logo.svg" // Ensure the logo path is correct
+import { useUserProfile } from "@/hooks/useUserProfile"
 
 // Define the menu items that will be used in the sidebar and mobile dropdown
 const agentMenuItems = [
@@ -51,6 +52,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const navigate = useNavigate()
+  const { data: userProfile } = useUserProfile()
 
   const handleLogout = () => {
     Auth.logOut()
@@ -148,21 +150,30 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             <MenuButton as={Button} variant="ghost">
               <Flex align="center">
                 <Avatar
-                  name="Profile Name"
+                  name={
+                    userProfile?.fullName || userProfile?.username || "User"
+                  }
                   src="path/to/profile/image.jpg"
                   backgroundColor="brand.primary"
                 />
                 <VStack
                   display={{ base: "none", md: "block" }}
-                  spacing="0"
+                  spacing="-15"
                   alignItems="flex-start"
                   ml="2" // Add left margin to space the text from the avatar
                 >
-                  <Text color="brand.primary" fontSize="sm" fontWeight="bold">
-                    Folashade Badru
+                  <Text
+                    color="brand.primary"
+                    fontSize="sm"
+                    fontWeight="bold"
+                    pt="5"
+                  >
+                    {userProfile?.fullName ||
+                      userProfile?.username ||
+                      "Loading..."}
                   </Text>
-                  <Text color="brand.primary" fontSize="xs">
-                    users
+                  <Text color="brand.primary" fontSize="xs" pt="-15">
+                    {userProfile?.role || "User"}
                   </Text>
                 </VStack>
               </Flex>

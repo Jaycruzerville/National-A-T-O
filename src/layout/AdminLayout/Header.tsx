@@ -27,9 +27,11 @@ import Notification from "@/modules/Users/Notifications"
 import Auth from "@/utils/auth"
 import { ReactComponent as Logo } from "@/assets/Kano_logo.svg"
 import React from "react"
+import { useUserProfile } from "@/hooks/useUserProfile"
 
 const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const navigate = useNavigate()
+  const { data: userProfile } = useUserProfile()
 
   const handleLogout = () => {
     Auth.logOut() // Make sure this function correctly logs the user out
@@ -98,21 +100,25 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             <MenuButton as={Button} variant="ghost">
               <Flex align="center">
                 <Avatar
-                  name="Profile Name"
+                  name={
+                    userProfile?.fullName || userProfile?.username || "User"
+                  }
                   src="path/to/profile/image.jpg"
                   backgroundColor="brand.primary"
                 />
                 <VStack
                   display={{ base: "none", md: "block" }}
-                  spacing="0"
+                  spacing="-1"
                   alignItems="flex-start"
                   ml="2" // Add left margin to space the text from the avatar
                 >
                   <Text color="brand.primary" fontSize="sm" fontWeight="bold">
-                    Folashade Badru
+                    {userProfile?.fullName ||
+                      userProfile?.username ||
+                      "Loading..."}
                   </Text>
                   <Text color="brand.primary" fontSize="xs">
-                    users
+                    {userProfile?.role || "User"}
                   </Text>
                 </VStack>
               </Flex>

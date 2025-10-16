@@ -8,8 +8,8 @@ import {
   Button,
   Heading,
   VStack,
-  HStack,
   Spinner,
+  Flex,
   useToast,
 } from "@chakra-ui/react"
 import usersService from "@/services/usersServices" // Import the service to fetch vouchers and drivers
@@ -28,8 +28,7 @@ const IssueVoucher: React.FC<PaymentFormProps> = ({
 }) => {
   const [driverTag, setDriverTag] = useState<string>("")
   const [driverDetails, setDriverDetails] = useState<any>(null)
-  const [voucherType, setVoucherType] = useState<string>("")
-  const [amount, setAmount] = useState<string>("")
+  const [selectedVoucherType, setSelectedVoucherType] = useState<any>(null) // Store the full voucher type object
   const [vouchers, setVouchers] = useState<Record<string, any>[]>([]) // Dynamic vouchers from backend
   const [loading, setLoading] = useState<boolean>(false)
   const [voucherLoading, setVoucherLoading] = useState<boolean>(true) // New loading state for vouchers
@@ -81,14 +80,14 @@ const IssueVoucher: React.FC<PaymentFormProps> = ({
       )
 
       if (selectedVoucher) {
-        setVoucherType(selectedVoucher.type)
-        setAmount(selectedVoucher.price.toString())
+        setSelectedVoucherType(selectedVoucher)
       } else {
-        setVoucherType("")
-        setAmount("")
+        setSelectedVoucherType(null)
         toast({
           title: "No voucher available",
-          description: `No voucher found for vehicle type: ${vehicleType}`,
+          description: `No voucher found for vehicle type: ${vehicleType}. Available voucher types: ${vouchers
+            .map((v) => v.type)
+            .join(", ")}`,
           status: "warning",
           duration: 5000,
           isClosable: true,
@@ -113,12 +112,11 @@ const IssueVoucher: React.FC<PaymentFormProps> = ({
     try {
       const payload = {
         driverTag: driverDetails.tag,
-        voucherType: { type: voucherType, price: parseFloat(amount) },
+        voucherTypeId: selectedVoucherType._id,
         agentId: Auth.getAgentId(),
       }
 
       const response = await usersService.issueVoucher(payload)
-      console.log("Voucher response:", response) // Add this to debug
       toast({
         title: "Voucher Issued",
         description: "The voucher was successfully issued to the driver.",
@@ -159,30 +157,39 @@ const IssueVoucher: React.FC<PaymentFormProps> = ({
   }
 
   return (
-    <Box p={6} bg={"gray.100"}>
-      <Heading mb={4} textAlign="center" size="lg" color={"brand.primary"}>
+    <Box p={{ base: 4, md: 6 }} bg={"gray.100"} minH="100vh">
+      <Heading
+        mb={4}
+        textAlign="center"
+        size={{ base: "md", md: "lg" }}
+        color={"brand.primary"}
+      >
         Issue Voucher
       </Heading>
       <form onSubmit={handleSubmit}>
-        <VStack spacing={4}>
+        <VStack spacing={{ base: 3, md: 4 }}>
           {/* Search by Driver Tag */}
           <FormControl id="driverTag" isRequired>
             <FormLabel>Driver Tag</FormLabel>
-            <HStack>
+            <VStack spacing={2} align="stretch">
               <Input
                 placeholder="Enter Driver Tag"
                 value={driverTag}
                 onChange={(e) => setDriverTag(e.target.value)}
                 bg={"white"}
+                size={{ base: "md", md: "md" }}
               />
               <Button
                 bg={"brand.primary"}
                 color={"white"}
                 onClick={handleSearchDriver}
+                alignSelf="flex-end"
+                size={{ base: "sm", md: "md" }}
+                w={{ base: "full", md: "auto" }}
               >
                 Search
               </Button>
-            </HStack>
+            </VStack>
           </FormControl>
 
           {/* Driver details */}
@@ -206,41 +213,66 @@ const IssueVoucher: React.FC<PaymentFormProps> = ({
 
               <FormControl id="voucherType" isRequired>
                 <FormLabel>Voucher Type</FormLabel>
-                <Input value={voucherType} isReadOnly bg={"white"} />
+                <Input
+                  value={selectedVoucherType?.type || ""}
+                  isReadOnly
+                  bg={"white"}
+                />
               </FormControl>
 
               <FormControl id="amount" isRequired>
                 <FormLabel>Amount To Pay (₦)</FormLabel>
-                <Input type="number" value={amount} isReadOnly bg={"white"} />
+                <Input
+                  type="number"
+                  value={selectedVoucherType?.price || ""}
+                  isReadOnly
+                  bg={"white"}
+                />
               </FormControl>
             </>
           ) : null}
 
-          <HStack spacing={4}>
+          <VStack spacing={3} w="full">
             <Button
               bg={"brand.primary"}
               color={"white"}
               _hover={{ bg: "brand.primaryDark" }}
               type="submit"
-              isDisabled={!driverDetails || !voucherType}
+              isDisabled={!driverDetails || !selectedVoucherType}
+              w="full"
+              size={{ base: "md", md: "md" }}
             >
               Submit For Processing
             </Button>
-            <Button
-              bg={"gray.300"}
-              color={"white"}
-              _hover={{ bg: "gray.400" }}
-              type="reset"
-              onClick={() => {
-                setDriverTag("")
-                setDriverDetails(null)
-                setVoucherType("")
-                setAmount("")
-              }}
-            >
-              Reset
-            </Button>
-          </HStack>
+            <Flex w="full" gap={3} direction={{ base: "column", sm: "row" }}>
+              <Button
+                bg={"gray.300"}
+                color={"white"}
+                _hover={{ bg: "gray.400" }}
+                type="reset"
+                onClick={() => {
+                  setDriverTag("")
+                  setDriverDetails(null)
+                  setSelectedVoucherType(null)
+                }}
+                flex={1}
+                size={{ base: "md", md: "md" }}
+              >
+                Reset
+              </Button>
+              <Button
+                variant="outline"
+                borderColor="gray.300"
+                color="gray.700"
+                _hover={{ bg: "gray.50" }}
+                onClick={onClose}
+                flex={1}
+                size={{ base: "md", md: "md" }}
+              >
+                Cancel
+              </Button>
+            </Flex>
+          </VStack>
         </VStack>
       </form>
     </Box>

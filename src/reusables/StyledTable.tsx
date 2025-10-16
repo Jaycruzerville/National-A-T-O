@@ -180,20 +180,22 @@ const StyledTable = ({
       </TableContainer>
       {pagination && (
         <Flex
-          justifyContent="end"
-          gap="12px"
+          justifyContent={{ base: "center", md: "end" }}
+          gap={{ base: "8px", md: "12px" }}
           alignItems="center"
-          margin="12px 40px 18px"
+          margin={{ base: "12px 20px 18px", md: "12px 40px 18px" }}
+          flexWrap="wrap"
         >
-          <Text color="#2d4875" fontSize="14px">
+          <Text color="#2d4875" fontSize={{ base: "12px", md: "14px" }}>
             Show
           </Text>
           <Select
             value={table.getState().pagination.pageSize}
             onChange={(e) => table.setPageSize(Number(e.target.value))}
-            width="70px"
+            width={{ base: "60px", md: "70px" }}
             color="#2d4875"
-            fontSize="14px"
+            fontSize={{ base: "12px", md: "14px" }}
+            size={{ base: "sm", md: "md" }}
           >
             {[10, 20, 30, 40].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
@@ -201,58 +203,81 @@ const StyledTable = ({
               </option>
             ))}
           </Select>
-          <Text fontSize="14px" fontWeight="400" color="#2d4875">
+          <Text
+            fontSize={{ base: "12px", md: "14px" }}
+            fontWeight="400"
+            color="#2d4875"
+          >
             Results
           </Text>
-          <Flex gap="8px" pl="38px" alignItems="baseline">
+          <Flex
+            gap={{ base: "4px", md: "8px" }}
+            pl={{ base: "8px", md: "38px" }}
+            alignItems="baseline"
+            flexWrap="wrap"
+          >
             <Button
               variant="outline"
               fontWeight="normal"
-              fontSize="14px"
-              width="65px"
-              height="38px"
+              fontSize={{ base: "12px", md: "14px" }}
+              width={{ base: "50px", md: "65px" }}
+              height={{ base: "32px", md: "38px" }}
               color="#2d4875"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
+              size={{ base: "xs", md: "sm" }}
             >
               Prev
             </Button>
             <Box
               border="1px solid #EBEBF2"
-              height="38px"
-              minWidth="38px"
+              height={{ base: "32px", md: "38px" }}
+              minWidth={{ base: "32px", md: "38px" }}
               display="flex"
               justifyContent="center"
               alignItems="center"
             >
-              <Text fontSize="14px" fontWeight="400" color="#2d4875">
+              <Text
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="400"
+                color="#2d4875"
+              >
                 {table.getState().pagination.pageIndex + 1}
               </Text>
             </Box>
-            <Text fontSize="14px" fontWeight="400" color="#2d4875">
+            <Text
+              fontSize={{ base: "12px", md: "14px" }}
+              fontWeight="400"
+              color="#2d4875"
+            >
               ...
             </Text>
             <Box
               border="1px solid #EBEBF2"
-              height="38px"
-              minWidth="38px"
+              height={{ base: "32px", md: "38px" }}
+              minWidth={{ base: "32px", md: "38px" }}
               display="flex"
               justifyContent="center"
               alignItems="center"
             >
-              <Text fontSize="14px" fontWeight="400" color="#2d4875">
+              <Text
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="400"
+                color="#2d4875"
+              >
                 {table.getPageCount()}
               </Text>
             </Box>
             <Button
               variant="outline"
               fontWeight="normal"
-              fontSize="14px"
-              width="65px"
-              height="38px"
+              fontSize={{ base: "12px", md: "14px" }}
+              width={{ base: "50px", md: "65px" }}
+              height={{ base: "32px", md: "38px" }}
               color="#2d4875"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
+              size={{ base: "xs", md: "sm" }}
             >
               Next
             </Button>

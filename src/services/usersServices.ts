@@ -29,6 +29,16 @@ const fetchAgentDashboardInfo = async (agentId: string) => {
   }
 }
 
+const getAgentVoucherSales = async (agentId: string) => {
+  try {
+    const response = await Api.get(`/api/agents/${agentId}/voucher-sales`)
+    return response.data
+  } catch (error) {
+    console.error("Error fetching agent voucher sales:", error)
+    throw error
+  }
+}
+
 const getAgentCustomers = async (
   id: string,
   params: Record<string, unknown>
@@ -55,6 +65,17 @@ const getTransactionsByAgentId = async (agentId: string) => {
 const getTransactionById = async (transactionId: string) => {
   try {
     const { data } = await Api.get(`/api/agents/transactions/${transactionId}`)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+// Fetch transactions based on user role (role-based access)
+const getAllTransactions = async ({ queryKey }: { queryKey: unknown[] }) => {
+  const params = queryKey[1] as Record<string, unknown> | undefined
+  try {
+    const { data } = await Api.get("/api/agents/transactions/all", { params })
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
@@ -186,7 +207,7 @@ const addAgent = async (params?: Record<string, unknown>) => {
 
 const setAgentPassword = async (token: string, password: string) => {
   try {
-    const { data } = await Api.post("/api/agents/set-password", {
+    const { data } = await Api.post("/api/auth/verify-email", {
       token,
       password,
     })
@@ -527,9 +548,58 @@ const storeVoucherSold = async (params: Record<string, any>) => {
   }
 }
 
+const getVouchersByAgent = async ({ queryKey }: { queryKey: unknown[] }) => {
+  const params = queryKey[1] as Record<string, unknown> | undefined
+  try {
+    const { data } = await Api.get("/api/vouchers/agent/" + params?.agentId, {
+      params,
+    })
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getVouchersBySuperAgent = async ({
+  queryKey,
+}: {
+  queryKey: unknown[]
+}) => {
+  const params = queryKey[1] as Record<string, unknown> | undefined
+  try {
+    const { data } = await Api.get(
+      "/api/vouchers/superagent/" + params?.superAgentId,
+      {
+        params,
+      }
+    )
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getDailyVouchersByDriverId = async (driverId: string) => {
+  try {
+    const { data } = await Api.get(`/api/driver/${driverId}/daily-vouchers`)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
+const getVoucherById = async (voucherId: string) => {
+  try {
+    const { data } = await Api.get(`/api/vouchers/${voucherId}`)
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
 const getVouchers = async () => {
   try {
-    const { data } = await Api.get("/api/vouchers") // Ensure this matches your backend route
+    const { data } = await Api.get("/api/voucher-types/active")
     return data
   } catch (e) {
     throw new Error(handleApiError(e as IError))
@@ -586,6 +656,15 @@ const uploadFile = async (file: string | Blob): Promise<UploadResponse> => {
   }
 }
 
+const getCurrentUserProfile = async () => {
+  try {
+    const { data } = await Api.get("/api/agents/profile")
+    return data
+  } catch (e) {
+    throw new Error(handleApiError(e as IError))
+  }
+}
+
 const usersService = {
   getAgents,
   getDrivers,
@@ -630,11 +709,18 @@ const usersService = {
   storeTransaction,
   storeVoucherSold,
   fetchAgentDashboardInfo,
+  getAgentVoucherSales,
   getTransactionsByAgentId,
   getTransactionById,
+  getAllTransactions,
   issueVoucher,
   getDriverByTag,
+  getVouchersByAgent,
+  getVouchersBySuperAgent,
+  getDailyVouchersByDriverId,
+  getVoucherById,
   getVouchers,
+  getCurrentUserProfile,
 }
 
 export default usersService

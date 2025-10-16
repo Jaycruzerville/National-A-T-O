@@ -22,13 +22,22 @@ const VerifyEmail = () => {
   const toast = useToast()
   const navigate = useNavigate()
 
-  const token = new URLSearchParams(window.location.search).get("token")
+  const token = (() => {
+    try {
+      const tokenParam = new URLSearchParams(window.location.search).get(
+        "token"
+      )
+      return tokenParam ? decodeURIComponent(tokenParam) : null
+    } catch (error) {
+      return null
+    }
+  })()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.")
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.")
       return
     }
 
@@ -38,7 +47,9 @@ const VerifyEmail = () => {
     }
 
     if (!token) {
-      setError("Invalid or expired verification link.")
+      setError(
+        "Invalid or expired verification link. Please check that you clicked the correct link from your email or request a new verification email."
+      )
       return
     }
 
@@ -90,7 +101,7 @@ const VerifyEmail = () => {
               onChange={(e) => setPassword(e.target.value)}
               value={password}
               size="lg"
-              minLength={6}
+              minLength={8}
               sx={{
                 border: "1px solid",
                 borderColor: "gray.500",
@@ -108,7 +119,7 @@ const VerifyEmail = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               value={confirmPassword}
               size="lg"
-              minLength={6}
+              minLength={8}
               sx={{
                 border: "1px solid",
                 borderColor: "gray.500",

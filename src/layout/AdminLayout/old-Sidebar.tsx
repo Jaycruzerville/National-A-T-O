@@ -11,6 +11,7 @@ import { RiShieldUserLine } from "react-icons/ri"
 import { FaCarOn } from "react-icons/fa6"
 import { RiDashboardFill } from "react-icons/ri"
 import { TbLogout } from "react-icons/tb"
+import { FiTrendingUp } from "react-icons/fi"
 import { Admin } from "@/routes/paths"
 import Auth from "@/utils/auth"
 import React, { useState } from "react"
@@ -88,6 +89,11 @@ export const agentMenuItems = [
     title: "Transactions",
     path: Admin.TRANSACTIONS,
     icon: AiOutlineCreditCard,
+  },
+  {
+    title: "Revenue",
+    path: Admin.REVENUE,
+    icon: FiTrendingUp,
   },
   {
     title: "Notifications",

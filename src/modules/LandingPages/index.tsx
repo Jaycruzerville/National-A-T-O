@@ -19,10 +19,10 @@ const paths = [
     path: homePaths.PRIVACY_POLICY,
     element: lazy(() => import("./PrivacyPolicy")),
   },
-  {
-    path: homePaths.REGISTER,
-    element: lazy(() => import("../Auth/Signup/Signup")),
-  },
+  // {
+  //   path: homePaths.REGISTER,
+  //   element: lazy(() => import("../Auth/Signup/Signup")),
+  // },
 ]
 
 const Index = () => {

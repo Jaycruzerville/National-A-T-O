@@ -3,6 +3,7 @@ import LandingLayout from "@/layout/LandingLayout"
 import AdminLayout from "@/layout/AdminLayout"
 import usersLayout from "@/layout/UsersLayout"
 import agentsLayout from "@/layout/AgentLayout"
+import superAgentLayout from "@/layout/SuperAgentLayout"
 
 export const baseRoutes = [
   {
@@ -74,9 +75,10 @@ export const agentRoutes = [
 
 export const superAgentRoutes = [
   {
-    path: "/",
+    path: "/*",
     exact: true,
     Component: lazy(() => import("@/modules/SuperAgent")),
+    layout: superAgentLayout,
     isAuthenticated: true,
   },
 ]

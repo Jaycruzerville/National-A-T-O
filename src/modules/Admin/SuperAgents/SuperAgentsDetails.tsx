@@ -12,7 +12,6 @@ import {
   Tab,
   TabPanel,
   useDisclosure,
-  Spacer,
   Button,
 } from "@chakra-ui/react"
 
@@ -23,8 +22,7 @@ import totalTransactions from "@/assets/totalTransaction.svg"
 import StatCards from "@/reusables/StatCards"
 import StyledTable from "@/reusables/StyledTable"
 import LineChart from "@/reusables/LineChart"
-import usersService from "@/services/usersServices"
-import PieChart from "@/reusables/PieChart"
+import superAgentService from "@/services/superAgentServices"
 import AgentCard from "@/reusables/AgentCard"
 import { IError } from "@/types"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -33,10 +31,9 @@ import { BiSort } from "react-icons/bi"
 
 import ClaimsSnippet from "@/reusables/ClaimsSnippet"
 import { useParams } from "react-router-dom"
-import { getMonths, getYearsList } from "@/utils/getYearsList"
+import { getMonths } from "@/utils/getYearsList"
 import { getPercentageChange } from "@/utils/getStatPercentile"
 import { format } from "date-fns"
-import BarChart from "@/reusables/BarChart"
 import AgentStatusPopover from "@/reusables/AgentStatusPopover"
 import { SwitchStatus } from "@/reusables/SwitchStatus"
 
@@ -76,7 +73,7 @@ const SuperAgentsDetails = () => {
 
   const { data: superAgentDetails } = useQuery({
     queryKey: ["superagent-details", { id }],
-    queryFn: usersService.getSuperAgentDetails,
+    queryFn: () => superAgentService.getSuperAgentDetails(id as string),
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -89,35 +86,44 @@ const SuperAgentsDetails = () => {
     },
   })
 
-  const { data: superAgentSummary } = useQuery({
-    queryKey: [
-      "superagent-summary",
-      {
-        id,
-        year: parseInt(chartFilters.userYear),
-        status: chartFilters.userStatus.toUpperCase(),
-        planType: chartFilters.planType,
-      },
-    ],
-    queryFn: usersService.getSuperAgentSummary,
-    onError: (error: IError) => {
-      toast({
-        title: "Error",
-        description: error?.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      })
-    },
-  })
+  // const { data: superAgentSummary } = useQuery({
+  //   queryKey: [
+  //     "superagent-summary",
+  //     {
+  //       id,
+  //       year: parseInt(chartFilters.userYear),
+  //       status: chartFilters.userStatus.toUpperCase(),
+  //       planType: chartFilters.planType,
+  //     },
+  //   ],
+  //   queryFn: () => superAgentService.getSuperAgentSummary(
+  //     id as string,
+  //     parseInt(chartFilters.userYear),
+  //     chartFilters.userStatus.toUpperCase(),
+  //     chartFilters.planType
+  //   ),
+  //   onError: (error: IError) => {
+  //     toast({
+  //       title: "Error",
+  //       description: error?.message,
+  //       status: "error",
+  //       duration: 5000,
+  //       isClosable: true,
+  //       position: "top",
+  //     })
+  //   },
+  // })
 
   const { data: superAgentTransactions } = useQuery({
     queryKey: [
       "superagent-transactions",
       { id, month: chartFilters.remittanceMonth },
     ],
-    queryFn: usersService.getSuperAgentTransactions,
+    queryFn: () =>
+      superAgentService.getTransactions(
+        id as string,
+        chartFilters.remittanceMonth
+      ),
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -130,16 +136,9 @@ const SuperAgentsDetails = () => {
     },
   })
 
-  const { data: superAgentCustomers, isLoading: loadingCustomers } = useQuery({
-    queryKey: [
-      "superagent-customers",
-      {
-        id,
-        pageSize: tableParams.pageSize,
-        page: tableParams.page,
-      },
-    ],
-    queryFn: usersService.getSuperAgentCustomers,
+  const { data: getComplaints, isLoading: loadingCustomers } = useQuery({
+    queryKey: ["superagent-customers"],
+    queryFn: () => superAgentService.getComplaints(),
     enabled: tabIndex === 1,
     onError: (error: IError) => {
       toast({
@@ -154,7 +153,7 @@ const SuperAgentsDetails = () => {
   })
 
   const { mutate: toggleAgent, isLoading: togglingAgent } = useMutation(
-    usersService.toggleAgentStatus,
+    superAgentService.toggleAgentStatus,
     {
       onSuccess: () => {
         onClosePopover()
@@ -324,12 +323,12 @@ const SuperAgentsDetails = () => {
 
   return (
     <Container maxW="100%" px="0px" background="#E8E8E8">
-      <Flex sx={agentStatus} h={{ base: "68px" }}>
+      <Flex sx={agentStatus} h={{ base: "68px" }} mt="10px">
         <Flex sx={spaceFlex}>
-          <Text textStyle="headText" sx={agentName}>
-            {`${superAgentDetails?.data?.firstName ?? `-`} ${
-              superAgentDetails?.data?.lastName ?? `-`
-            } | ${superAgentDetails?.data?.agentCode ?? `-`}`}
+          <Text mt="15px" textStyle="headText" sx={agentName}>
+            {`${superAgentDetails?.firstName ?? `-`} ${
+              superAgentDetails?.lastName ?? `-`
+            } | ${superAgentDetails?.tag ?? `-`}`}
           </Text>
           <Box ml="10px" textTransform="capitalize">
             {SwitchStatus(
@@ -428,111 +427,18 @@ const SuperAgentsDetails = () => {
                     filterUpdateFn={updateChartFilter}
                   />
                 </Flex>
-                <Flex sx={spaceFlex} gap="8px" mt="8px" pb="0px">
-                  <LineChart
-                    width={"100%"}
-                    chartHeader={"Users"}
-                    labels={[""]}
-                    dataSet_1={[0]}
-                    dataSet_2={superAgentSummary?.data?.userGraph?.map(
-                      ({ monthCount }: { monthCount: string }) => monthCount
-                    )}
-                    xLabel={superAgentSummary?.data?.userGraph?.map(
-                      ({ monthName }: { monthName: string }) =>
-                        monthName.substring(0, 3)
-                    )}
-                    filters={[
-                      {
-                        name: "userStatus",
-                        default: "Active",
-                        options: ["Active", "Inactive"],
-                      },
-                      {
-                        name: "userYear",
-                        default: `${new Date().getFullYear()}`,
-                        options: getYearsList(5),
-                      },
-                    ]}
-                    filterUpdateFn={updateChartFilter}
-                  />
-                </Flex>
-                <Flex sx={spaceFlex} gap="8px" mt="8px" pb="0px">
-                  <Box
-                    w="50%"
-                    h={{ base: "349px" }}
-                    background="#FFF"
-                    borderRadius="12px"
-                  >
-                    <PieChart
-                      chartHeader={"Gender of users"}
-                      data={[
-                        superAgentSummary?.data?.genderDistribution?.MALE,
-                        superAgentSummary?.data?.genderDistribution?.FEMALE,
-                        superAgentSummary?.data?.genderDistribution?.Unknown,
-                      ]}
-                      labels={["Male", "Female"]}
-                      customLegend={[
-                        {
-                          title: "Male",
-                          count:
-                            superAgentSummary?.data?.genderDistribution?.MALE,
-                          color: "#3661EC",
-                        },
-                        {
-                          title: "Female",
-                          count:
-                            superAgentSummary?.data?.genderDistribution?.FEMALE,
-                          color: "#2FD0C6",
-                        },
-                        {
-                          title: "Unknown",
-                          count:
-                            superAgentSummary?.data?.genderDistribution
-                              ?.Unknown,
-                          color: "#D02F44",
-                        },
-                      ]}
-                    />
-                  </Box>
-                  <Box
-                    w={{ base: "50%" }}
-                    h={{ base: "349px" }}
-                    background="#FFF"
-                    borderRadius="12px"
-                    p="24px"
-                    display="flex"
-                    flexDirection="column"
-                  >
-                    <Text
-                      mb="13px"
-                      textStyle="headText"
-                      sx={occupationHeaderStyles}
-                    >
-                      Occupation of users
-                    </Text>
-                    <Spacer />
-                    <BarChart
-                      orientation="horizontal"
-                      data={superAgentSummary?.data?.topOccupations?.map(
-                        ({ count }: { count: number }) => count
-                      )}
-                      labels={superAgentSummary?.data?.topOccupations?.map(
-                        ({ name }: { name: string }) => name
-                      )}
-                    />
-                  </Box>
-                </Flex>
+
+                <ClaimsSnippet data={superAgentDetails?.driverSubmissions} />
               </Box>
               <Box w="33.3%">
                 <AgentCard
                   position="SuperAgent"
-                  data={superAgentDetails?.data}
+                  data={superAgentDetails}
                   userCount={superAgentDetails?.data?.registeredUsersCount}
                   lastActive={superAgentDetails?.data?.lastActiveDate}
-                  dateCreated={superAgentDetails?.data?.createdAt}
+                  dateCreated={superAgentDetails?.createdAt}
                   editModal={onOpen}
                 />
-                <ClaimsSnippet data={superAgentDetails?.data?.recentClaims} />
               </Box>
             </Flex>
           </TabPanel>
@@ -545,13 +451,13 @@ const SuperAgentsDetails = () => {
           >
             <Box p="20px" bg="#FFF">
               <StyledTable
-                data={superAgentCustomers?.data ?? []}
+                data={getComplaints?.data ?? []}
                 columns={columns}
                 loading={loadingCustomers}
                 pagination={{
                   pageSize: tableParams?.pageSize,
                   currentPage: tableParams?.page,
-                  totalPages: superAgentCustomers?.pagination?.numberOfPages,
+                  totalPages: getComplaints?.pagination?.numberOfPages,
                   updateFn: updateParams,
                 }}
               />
@@ -616,13 +522,6 @@ const selectedContainerStyles = {
   background: "#E8E8E8",
   mt: "0px",
   paddingBottom: "20px",
-}
-
-const occupationHeaderStyles = {
-  fontStyle: "normal",
-  fontWeight: 700,
-  fontSize: "18px",
-  lineHeight: "22px",
 }
 
 export default SuperAgentsDetails
