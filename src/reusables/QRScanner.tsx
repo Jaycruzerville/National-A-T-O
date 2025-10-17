@@ -114,8 +114,8 @@ const QRScanner: React.FC<QRScannerProps> = ({
     const file = event.target.files?.[0]
     if (file) {
       try {
-        const result = await QrScanner.scanImage(file)
-        handleScan(result)
+        const data = await QrScanner.scanImage(file)
+        handleScan({ data } as QrScanner.ScanResult)
       } catch (err) {
         console.error("Error scanning file:", err)
         setError("Failed to scan QR code from image")
