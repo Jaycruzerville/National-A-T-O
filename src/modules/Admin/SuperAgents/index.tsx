@@ -98,7 +98,7 @@ const columns: ColumnDef<SuperAgent>[] = [
         fontWeight="500"
         textTransform="capitalize"
       >
-        {info.getValue()}
+        {info.getValue() as string}
       </Box>
     ),
   },

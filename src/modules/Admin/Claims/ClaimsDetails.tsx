@@ -129,10 +129,14 @@ const DriverSubmissionDetails: React.FC = () => {
 
     const fetchCustomerSubmissions = async (userId: string) => {
       try {
-        const response = await usersService.getCustomerClaims(userId, {
-          pageNo: 0,
-          pageSize: 10,
-        })
+        const response = await usersService.getCustomerClaims(
+          userId,
+          {
+            pageNo: 0,
+            pageSize: 10,
+          },
+          { queryKey: ["customer-claims", { userId, pageNo: 0, pageSize: 10 }] }
+        )
         if (response && response.data?.content) {
           setCustomerSubmissions(response.data.content)
         }

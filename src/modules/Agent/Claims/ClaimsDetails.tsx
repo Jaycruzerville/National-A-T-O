@@ -12,8 +12,6 @@ import {
 import { BsEye } from "react-icons/bs"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 import StyledTable from "@/reusables/StyledTable"
-import AcceptClaimModal from "./components/AcceptClaimModal"
-import RejectClaimModal from "./components/RejectClaimModal"
 import ViewReceiptModal from "@/reusables/ViewReceiptModal"
 import { IError } from "@/types"
 import usersService from "@/services/usersServices"
@@ -22,6 +20,8 @@ import { useNavigate, useParams } from "react-router-dom"
 import { formatToCurrency } from "@/utils/formatToCurrency"
 import { formatDate } from "@/utils/formatDate"
 import { format } from "date-fns"
+import RejectClaimModal from "@/modules/Admin/Claims/components/RejectClaimModal"
+import AcceptClaimModal from "@/modules/SuperAgent/Submissions/components/AcceptClaimModal"
 
 const historyColorMap: { [K: string]: { bg: string; color: string } } = {
   initiated: {
@@ -105,7 +105,7 @@ const ClaimsDetails = () => {
 
   const { data: claimsDetails, isLoading } = useQuery(
     ["claims-details", id],
-    () => usersService.getClaimsDetails(id!),
+    () => usersService.getDriverSubmissionDetails(id!),
     {
       onError: (error: IError) => {
         toast({
@@ -122,7 +122,7 @@ const ClaimsDetails = () => {
 
   const { data: claimsList, isLoading: loadingClaims } = useQuery(
     ["claims-list"],
-    usersService.getClaims,
+    usersService.getDriverSubmissions,
     {
       onError: (error: IError) => {
         toast({
@@ -193,10 +193,7 @@ const ClaimsDetails = () => {
                   userId={claimsDetails?.data.customerDetails.id}
                   claimId={claimsDetails?.data.id}
                 />
-                <RejectClaimModal
-                  userId={claimsDetails?.data.customerDetails.id}
-                  claimId={claimsDetails?.data.id}
-                />
+                <RejectClaimModal claimId={claimsDetails?.data.id} />
               </Flex>
             ),
           },

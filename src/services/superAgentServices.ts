@@ -126,6 +126,22 @@ const superAgentService = {
       throw handleApiError(error as IError)
     }
   },
+
+  async toggleAgentStatus(payload: {
+    id: string
+    status: string
+    userType: string
+  }): Promise<any> {
+    // Example implementation, replace with actual API call
+    return fetch(`/api/super-agents/${payload.id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: payload.status,
+        userType: payload.userType,
+      }),
+    }).then((res) => res.json())
+  },
 }
 
 export default superAgentService

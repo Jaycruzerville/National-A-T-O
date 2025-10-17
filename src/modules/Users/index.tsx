@@ -12,14 +12,6 @@ const paths = [
     element: lazy(() => import("./Agents")),
   },
   {
-    path: users.CLAIMS,
-    element: lazy(() => import("./Claims")),
-  },
-  {
-    path: users.CLAIMS_DETAILS,
-    element: lazy(() => import("./Claims/ClaimsDetails")),
-  },
-  {
     path: users.AGENTS_DETAILS,
     element: lazy(() => import("./Agents/AgentsDetails")),
   },
@@ -36,20 +28,8 @@ const paths = [
     element: lazy(() => import("./Driver")),
   },
   {
-    path: users.Driver_DETAILS,
-    element: lazy(() => import("./Driver/DriverDetails")),
-  },
-  {
     path: users.Driver_REGISTER,
     element: lazy(() => import("./Driver/RegisterDriver")),
-  },
-  {
-    path: users.CUSTOMERS,
-    element: lazy(() => import("./Customers")),
-  },
-  {
-    path: users.CUSTOMERS_DETAILS,
-    element: lazy(() => import("./Customers/CustomersDetails")),
   },
   {
     path: users.SERVICEPROVIDERS,
@@ -98,6 +78,9 @@ const Index = () => {
                 throw new Error("Function not implemented.")
               }}
               selectedProduct={""}
+              setHasSubmitted={function (): void {
+                throw new Error("Function not implemented.")
+              }}
             />
           }
         />

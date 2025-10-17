@@ -56,26 +56,6 @@ const paths = [
     element: lazy(() => import("./Driver/DriverDetails")),
   },
   {
-    path: Admin.Driver_VNO,
-    element: lazy(() => import("./Driver/VNODriver")),
-  },
-  {
-    path: Admin.Driver_VWO,
-    element: lazy(() => import("./Driver/VWODriver")),
-  },
-  {
-    path: Admin.CUSTOMERS,
-    element: lazy(() => import("./Customers")),
-  },
-  {
-    path: Admin.AGENTS,
-    element: lazy(() => import("./Customers")),
-  },
-  {
-    path: Admin.CUSTOMERS_DETAILS,
-    element: lazy(() => import("./Customers/CustomersDetails")),
-  },
-  {
     path: Admin.SERVICEPROVIDERS,
     element: lazy(() => import("./ServiceProviders")),
   },

@@ -45,7 +45,7 @@ const Leaderboard = ({
               _hover={{ color: "#fff" }}
               _groupHover={{ color: "#fff" }}
             >
-              NGN {new Intl.NumberFormat("en-GB").format(3000000 ?? 0)}
+              NGN {new Intl.NumberFormat("en-GB").format(3000000)}
             </Text>
           </Box>
           <Spacer />

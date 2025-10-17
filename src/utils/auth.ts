@@ -85,6 +85,10 @@ const setAgentId = (agentId: string) => {
   localStorage.setItem("agentId", agentId)
 }
 
+const setAdminId = (agentId: string) => {
+  localStorage.setItem("adminId", agentId)
+}
+
 const getAgentId = () => {
   return localStorage.getItem("agentId")
 }
@@ -115,6 +119,7 @@ const Auth = {
   getDecodedJwt,
   setuserId,
   getuserId,
+  setAdminId,
   setToken,
   getToken,
   setRefreshToken,

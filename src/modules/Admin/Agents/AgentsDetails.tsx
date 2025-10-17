@@ -117,6 +117,20 @@ const AgentsDetails = () => {
     ],
   }
 
+  // Agent type definition
+  interface Agent {
+    id: number
+    firstName: string
+    lastName: string
+    customerCode: string
+    phoneNum: string
+    location: string
+    noOfPlans: string
+    status: string
+    lastDateActive: string
+    dateCreated: string
+  }
+
   // Dummy data for agent customers
   const agentCustomers = {
     data: [

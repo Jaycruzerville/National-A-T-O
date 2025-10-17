@@ -110,7 +110,7 @@ const DriverPage = () => {
         userId, // Pass userId in the query
       },
     ],
-    queryFn: usersService.getProperties,
+    queryFn: usersService.getDriverummary,
   })
 
   const updateParams = ({ param, value, filterValues }: any) => {

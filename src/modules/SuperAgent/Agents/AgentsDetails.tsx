@@ -36,6 +36,20 @@ import AgentStatusPopover from "@/reusables/AgentStatusPopover"
 import { SwitchStatus } from "@/reusables/SwitchStatus"
 import EditAgentModal from "@/reusables/EditAgentModal"
 
+// Define the Agent type for table columns
+interface Agent {
+  id: number
+  firstName: string
+  lastName: string
+  customerCode: string
+  phoneNum: string
+  location: string
+  noOfPlans: string
+  status: string
+  lastDateActive: string
+  dateCreated: string
+}
+
 const AgentsDetails = () => {
   const toast = useToast()
   const { id } = useParams<{ id: string }>()

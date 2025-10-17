@@ -209,7 +209,7 @@ const index = () => {
                 </Box>
                 <Box textAlign="right">
                   <Text fontSize="16px" fontWeight={700} color="#0B1023">
-                    NGN {new Intl.NumberFormat("en-GB").format(390960 ?? 0)}
+                    NGN {new Intl.NumberFormat("en-GB").format(390960)}
                   </Text>
                   <Tag colorScheme={index === 7 ? "pending" : "active"}>
                     {index === 7 ? "Pending" : "Active"}

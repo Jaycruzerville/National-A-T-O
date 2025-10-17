@@ -119,11 +119,7 @@ const SuperAgentsDetails = () => {
       "superagent-transactions",
       { id, month: chartFilters.remittanceMonth },
     ],
-    queryFn: () =>
-      superAgentService.getTransactions(
-        id as string,
-        chartFilters.remittanceMonth
-      ),
+    queryFn: () => superAgentService.getTransactions(id as string),
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -174,7 +170,7 @@ const SuperAgentsDetails = () => {
 
   const handleClientToggle = () => {
     const payload = {
-      id,
+      id: id ?? "",
       status:
         superAgentDetails?.data?.status === "ACTIVE" ? "BLOCKED" : "ACTIVE",
       userType: "super-agents",

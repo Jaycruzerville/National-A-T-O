@@ -83,8 +83,8 @@ const MiniStatistics: React.FC<MiniStatisticsProps> = ({
 }
 
 MiniStatistics.propTypes = {
-  startContent: PropTypes.node,
-  endContent: PropTypes.node,
+  startContent: PropTypes.any,
+  endContent: PropTypes.any,
   name: PropTypes.string.isRequired,
   growth: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

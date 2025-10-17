@@ -18,7 +18,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         flexDirection={{ base: "column", md: "row" }}
         overflowY="scroll"
       >
-        <Sidebar />
+        <Sidebar isMobileOpen={isSidebarOpen} />
         <Box
           flex="1"
           pt={{ base: "6rem", md: "4rem" }}

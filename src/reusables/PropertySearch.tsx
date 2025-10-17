@@ -45,7 +45,7 @@ const DriverSearch: React.FC<DriverSearchProps> = ({ onClose }) => {
       if (result.isConfirmed) {
         // If the user clicks "Register Driver", navigate to RegisterDriver
         navigate("/Driver/register") // Update this with your path to the RegisterDriver component
-      } else if (result.dismiss === Swal.DismissReason.cancel && onClose) {
+      } else if (result.dismiss === "cancel" && onClose) {
         // Optional: Close the modal if there's one
         onClose()
       }

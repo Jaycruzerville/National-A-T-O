@@ -105,7 +105,10 @@ const ClaimsDetails = () => {
 
   const { data: claimsDetails, isLoading } = useQuery(
     ["claims-details", id],
-    () => usersService.getClaimsDetails(id!),
+    () => {
+      if (!id) throw new Error("No ID provided for claim details")
+      return usersService.getDriverSubmissionDetails(id)
+    },
     {
       onError: (error: IError) => {
         toast({
@@ -122,7 +125,7 @@ const ClaimsDetails = () => {
 
   const { data: claimsList, isLoading: loadingClaims } = useQuery(
     ["claims-list"],
-    usersService.getClaims,
+    usersService.getDriverSubmissions,
     {
       onError: (error: IError) => {
         toast({

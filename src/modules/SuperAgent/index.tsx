@@ -20,20 +20,12 @@ const paths = [
     element: lazy(() => import("./Driver")),
   },
   {
-    path: superAgent.Driver_DETAILS,
-    element: lazy(() => import("./Driver/DriverDetails")),
-  },
-  {
     path: superAgent.Driver_REGISTER,
     element: lazy(() => import("./Driver/RegisterDriver")),
   },
   {
     path: superAgent.CLAIMS,
     element: lazy(() => import("./Claims")),
-  },
-  {
-    path: superAgent.CLAIMS_DETAILS,
-    element: lazy(() => import("./Claims/ClaimsDetails")),
   },
   {
     path: superAgent.SUBMISSIONS,
