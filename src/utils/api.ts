@@ -2,9 +2,9 @@ import authService from "@/services/authService"
 import axios from "axios"
 import Auth from "./auth"
 
-// export const base_url = import.meta.env.VITE_APP_BASE_URL
+export const base_url = import.meta.env.VITE_APP_BASE_URL
 
-export const base_url = "http://localhost:5000/"
+// export const base_url = "http://localhost:5000/"
 
 const Api = axios.create({
   baseURL: base_url,
