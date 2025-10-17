@@ -255,8 +255,8 @@ const FundingForm: React.FC<FundingFormProps> = ({ onClose, onSuccess }) => {
               <Button
                 variant="outline"
                 borderColor={colors.gray[300]}
-                color={colors.gray[700]}
-                _hover={{ bg: colors.gray[50] }}
+                color={colors.gray[600]}
+                _hover={{ bg: colors.gray[100] }}
                 onClick={onClose}
                 flex={1}
                 size={{ base: "md", md: "md" }}

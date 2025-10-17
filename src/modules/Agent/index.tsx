@@ -16,19 +16,6 @@ const paths = [
     path: agents.CLAIMS_DETAILS,
     element: lazy(() => import("./Claims/ClaimsDetails")),
   },
-
-  {
-    path: agents.Driver,
-    element: lazy(() => import("./Driver")),
-  },
-  {
-    path: agents.Driver_DETAILS,
-    element: lazy(() => import("./Driver/DriverDetails")),
-  },
-  {
-    path: agents.Driver_REGISTER,
-    element: lazy(() => import("./Driver/RegisterDriver")),
-  },
   {
     path: agents.PROFILE,
     element: lazy(() => import("./Profile")),

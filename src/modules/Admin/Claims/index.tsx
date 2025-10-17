@@ -26,7 +26,6 @@ import ClaimTable from "@/reusables/ClaimTable"
 import Filter from "@/reusables/Filter"
 import usersServices from "@/services/usersServices"
 import { IError } from "@/types"
-import { formatDate } from "@/utils/formatDate"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 
 type DriverSubmissionData = {
@@ -98,7 +97,9 @@ const DriverSubmissions: React.FC = () => {
         searchQuery: deferredSearchValue,
       },
     ],
-    queryFn: usersServices.getDriverSubmissions, // Use the correct service function
+    queryFn: (context) => {
+      return usersServices.getDriverSubmissions(context)
+    },
     onError: (error: IError) => {
       toast({
         title: "Error",
@@ -192,12 +193,16 @@ const DriverSubmissions: React.FC = () => {
         accessorKey: "submittedAt", // Correct field from backend response
         header: "Date Submitted",
         cell: (info: CellContext<DriverSubmissionData, any>) => {
-          return <Text>{formatDate(info.getValue())}</Text>
+          const date = new Date(info.getValue() as string)
+          return <Text>{date.toLocaleDateString()}</Text>
         },
       },
       {
         accessorKey: "handlerName", // Correct field from backend response
         header: "Handled by",
+        cell: (info: CellContext<DriverSubmissionData, any>) => (
+          <Text>{(info.getValue() as string) || "Unassigned"}</Text>
+        ),
       },
       {
         id: "actions",
@@ -400,15 +405,13 @@ const DriverSubmissions: React.FC = () => {
       </Flex>
       <Box p="20px">
         <ClaimTable
-          data={driverSubmissions || []}
+          data={driverSubmissions?.data || []}
           columns={columns}
           loading={loadingSubmissions}
           pagination={{
             pageSize: tableParams?.pageSize,
             currentPage: tableParams?.pageNo,
-            totalPages: Math.ceil(
-              (driverSubmissions?.length || 0) / tableParams.pageSize
-            ),
+            totalPages: driverSubmissions?.pagination?.numberOfPages || 1,
             updateFn: updateParams,
           }}
         />

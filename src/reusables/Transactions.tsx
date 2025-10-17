@@ -41,6 +41,7 @@ import searchLight from "@/assets/search-light.svg"
 // import { BiSort } from "react-icons/bi"
 //  Driver from "@/modules/Users/Driver"
 import Auth from "@/utils/auth"
+// import agentServices from "@/services/agentServices"
 
 type Transactions = {
   _id: string
@@ -72,22 +73,20 @@ const getColumns = (userRole: string | null): ColumnDef<Transactions>[] => [
   {
     accessorKey: "reference", // This matches the API response
     header: "Transaction ID",
-    cell: (info: CellContext<Transactions, string>) => (
-      <>{info.getValue().toUpperCase()}</>
-    ),
+    cell: (info: CellContext<Transactions, unknown>) => {
+      const value = info.getValue() as string
+      return <>{value?.toUpperCase?.() ?? "-"}</>
+    },
   },
   ...(userRole === "Admin"
     ? [
         {
           accessorKey: "agent",
           header: "Agent Name",
-          cell: (
-            info: CellContext<
-              Transactions,
-              { firstName: string; lastName: string } | undefined
-            >
-          ) => {
-            const agent = info.getValue()
+          cell: (info: CellContext<Transactions, unknown>) => {
+            const agent = info.getValue() as
+              | { firstName: string; lastName: string }
+              | undefined
             return <>{agent ? `${agent.firstName} ${agent.lastName}` : "-"}</>
           },
         },
@@ -96,9 +95,10 @@ const getColumns = (userRole: string | null): ColumnDef<Transactions>[] => [
   {
     accessorKey: "amount", // Use "amount" as per your API response
     header: "Amount",
-    cell: (info: CellContext<Transactions, number>) => (
-      <>{formatToCurrency(info.getValue())}</>
-    ),
+    cell: (info: CellContext<Transactions, unknown>) => {
+      const value = info.getValue() as number
+      return <>{formatToCurrency(value)}</>
+    },
   },
   {
     accessorKey: "gateway", // Corresponds to the "gateway" field in the API response
@@ -107,18 +107,18 @@ const getColumns = (userRole: string | null): ColumnDef<Transactions>[] => [
   {
     accessorKey: "status", // Use "status" to display transaction status
     header: "Status",
-    cell: (info: CellContext<Transactions, string>) => (
-      <>{SwitchStatus(info.getValue())}</>
-    ),
+    cell: (info: CellContext<Transactions, unknown>) => {
+      const value = info.getValue() as string
+      return <>{SwitchStatus(value)}</>
+    },
   },
   {
     accessorKey: "createdAt", // Use "createdAt" for the date
     header: "Date",
-    cell: (info: CellContext<Transactions, string>) => (
-      <Box>
-        {info?.getValue() && format(new Date(info?.getValue()), "yyyy-MM-dd")}
-      </Box>
-    ),
+    cell: (info: CellContext<Transactions, unknown>) => {
+      const value = info.getValue() as string
+      return <Box>{value && format(new Date(value), "yyyy-MM-dd")}</Box>
+    },
   },
 ]
 
@@ -130,8 +130,8 @@ interface TransactionsProps {
 
 const TransactionsPage: React.FC<TransactionsProps> = ({
   limit = 10,
-  showFilters = true,
-  compact = false,
+  // showFilters = true,
+  // compact = false,
 }) => {
   const toast = useToast()
   const [tableParams, setTableParams] = useState({
