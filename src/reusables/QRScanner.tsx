@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import {
   Box,
   Button,
@@ -19,7 +19,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react"
-import { QrReader } from "react-qr-reader"
+import QrScanner from "qr-scanner"
 import { MdQrCodeScanner } from "react-icons/md"
 import driverService from "../services/driverService"
 import superAgentService from "@/services/superAgentServices"
@@ -53,16 +53,43 @@ const QRScanner: React.FC<QRScannerProps> = ({
   const [scannedData, setScannedData] = useState<ScannedDriverData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const scannerRef = useRef<QrScanner | null>(null)
   const toast = useToast()
 
-  const handleScan = async (result: any, error: any) => {
+  useEffect(() => {
+    if (isOpen && !scannerRef.current) {
+      if (videoRef.current) {
+        const scanner = new QrScanner(
+          videoRef.current,
+          (result) => handleScan(result),
+          {
+            onDecodeError: (error) => console.error("QR decode error:", error),
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+          }
+        )
+        scannerRef.current = scanner
+        scanner.start().catch((err) => {
+          console.error("Failed to start QR scanner:", err)
+          setError("Failed to access camera")
+        })
+      }
+    } else if (!isOpen && scannerRef.current) {
+      scannerRef.current.stop()
+      scannerRef.current.destroy()
+      scannerRef.current = null
+    }
+  }, [isOpen])
+
+  const handleScan = async (result: QrScanner.ScanResult) => {
     if (result && !scanning) {
       setScanning(true)
       setLoading(true)
       setError(null)
 
       try {
-        const qrData = JSON.parse(result?.text)
+        const qrData = JSON.parse(result.data)
 
         // Call the backend API to get driver details and payment status
         const response = await driverService.scanDriverQR(qrData)
@@ -81,21 +108,18 @@ const QRScanner: React.FC<QRScannerProps> = ({
         setScanning(false)
       }
     }
-
-    if (error) {
-      console.error("QR scan error:", error)
-    }
   }
 
-  const handleFileScan = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileScan = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const result = e.target?.result as string
-        handleScan({ text: result }, null)
+      try {
+        const result = await QrScanner.scanImage(file)
+        handleScan(result)
+      } catch (err) {
+        console.error("Error scanning file:", err)
+        setError("Failed to scan QR code from image")
       }
-      reader.readAsText(file)
     }
   }
 
@@ -187,12 +211,15 @@ const QRScanner: React.FC<QRScannerProps> = ({
                 {loading ? (
                   <Spinner size="xl" color="brand.primary" />
                 ) : (
-                  <QrReader
-                    onResult={handleScan}
-                    constraints={{ facingMode: "environment" }}
-                    containerStyle={{ width: "100%", height: "100%" }}
-                    videoContainerStyle={{ width: "100%", height: "100%" }}
-                    videoStyle={{ width: "100%", height: "100%" }}
+                  <video
+                    ref={videoRef}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                    playsInline
+                    muted
                   />
                 )}
               </Box>
